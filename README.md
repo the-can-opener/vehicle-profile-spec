@@ -36,11 +36,44 @@ export naming.
 
 - `UNLOCK`
 - `LOCK`
-- `LEFT_SIGNAL`
-- `RIGHT_SIGNAL`
 - `OPEN_TRUNK`
 - `CLOSE_TRUNK`
+- `OPEN_FRUNK`
+- `CLOSE_FRUNK`
+- `ACTUATE_TRUNK_FRONT`
+- `ACTUATE_TRUNK_REAR`
+- `WAKE_UP`
+- `REMOTE_START`
 - `HORN`
+- `HIGH_BEAMS`
+- `LOW_BEAMS`
+- `RUNNING_LIGHTS`
+- `LEFT_SIGNAL`
+- `RIGHT_SIGNAL`
+- `CLIMATE_ON`
+- `CLIMATE_OFF`
+- `SET_TEMPERATURE`
+- `AUTO_CONDITIONING_START`
+- `AUTO_CONDITIONING_STOP`
+- `DEFROST_ON`
+- `DEFROST_OFF`
+- `CHARGE_START`
+- `CHARGE_STOP`
+- `CHARGE_PORT_OPEN`
+- `CHARGE_PORT_CLOSE`
+- `SET_CHARGE_LIMIT`
+- `SET_CHARGING_AMPS`
+- `ADD_CHARGE_SCHEDULE`
+- `REMOVE_CHARGE_SCHEDULE`
+- `ADD_PRECONDITION_SCHEDULE`
+- `REMOVE_PRECONDITION_SCHEDULE`
+- `SCHEDULE_SOFTWARE_UPDATE`
+- `CANCEL_SOFTWARE_UPDATE`
+
+`OPEN_TRUNK` / `CLOSE_TRUNK` target the rear trunk explicitly. `OPEN_FRUNK` /
+`CLOSE_FRUNK` target the front trunk (frunk). `ACTUATE_TRUNK_FRONT` /
+`ACTUATE_TRUNK_REAR` are toggle-style commands for vehicles that do not
+distinguish open from close in a single request.
 
 ### Queries
 
@@ -63,6 +96,28 @@ namespace is the PID list below.
 - `FRONT_RIGHT_DOOR_OPEN`
 - `REAR_LEFT_DOOR_OPEN`
 - `REAR_RIGHT_DOOR_OPEN`
+- `LOCKED`
+- `ODOMETER`
+- `GEAR`
+- `BATTERY_LEVEL`
+- `BATTERY_RANGE`
+- `ESTIMATED_RANGE`
+- `IDEAL_RANGE`
+- `CHARGING_STATE`
+- `CHARGE_PORT_OPEN`
+- `CHARGE_LIMIT_SOC`
+- `CHARGER_VOLTAGE`
+- `CHARGER_CURRENT`
+- `CHARGER_POWER`
+- `CHARGE_RATE`
+- `TIME_TO_FULL_CHARGE`
+- `CHARGE_ENERGY_ADDED`
+- `PLUGGED_IN`
+- `CLIMATE_ON`
+- `CABIN_TEMP`
+- `OUTSIDE_TEMP`
+- `DRIVER_TEMP_SETTING`
+- `PASSENGER_TEMP_SETTING`
 
 `TPS` means throttle position.
 
@@ -75,10 +130,25 @@ uses `normalize.enum` to translate car-specific labels:
 - `TPS`: number, typically `%`
 - `STEERING_ANGLE`: number, typically `deg`
 - `FUEL_LEVEL`: number, typically `%`
-- `LEFT_SIGNAL`, `RIGHT_SIGNAL`, `BRAKE_LIGHTS`, `LOW_BEAMS`, `HIGH_BEAMS`:
-  `"off"` or `"on"`
+- `ODOMETER`: number, typically `km`
+- `LEFT_SIGNAL`, `RIGHT_SIGNAL`, `BRAKE_LIGHTS`, `LOW_BEAMS`, `HIGH_BEAMS`,
+  `PLUGGED_IN`, `CLIMATE_ON`: `"off"` or `"on"`
+- `LOCKED`: `"off"` (unlocked) or `"on"` (locked)
 - `FRONT_LEFT_DOOR_OPEN`, `FRONT_RIGHT_DOOR_OPEN`, `REAR_LEFT_DOOR_OPEN`,
-  `REAR_RIGHT_DOOR_OPEN`: `"closed"` or `"open"`
+  `REAR_RIGHT_DOOR_OPEN`, `CHARGE_PORT_OPEN`: `"closed"` or `"open"`
+- `GEAR`: `"park"`, `"reverse"`, `"neutral"`, or `"drive"`
+- `CHARGING_STATE`: `"disconnected"`, `"stopped"`, `"charging"`, or
+  `"complete"`
+- `BATTERY_LEVEL`, `CHARGE_LIMIT_SOC`: number, typically `%`
+- `BATTERY_RANGE`, `ESTIMATED_RANGE`, `IDEAL_RANGE`: number, typically `km`
+- `CHARGER_VOLTAGE`: number, typically `V`
+- `CHARGER_CURRENT`: number, typically `A`
+- `CHARGER_POWER`: number, typically `kW`
+- `CHARGE_RATE`: number, typically `km/h`
+- `TIME_TO_FULL_CHARGE`: number, typically `h`
+- `CHARGE_ENERGY_ADDED`: number, typically `kWh`
+- `CABIN_TEMP`, `OUTSIDE_TEMP`, `DRIVER_TEMP_SETTING`,
+  `PASSENGER_TEMP_SETTING`: number, typically `°C`
 
 If no `normalize` block is declared, the script-facing value is the DBC-decoded
 value. Signals with a matching DBC `VAL_` entry return the enum label; other
