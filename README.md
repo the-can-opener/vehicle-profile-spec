@@ -34,6 +34,8 @@ export naming.
 
 ### Actions
 
+**Security and access**
+
 - `UNLOCK`
 - `LOCK`
 - `OPEN_TRUNK`
@@ -42,14 +44,29 @@ export naming.
 - `CLOSE_FRUNK`
 - `ACTUATE_TRUNK_FRONT`
 - `ACTUATE_TRUNK_REAR`
+
+`OPEN_TRUNK` / `CLOSE_TRUNK` target the rear trunk explicitly. `OPEN_FRUNK` /
+`CLOSE_FRUNK` target the front trunk (frunk). `ACTUATE_TRUNK_FRONT` /
+`ACTUATE_TRUNK_REAR` are toggle-style commands for vehicles that do not
+distinguish open from close in a single request.
+
+**Vehicle control**
+
 - `WAKE_UP`
 - `REMOTE_START`
+
+**Horn and lights**
+
 - `HORN`
 - `HIGH_BEAMS`
 - `LOW_BEAMS`
 - `RUNNING_LIGHTS`
 - `LEFT_SIGNAL`
 - `RIGHT_SIGNAL`
+- `HAZARD_LIGHTS`
+
+**Climate**
+
 - `CLIMATE_ON`
 - `CLIMATE_OFF`
 - `SET_TEMPERATURE`
@@ -57,6 +74,9 @@ export naming.
 - `AUTO_CONDITIONING_STOP`
 - `DEFROST_ON`
 - `DEFROST_OFF`
+
+**Charging**
+
 - `CHARGE_START`
 - `CHARGE_STOP`
 - `CHARGE_PORT_OPEN`
@@ -67,13 +87,11 @@ export naming.
 - `REMOVE_CHARGE_SCHEDULE`
 - `ADD_PRECONDITION_SCHEDULE`
 - `REMOVE_PRECONDITION_SCHEDULE`
+
+**Software**
+
 - `SCHEDULE_SOFTWARE_UPDATE`
 - `CANCEL_SOFTWARE_UPDATE`
-
-`OPEN_TRUNK` / `CLOSE_TRUNK` target the rear trunk explicitly. `OPEN_FRUNK` /
-`CLOSE_FRUNK` target the front trunk (frunk). `ACTUATE_TRUNK_FRONT` /
-`ACTUATE_TRUNK_REAR` are toggle-style commands for vehicles that do not
-distinguish open from close in a single request.
 
 ### Queries
 
@@ -82,23 +100,38 @@ namespace is the PID list below.
 
 ### Signals
 
+**Drivetrain**
+
 - `SPEED`
 - `RPM`
+- `TPS`
+- `STEERING_ANGLE`
+- `GEAR`
+- `ODOMETER`
+
+**Body and lights**
+
 - `LEFT_SIGNAL`
 - `RIGHT_SIGNAL`
 - `BRAKE_LIGHTS`
-- `FUEL_LEVEL`
-- `TPS`
-- `STEERING_ANGLE`
+- `RUNNING_LIGHTS`
 - `LOW_BEAMS`
 - `HIGH_BEAMS`
+
+**Doors and security**
+
 - `FRONT_LEFT_DOOR_OPEN`
 - `FRONT_RIGHT_DOOR_OPEN`
 - `REAR_LEFT_DOOR_OPEN`
 - `REAR_RIGHT_DOOR_OPEN`
 - `LOCKED`
-- `ODOMETER`
-- `GEAR`
+
+**Fuel**
+
+- `FUEL_LEVEL`
+
+**Charging**
+
 - `BATTERY_LEVEL`
 - `BATTERY_RANGE`
 - `ESTIMATED_RANGE`
@@ -113,6 +146,9 @@ namespace is the PID list below.
 - `TIME_TO_FULL_CHARGE`
 - `CHARGE_ENERGY_ADDED`
 - `PLUGGED_IN`
+
+**Climate**
+
 - `CLIMATE_ON`
 - `CABIN_TEMP`
 - `OUTSIDE_TEMP`
