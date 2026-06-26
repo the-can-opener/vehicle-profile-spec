@@ -117,6 +117,7 @@ namespace is the PID list below.
 - `RUNNING_LIGHTS`
 - `LOW_BEAMS`
 - `HIGH_BEAMS`
+- `REVERSE_LIGHTS`
 
 **Doors and security**
 
