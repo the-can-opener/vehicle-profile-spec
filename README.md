@@ -53,6 +53,7 @@ distinguish open from close in a single request.
 **Vehicle control**
 
 - `WAKE_UP`
+- `ECU_WAKE`
 - `REMOTE_START`
 
 **Horn and lights**
