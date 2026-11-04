@@ -10,7 +10,7 @@ Describe how a vehicle exposes properties, accepts control requests, and runs ve
 
 The primary authoring model is **flat property keys**, each using its canonical VSS path. A property's `read` binding may include a passive `signal`, an active `query`, or both. Writable properties have a separate `write` binding. Requests and commands that have no VSS path are named `queries` and `actions`.
 
-Vehicle configuration is a versioned extension area; adding it must not require redesigning the property model. Diagnostics and BLE firmware interfaces are not covered by this draft. OBDb is a design reference only; compatibility or import support is not a requirement.
+Vehicle configuration is a versioned extension area; adding it must not require redesigning the property model. Diagnostics are not covered by this draft. OBDb is a design reference only; compatibility or import support is not a requirement.
 
 This is an independent draft, not an adopted COVESA standard. It supersedes the earlier nested-tree design and the format 1 profile described in `README.md`. The schemas and tools in the previous v0.2/v0.3 kits do not implement this syntax.
 

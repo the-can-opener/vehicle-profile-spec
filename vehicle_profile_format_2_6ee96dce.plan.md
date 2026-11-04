@@ -1,6 +1,6 @@
 ---
 name: Vehicle profile format 2
-overview: Rewrite vehicle-profile-spec around a package container whose documents use flat VSS paths with read/write bindings (format 2), where a write carries its own steps and a matched expect is the acknowledgement. Format 1 is retired and handled only by a migration command. Ship docs, JSON schemas, a pinned VSS catalog, example packages, a Python validator (vprofile) with vss-tools-style tests and CI, and agent skills for authoring, validating, and migrating profiles that install by copying the folders, running scripts/install-skills.sh, or running vprofile skills install. Updated against Vehicle_BInding_Standardv0.4.0.md; BLE is out of scope.
+overview: Rewrite vehicle-profile-spec around a package container whose documents use flat VSS paths with read/write bindings (format 2), where a write carries its own steps and a matched expect is the acknowledgement. Format 1 is retired and handled only by a migration command. Ship docs, JSON schemas, a pinned VSS catalog, example packages, a Python validator (vprofile) with vss-tools-style tests and CI, and agent skills for authoring, validating, and migrating profiles that install by copying the folders, running scripts/install-skills.sh, or running vprofile skills install. Updated against Vehicle_BInding_Standardv0.4.0.md.
 todos:
   - id: docs-core
     content: Write docs/package.md, manifest.md, document.md (read/write/steps/expect/sequences/actions/endpoints), decoding.md, composition.md
@@ -9,7 +9,7 @@ todos:
     content: Write docs/vss.md, docs/vocabulary.yaml (keyword -> VSS path/target/action), extensions.md, fixtures.md, validation.md
     status: completed
   - id: docs-move
-    content: Move DBC sections to docs/dbc.md; exclude BLE interfaces from the standard; write authoring-guide.md, migration.md; rewrite README.md as overview and index
+    content: Move DBC sections to docs/dbc.md; write authoring-guide.md, migration.md; rewrite README.md as overview and index
     status: completed
   - id: catalog
     content: Generate catalog/vss-6.1.json from vehicle_signal_specification via vspec export json; add make catalog and catalog/README.md
@@ -55,7 +55,7 @@ isProject: false
 Before implementation, the repo held a single README (now preserved as [format-1.md](docs/format-1.md)) describing format 1: keyword names (`SPEED`, `LOCK`), sections for `signals`, `queries`, and `actions`, and byte arrays. This plan replaces that format with format 2:
 
 - **Container:** a package with one manifest, from the earlier package plan.
-- **Documents:** [Vehicle Binding Specification v0.4.0](Vehicle_BInding_Standardv0.4.0.md), including named queries/actions, inline writes, and acknowledgement semantics. This reference supersedes conflicting earlier plan details. BLE interfaces are outside scope (user clarification, 4 November 2026).
+- **Documents:** [Vehicle Binding Specification v0.4.0](Vehicle_BInding_Standardv0.4.0.md), including named queries/actions, inline writes, and acknowledgement semantics. This reference supersedes conflicting earlier plan details.
 
 Format 1 is no longer loaded. `vprofile migrate` converts it to format 2.
 
@@ -68,7 +68,6 @@ The last full `make mandatory_targets` run passed **111 tests**, lint/format, my
 Implemented reference alignment:
 
 - Named `queries` and `actions` replace the earlier operations design. LOCK/UNLOCK remain multi-door actions; HORN is an actuator write with only a true case.
-- BLE interfaces and firmware mappings are outside scope.
 - Fixture descriptions use `label`; `name` identifies a named capability. Duplicate keys are rejected.
 - Request-only endpoints omit response settings. Multi-responder endpoints require an explicit `responder`.
 - Catalog source: v6.1 tag, commit `2817646d1808fc7c470c0432fc7f4ed685e5c9e3`, exported with vss-tools 1.9.9.
@@ -84,7 +83,7 @@ Implemented reference alignment:
 3. **Acceptance coverage:** finish the original per-scenario golden matrix for migration and ZIP output, and expand positive/negative fixtures to every active example binding. Functional migration and ZIP round-trip tests already pass.
 4. **Verification:** execute Python 3.11 and remote CI. The local acceptance run used Python 3.13.
 
-Migration review work remains explicit in `unmapped`, including unknown TPS identity, fractional steering data incompatible with the VSS integer datatype, and unsupported multiplexed/variable-length/custom codecs. Such inputs are reported rather than silently converted. Physical vehicle testing and consuming-runtime behavior are outside this repository; they are not claimed complete. BLE remains out of scope.
+Migration review work remains explicit in `unmapped`, including unknown TPS identity, fractional steering data incompatible with the VSS integer datatype, and unsupported multiplexed/variable-length/custom codecs. Such inputs are reported rather than silently converted. Physical vehicle testing and consuming-runtime behavior are outside this repository; they are not claimed complete.
 
 ## Format 2 decisions
 
@@ -214,7 +213,7 @@ Layer 4, Semantics, is new compared with the earlier package plan. It checks bin
   - `package.md`, `manifest.md`, `document.md` (properties, read, write, steps, expect, sequences, actions, endpoints)
   - `decoding.md` (byte and bit decoders, enums, scaling, `parts` encoding), `composition.md`
   - `vss.md` (catalog pinning, roles, aliases, `unmapped`), `extensions.md`, `fixtures.md`, `validation.md`
-  - `dbc.md`, moved from the README. BLE interfaces and firmware primitive mappings are out of scope.
+  - `dbc.md`, moved from the README.
   - `authoring-guide.md`, `migration.md`
 - `docs/vocabulary.yaml` maps each former keyword to a VSS path, plus a write target value or an action name. The generated vocabulary listing linked from `vss.md` and the `migrate` command both read it. Keywords with no one-to-one actuator, such as `ECU_WAKE`, `SIGNAL_OFF`, and multi-door `LOCK`/`UNLOCK` where needed, become actions.
 
@@ -444,6 +443,6 @@ Each asserts a nonzero exit code, the error code, and the offending key.
 ## Assumptions and out of scope
 
 - Runtime changes in `can-opener-js` are out of scope; that repo must adopt format 2 separately.
-- BLE interfaces and firmware behavior are out of scope. Raw CAN bindings use exact frame data; ISO-TP bindings use application payloads. Runtime adapters are separate implementations.
+- Raw CAN bindings use exact frame data; ISO-TP bindings use application payloads. Runtime adapters are separate implementations.
 - Diagnostics and configuration stay reserved extension examples only. The tool parses them, then reports them as `EXT_UNSUPPORTED`.
 - OBDb compatibility is not a goal.

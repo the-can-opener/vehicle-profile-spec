@@ -659,4 +659,4 @@ signal names before or after a reload.
 
 ## Historical scope
 
-The original firmware interface material is excluded here. BLE is outside the binding standard.
+The original firmware interface material is excluded here.
