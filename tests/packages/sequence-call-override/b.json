@@ -1,0 +1,11 @@
+{
+  "sequences": {
+    "setup": {
+      "steps": [
+        {
+          "request": "02"
+        }
+      ]
+    }
+  }
+}

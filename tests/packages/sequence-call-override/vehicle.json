@@ -1,0 +1,16 @@
+{
+  "manifest": 1,
+  "format": 2,
+  "id": "org.test.base",
+  "version": "1.0.0",
+  "name": "Test",
+  "vss": "6.1",
+  "documents": [
+    {
+      "path": "a.json"
+    },
+    {
+      "path": "b.json"
+    }
+  ]
+}

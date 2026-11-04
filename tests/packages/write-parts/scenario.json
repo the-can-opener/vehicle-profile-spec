@@ -1,0 +1,9 @@
+[
+  {
+    "packages": [
+      "."
+    ],
+    "vehicle": {},
+    "expected": "expected.json"
+  }
+]

@@ -1,0 +1,316 @@
+{
+  "ACTUAL_TORQUE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "ACTUATE_TRUNK_FRONT": {
+    "action": "ACTUATE_TRUNK_FRONT"
+  },
+  "ACTUATE_TRUNK_REAR": {
+    "action": "ACTUATE_TRUNK_REAR"
+  },
+  "ADD_CHARGE_SCHEDULE": {
+    "action": "ADD_CHARGE_SCHEDULE"
+  },
+  "ADD_PRECONDITION_SCHEDULE": {
+    "action": "ADD_PRECONDITION_SCHEDULE"
+  },
+  "AUTO_CONDITIONING_START": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "AUTO_CONDITIONING_STOP": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "BARO": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "BATTERY_LEVEL": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "BATTERY_RANGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "BRAKE_LIGHTS": {
+    "enum": {
+      "off": "INACTIVE",
+      "on": "ACTIVE"
+    },
+    "path": "Vehicle.Body.Lights.Brake.IsActive"
+  },
+  "CABIN_TEMP": {
+    "path": "Vehicle.Cabin.HVAC.AmbientAirTemperature"
+  },
+  "CANCEL_SOFTWARE_UPDATE": {
+    "action": "CANCEL_SOFTWARE_UPDATE"
+  },
+  "CHARGER_CURRENT": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGER_POWER": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGER_VOLTAGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_ENERGY_ADDED": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_LIMIT_SOC": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_PORT_CLOSE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_PORT_OPEN": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_RATE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_START": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGE_STOP": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CHARGING_STATE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CLIMATE_OFF": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CLIMATE_ON": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CLOSE_FRUNK": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "CLOSE_TRUNK": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "DEFROST_OFF": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "DEFROST_ON": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "DIST_SINCE_CLEAR": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "DRIVER_TEMP_SETTING": {
+    "path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
+  },
+  "DRIVER_TORQUE_DEMAND": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "ECT": {
+    "path": "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature"
+  },
+  "ECU_WAKE": {
+    "action": "ECU_WAKE"
+  },
+  "ENGINE_LOAD": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "ESTIMATED_RANGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "FRONT_LEFT_DOOR_OPEN": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen",
+    "target": true
+  },
+  "FRONT_RIGHT_DOOR_OPEN": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen",
+    "target": true
+  },
+  "FUEL_LEVEL": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "FUEL_PRESSURE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "FUEL_RATE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "GEAR": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "HAZARD_LIGHTS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "HIGH_BEAM": {
+    "path": "Vehicle.Body.Lights.Beam.High.IsOn",
+    "target": true
+  },
+  "HIGH_BEAMS": {
+    "path": "Vehicle.Body.Lights.Beam.High.IsOn",
+    "target": true
+  },
+  "HORN": {
+    "path": "Vehicle.Body.Horn.IsActive",
+    "target": true
+  },
+  "IAT": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "IDEAL_RANGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "LAMBDA": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "LEFT_SIGNAL": {
+    "path": "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling",
+    "target": true
+  },
+  "LOCK": {
+    "action": "LOCK"
+  },
+  "LOCKED": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "LOW_BEAM": {
+    "path": "Vehicle.Body.Lights.Beam.Low.IsOn",
+    "target": true
+  },
+  "LOW_BEAMS": {
+    "path": "Vehicle.Body.Lights.Beam.Low.IsOn",
+    "target": true
+  },
+  "LTFT_B1": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "LTFT_B2": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "MAF": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "MAP": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "MIL_STATUS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "MODULE_VOLTAGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "O2_DATA": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "ODOMETER": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "OIL_TEMP": {
+    "path": "Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature"
+  },
+  "OPEN_FRUNK": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "OPEN_TRUNK": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "OUTSIDE_TEMP": {
+    "path": "Vehicle.Exterior.AirTemperature"
+  },
+  "PASSENGER_TEMP_SETTING": {
+    "path": "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature"
+  },
+  "PLUGGED_IN": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "READINESS_STATUS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "REAR_LEFT_DOOR_OPEN": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row2.DriverSide.IsOpen",
+    "target": true
+  },
+  "REAR_RIGHT_DOOR_OPEN": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen",
+    "target": true
+  },
+  "REMOTE_START": {
+    "action": "REMOTE_START"
+  },
+  "REMOVE_CHARGE_SCHEDULE": {
+    "action": "REMOVE_CHARGE_SCHEDULE"
+  },
+  "REMOVE_PRECONDITION_SCHEDULE": {
+    "action": "REMOVE_PRECONDITION_SCHEDULE"
+  },
+  "REVERSE_LIGHTS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "RIGHT_SIGNAL": {
+    "path": "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling",
+    "target": true
+  },
+  "RPM": {
+    "path": "Vehicle.Powertrain.CombustionEngine.Speed"
+  },
+  "RUNNING_LIGHTS": {
+    "path": "Vehicle.Body.Lights.Running.IsOn",
+    "target": true
+  },
+  "RUNTIME": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SCHEDULE_SOFTWARE_UPDATE": {
+    "action": "SCHEDULE_SOFTWARE_UPDATE"
+  },
+  "SEATBELT_WARNING": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SET_CHARGE_LIMIT": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SET_CHARGING_AMPS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SET_TEMPERATURE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SIGNAL_OFF": {
+    "action": "SIGNAL_OFF"
+  },
+  "SPEED": {
+    "path": "Vehicle.Speed"
+  },
+  "STEERING_ANGLE": {
+    "path": "Vehicle.Chassis.SteeringWheel.Angle"
+  },
+  "STFT_B1": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "STFT_B2": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "SUPPORTED_PIDS_01_20": {
+    "query": "SUPPORTED_PIDS_01_20"
+  },
+  "TIME_TO_FULL_CHARGE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "TIMING_ADVANCE": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "TPS": {
+    "reason": "Exact VSS identity, semantics or command target requires review."
+  },
+  "UNLOCK": {
+    "action": "UNLOCK"
+  },
+  "VIN": {
+    "path": "Vehicle.VehicleIdentification.VIN"
+  },
+  "WAKE_UP": {
+    "action": "WAKE_UP"
+  },
+  "WIPERS": {
+    "action": "WIPERS"
+  }
+}

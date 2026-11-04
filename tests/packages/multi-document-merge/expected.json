@@ -1,0 +1,50 @@
+{
+  "channels": {
+    "bus": {
+      "configuration": "runtime",
+      "protocol": "can"
+    }
+  },
+  "endpoints": {
+    "ecu": {
+      "channel": "bus",
+      "id_format": "standard",
+      "protocol": "isotp",
+      "rx": [
+        "708"
+      ],
+      "timeout_ms": 300,
+      "tx": "700"
+    }
+  },
+  "format": 2,
+  "packages": [
+    {
+      "applies_to": {},
+      "id": "org.test.base",
+      "unmapped": [],
+      "version": "1.0.0"
+    }
+  ],
+  "properties": {
+    "Vehicle.Speed": {
+      "read": {
+        "query": {
+          "decode": {
+            "byte": 0,
+            "bytes": 1,
+            "type": "uint"
+          },
+          "endpoint": "ecu",
+          "request": "01 0D",
+          "response": {
+            "min_data_bytes": 1,
+            "prefix": "41 0D"
+          }
+        }
+      }
+    }
+  },
+  "vehicle": {},
+  "vss": "6.1"
+}

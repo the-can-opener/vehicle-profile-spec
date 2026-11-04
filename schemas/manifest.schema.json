@@ -1,0 +1,2227 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "steps"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "request"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "request"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "required": [
+              "expect"
+            ]
+          },
+          "then": {
+            "required": [
+              "request"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "deadline_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          ],
+          "default": null,
+          "title": "Deadline Ms"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "expect": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pattern"
+            }
+          ],
+          "default": null
+        },
+        "input_schema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            }
+          ],
+          "default": null,
+          "title": "Input Schema"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "default": null,
+          "title": "Request"
+        },
+        "retry": {
+          "default": "never",
+          "enum": [
+            "never",
+            "idempotent"
+          ],
+          "title": "Retry",
+          "type": "string"
+        },
+        "steps": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/RequestStep"
+                  },
+                  {
+                    "$ref": "#/$defs/CallStep"
+                  },
+                  {
+                    "$ref": "#/$defs/WaitStep"
+                  }
+                ]
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          ],
+          "default": null,
+          "title": "Steps"
+        }
+      },
+      "required": [
+        "endpoint",
+        "description"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Applicability": {
+      "additionalProperties": false,
+      "properties": {
+        "engines": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Engines"
+        },
+        "manufacturers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manufacturers"
+        },
+        "markets": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Markets"
+        },
+        "models": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Models"
+        },
+        "trims": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trims"
+        },
+        "years": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "$ref": "#/$defs/YearRange"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Years"
+        }
+      },
+      "title": "Applicability",
+      "type": "object"
+    },
+    "AssetRef": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "AssetRef",
+      "type": "object"
+    },
+    "Body": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "steps"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "request"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "request"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "required": [
+              "expect"
+            ]
+          },
+          "then": {
+            "required": [
+              "request"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "deadline_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          ],
+          "default": null,
+          "title": "Deadline Ms"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "expect": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pattern"
+            }
+          ],
+          "default": null
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "default": null,
+          "title": "Request"
+        },
+        "steps": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/RequestStep"
+                  },
+                  {
+                    "$ref": "#/$defs/CallStep"
+                  },
+                  {
+                    "$ref": "#/$defs/WaitStep"
+                  }
+                ]
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          ],
+          "default": null,
+          "title": "Steps"
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "title": "Body",
+      "type": "object"
+    },
+    "CallStep": {
+      "additionalProperties": false,
+      "properties": {
+        "call": {
+          "title": "Call",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call"
+      ],
+      "title": "CallStep",
+      "type": "object"
+    },
+    "CasesWrite": {
+      "additionalProperties": false,
+      "properties": {
+        "cases": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Body"
+          },
+          "minProperties": 1,
+          "title": "Cases",
+          "type": "object"
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Constraints"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "CasesWrite",
+      "type": "object"
+    },
+    "Channel": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "bitrate"
+              ]
+            },
+            {
+              "required": [
+                "configuration"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "bitrate": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bitrate"
+        },
+        "configuration": {
+          "anyOf": [
+            {
+              "const": "runtime",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Configuration"
+        },
+        "data_bitrate": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Data Bitrate"
+        },
+        "protocol": {
+          "enum": [
+            "can",
+            "canfd"
+          ],
+          "title": "Protocol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "protocol"
+      ],
+      "title": "Channel",
+      "type": "object"
+    },
+    "Constraints": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step"
+        }
+      },
+      "title": "Constraints",
+      "type": "object"
+    },
+    "DbcRef": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "title": "Channel",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "path",
+        "channel"
+      ],
+      "title": "DbcRef",
+      "type": "object"
+    },
+    "DbcSignal": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "enum",
+              "decode_as"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "dbc": {
+          "title": "Dbc",
+          "type": "string"
+        },
+        "decode_as": {
+          "anyOf": [
+            {
+              "const": "boolean",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decode As"
+        },
+        "enum": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Enum"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "signal": {
+          "title": "Signal",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dbc",
+        "message",
+        "signal"
+      ],
+      "title": "DbcSignal",
+      "type": "object"
+    },
+    "DbcSource": {
+      "additionalProperties": false,
+      "properties": {
+        "dbc": {
+          "title": "Dbc",
+          "type": "string"
+        },
+        "kind": {
+          "const": "signal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "dbc",
+        "message"
+      ],
+      "title": "DbcSource",
+      "type": "object"
+    },
+    "Decoder": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "start_bit"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "bits"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "bit_order"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "byte",
+                "bytes"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "byte"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "bytes"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "start_bit",
+                "bits",
+                "bit_order"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "required": [
+              "enum"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "scale"
+                  ]
+                },
+                {
+                  "required": [
+                    "offset"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "bits"
+            ]
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "int",
+                  "uint"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "bit_order": {
+          "anyOf": [
+            {
+              "enum": [
+                "msb0",
+                "lsb0"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bit Order"
+        },
+        "bits": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bits"
+        },
+        "byte": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Byte"
+        },
+        "bytes": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bytes"
+        },
+        "datatype": {
+          "anyOf": [
+            {
+              "pattern": "^(boolean|string|u?int(8|16|32|64)|float|double)(\\[\\])?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Datatype"
+        },
+        "endian": {
+          "default": "big",
+          "enum": [
+            "big",
+            "little"
+          ],
+          "title": "Endian",
+          "type": "string"
+        },
+        "enum": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Enum"
+        },
+        "invalid_raw": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Invalid Raw",
+          "type": "array"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        },
+        "start_bit": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Bit"
+        },
+        "type": {
+          "enum": [
+            "uint",
+            "int",
+            "ascii",
+            "hex"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Decoder",
+      "type": "object"
+    },
+    "Dependency": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "Dependency",
+      "type": "object"
+    },
+    "DirectWrite": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "steps"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "request"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "request"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "required": [
+              "expect"
+            ]
+          },
+          "then": {
+            "required": [
+              "request"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Constraints"
+            }
+          ],
+          "default": null
+        },
+        "deadline_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          ],
+          "default": null,
+          "title": "Deadline Ms"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "expect": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pattern"
+            }
+          ],
+          "default": null
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "default": null,
+          "title": "Request"
+        },
+        "steps": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/RequestStep"
+                  },
+                  {
+                    "$ref": "#/$defs/CallStep"
+                  },
+                  {
+                    "$ref": "#/$defs/WaitStep"
+                  }
+                ]
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          ],
+          "default": null,
+          "title": "Steps"
+        }
+      },
+      "required": [
+        "endpoint"
+      ],
+      "title": "DirectWrite",
+      "type": "object"
+    },
+    "DocumentRef": {
+      "additionalProperties": false,
+      "properties": {
+        "applies_to": {
+          "$ref": "#/$defs/Applicability"
+        },
+        "override": {
+          "default": false,
+          "title": "Override",
+          "type": "boolean"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "DocumentRef",
+      "type": "object"
+    },
+    "EncodedField": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "endian": {
+          "default": "big",
+          "enum": [
+            "big",
+            "little"
+          ],
+          "title": "Endian",
+          "type": "string"
+        },
+        "input": {
+          "title": "Input",
+          "type": "string"
+        },
+        "offset": {
+          "default": 0,
+          "title": "Offset",
+          "type": "number"
+        },
+        "scale": {
+          "default": 1,
+          "title": "Scale",
+          "type": "number"
+        },
+        "type": {
+          "enum": [
+            "uint",
+            "int"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "type",
+        "bytes"
+      ],
+      "title": "EncodedField",
+      "type": "object"
+    },
+    "Endpoint": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "rx": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "rx"
+            ]
+          },
+          "then": {
+            "required": [
+              "timeout_ms"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "channel": {
+          "title": "Channel",
+          "type": "string"
+        },
+        "id_format": {
+          "enum": [
+            "standard",
+            "extended"
+          ],
+          "title": "Id Format",
+          "type": "string"
+        },
+        "protocol": {
+          "enum": [
+            "can",
+            "isotp"
+          ],
+          "title": "Protocol",
+          "type": "string"
+        },
+        "responder": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{1,8}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Responder"
+        },
+        "rx": {
+          "items": {
+            "pattern": "^[0-9A-F]{1,8}$",
+            "type": "string"
+          },
+          "title": "Rx",
+          "type": "array"
+        },
+        "timeout_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeout Ms"
+        },
+        "tx": {
+          "pattern": "^[0-9A-F]{1,8}$",
+          "title": "Tx",
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel",
+        "protocol",
+        "tx",
+        "id_format"
+      ],
+      "title": "Endpoint",
+      "type": "object"
+    },
+    "InlineSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "title": "Channel",
+          "type": "string"
+        },
+        "decode": {
+          "$ref": "#/$defs/Decoder"
+        },
+        "id": {
+          "pattern": "^[0-9A-F]{1,8}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "id_format": {
+          "enum": [
+            "standard",
+            "extended"
+          ],
+          "title": "Id Format",
+          "type": "string"
+        },
+        "length": {
+          "maximum": 64,
+          "minimum": 0,
+          "title": "Length",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "channel",
+        "id",
+        "id_format",
+        "length",
+        "decode"
+      ],
+      "title": "InlineSignal",
+      "type": "object"
+    },
+    "NamedQuery": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "outputs"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "decode",
+                "datatype"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "decode"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "datatype"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "outputs"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "datatype": {
+          "anyOf": [
+            {
+              "pattern": "^(boolean|string|u?int(8|16|32|64)|float|double)(\\[\\])?$",
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Datatype"
+        },
+        "decode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decoder"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "input_schema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            }
+          ],
+          "default": null,
+          "title": "Input Schema"
+        },
+        "interval_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          ],
+          "default": null,
+          "title": "Interval Ms"
+        },
+        "outputs": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/Decoder"
+                  },
+                  {
+                    "required": [
+                      "datatype"
+                    ]
+                  }
+                ]
+              },
+              "type": "object"
+            }
+          ],
+          "default": null,
+          "title": "Outputs"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "title": "Request"
+        },
+        "response": {
+          "$ref": "#/$defs/Pattern"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "description",
+        "endpoint",
+        "request",
+        "response"
+      ],
+      "title": "NamedQuery",
+      "type": "object"
+    },
+    "Parts": {
+      "additionalProperties": false,
+      "properties": {
+        "parts": {
+          "items": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/EncodedField"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Parts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "parts"
+      ],
+      "title": "Parts",
+      "type": "object"
+    },
+    "Pattern": {
+      "additionalProperties": false,
+      "properties": {
+        "exact": {
+          "default": false,
+          "title": "Exact",
+          "type": "boolean"
+        },
+        "min_data_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Min Data Bytes",
+          "type": "integer"
+        },
+        "prefix": {
+          "pattern": "^([0-9A-F]{2}|\\*)( ([0-9A-F]{2}|\\*))*$",
+          "title": "Prefix",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prefix"
+      ],
+      "title": "Pattern",
+      "type": "object"
+    },
+    "Policy": {
+      "additionalProperties": false,
+      "properties": {
+        "active_fallback": {
+          "default": false,
+          "title": "Active Fallback",
+          "type": "boolean"
+        },
+        "max_age_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Age Ms"
+        },
+        "preferred": {
+          "anyOf": [
+            {
+              "enum": [
+                "signal",
+                "query"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preferred"
+        }
+      },
+      "title": "Policy",
+      "type": "object"
+    },
+    "Property": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "read"
+              ]
+            },
+            {
+              "required": [
+                "write"
+              ]
+            },
+            {
+              "required": [
+                "value"
+              ]
+            }
+          ]
+        },
+        {
+          "not": {
+            "required": [
+              "read",
+              "value"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "read": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Read"
+            }
+          ],
+          "default": null
+        },
+        "value": {
+          "default": null,
+          "not": {
+            "type": "null"
+          },
+          "title": "Value"
+        },
+        "write": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DirectWrite"
+            },
+            {
+              "$ref": "#/$defs/CasesWrite"
+            }
+          ],
+          "default": null,
+          "title": "Write"
+        }
+      },
+      "title": "Property",
+      "type": "object"
+    },
+    "Query": {
+      "additionalProperties": false,
+      "properties": {
+        "decode": {
+          "$ref": "#/$defs/Decoder"
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "interval_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Ms"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "title": "Request"
+        },
+        "response": {
+          "$ref": "#/$defs/Pattern"
+        }
+      },
+      "required": [
+        "endpoint",
+        "request",
+        "response",
+        "decode"
+      ],
+      "title": "Query",
+      "type": "object"
+    },
+    "QuerySource": {
+      "additionalProperties": false,
+      "properties": {
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "interval_ms": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Ms"
+        },
+        "kind": {
+          "const": "query",
+          "title": "Kind",
+          "type": "string"
+        },
+        "outputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Decoder"
+          },
+          "minProperties": 1,
+          "title": "Outputs",
+          "type": "object"
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "title": "Request"
+        },
+        "response": {
+          "$ref": "#/$defs/Pattern"
+        }
+      },
+      "required": [
+        "kind",
+        "endpoint",
+        "request",
+        "response",
+        "outputs"
+      ],
+      "title": "QuerySource",
+      "type": "object"
+    },
+    "Read": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "signal"
+              ]
+            },
+            {
+              "required": [
+                "query"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Policy"
+            }
+          ],
+          "default": null
+        },
+        "query": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Query"
+            },
+            {
+              "$ref": "#/$defs/SourceRef"
+            }
+          ],
+          "default": null,
+          "title": "Query"
+        },
+        "signal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DbcSignal"
+            },
+            {
+              "$ref": "#/$defs/InlineSignal"
+            },
+            {
+              "$ref": "#/$defs/SourceRef"
+            }
+          ],
+          "default": null,
+          "title": "Signal"
+        }
+      },
+      "title": "Read",
+      "type": "object"
+    },
+    "RequestStep": {
+      "additionalProperties": false,
+      "properties": {
+        "expect": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pattern"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "request": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Parts"
+            }
+          ],
+          "title": "Request"
+        }
+      },
+      "required": [
+        "request"
+      ],
+      "title": "RequestStep",
+      "type": "object"
+    },
+    "Sequence": {
+      "additionalProperties": false,
+      "properties": {
+        "steps": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RequestStep"
+              },
+              {
+                "$ref": "#/$defs/CallStep"
+              },
+              {
+                "$ref": "#/$defs/WaitStep"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "steps"
+      ],
+      "title": "Sequence",
+      "type": "object"
+    },
+    "SignalSource": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "title": "Channel",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[0-9A-F]{1,8}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "id_format": {
+          "enum": [
+            "standard",
+            "extended"
+          ],
+          "title": "Id Format",
+          "type": "string"
+        },
+        "kind": {
+          "const": "signal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "length": {
+          "maximum": 64,
+          "minimum": 0,
+          "title": "Length",
+          "type": "integer"
+        },
+        "outputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Decoder"
+          },
+          "minProperties": 1,
+          "title": "Outputs",
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "channel",
+        "id",
+        "id_format",
+        "length",
+        "outputs"
+      ],
+      "title": "SignalSource",
+      "type": "object"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "enum",
+              "decode_as"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "decode_as": {
+          "anyOf": [
+            {
+              "const": "boolean",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decode As"
+        },
+        "enum": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Enum"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "output"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    },
+    "WaitStep": {
+      "additionalProperties": false,
+      "properties": {
+        "wait_ms": {
+          "minimum": 0,
+          "title": "Wait Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "wait_ms"
+      ],
+      "title": "WaitStep",
+      "type": "object"
+    },
+    "YearRange": {
+      "additionalProperties": false,
+      "properties": {
+        "range": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Range",
+          "type": "array"
+        }
+      },
+      "required": [
+        "range"
+      ],
+      "title": "YearRange",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "documents"
+        ]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "channels"
+              ]
+            },
+            {
+              "required": [
+                "endpoints"
+              ]
+            },
+            {
+              "required": [
+                "sources"
+              ]
+            },
+            {
+              "required": [
+                "properties"
+              ]
+            },
+            {
+              "required": [
+                "sequences"
+              ]
+            },
+            {
+              "required": [
+                "queries"
+              ]
+            },
+            {
+              "required": [
+                "actions"
+              ]
+            },
+            {
+              "required": [
+                "requires"
+              ]
+            },
+            {
+              "required": [
+                "extensions"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "properties": {
+    "actions": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Action"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Actions",
+      "type": "object"
+    },
+    "applies_to": {
+      "$ref": "#/$defs/Applicability"
+    },
+    "channels": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Channel"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Channels",
+      "type": "object"
+    },
+    "dbc": {
+      "additionalProperties": {
+        "$ref": "#/$defs/DbcRef"
+      },
+      "title": "Dbc",
+      "type": "object"
+    },
+    "depends": {
+      "items": {
+        "$ref": "#/$defs/Dependency"
+      },
+      "title": "Depends",
+      "type": "array"
+    },
+    "documents": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/DocumentRef"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Documents"
+    },
+    "endpoints": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Endpoint"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Endpoints",
+      "type": "object"
+    },
+    "extensions": {
+      "additionalProperties": true,
+      "title": "Extensions",
+      "type": "object"
+    },
+    "fixtures": {
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/AssetRef"
+          }
+        ]
+      },
+      "title": "Fixtures",
+      "type": "array"
+    },
+    "format": {
+      "const": 2,
+      "title": "Format",
+      "type": "integer"
+    },
+    "id": {
+      "pattern": "^[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "manifest": {
+      "const": 1,
+      "title": "Manifest",
+      "type": "integer"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "properties": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Property"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Properties",
+      "type": "object"
+    },
+    "queries": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/NamedQuery"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Queries",
+      "type": "object"
+    },
+    "requires": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Requires",
+      "type": "object"
+    },
+    "sequences": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Sequence"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Sequences",
+      "type": "object"
+    },
+    "sources": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/DbcSource"
+              },
+              {
+                "$ref": "#/$defs/SignalSource"
+              },
+              {
+                "$ref": "#/$defs/QuerySource"
+              }
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Sources",
+      "type": "object"
+    },
+    "unmapped": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Unmapped",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+      "title": "Version",
+      "type": "string"
+    },
+    "vss": {
+      "const": "6.1",
+      "title": "Vss",
+      "type": "string"
+    }
+  },
+  "required": [
+    "manifest",
+    "format",
+    "id",
+    "version",
+    "name",
+    "vss"
+  ],
+  "title": "Manifest",
+  "type": "object"
+}

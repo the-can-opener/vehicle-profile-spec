@@ -1,0 +1,66 @@
+# Migration
+
+Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+
+## Versioning and migration
+
+This draft changes the authoring format. Previous schemas and tools need updates before they can validate it.
+
+Migration from format 1 (`README.md` profiles):
+
+| Format 1 | This draft |
+|---|---|
+| `profile.yaml` with sibling DBC files | A package manifest listing documents and DBC files |
+| `signals.X.monitor` | `read.signal` on the VSS path for X |
+| `queries.X` | `read.query` on the VSS path, or a named query when X has no VSS path |
+| `actions.X` | A `write` case when X maps to one VSS actuator, otherwise an action |
+| Byte arrays | Hex strings |
+| `"*"` | The `*` token |
+| `ref: sequences.x` | `call: x` |
+| `request_id` / `response_id(s)` | `tx` / `rx` on an endpoint |
+| Inline `send: {request_id, request}` | A request-only endpoint |
+
+Keyword names stay usable as aliases on properties and as query and action names. Anything that cannot be mapped goes to `unmapped`.
+
+Changes from the earlier 0.4.0 draft:
+
+- One root manifest became a package manifest with an ordered document list, composition rules, and `depends`.
+- `operations` were replaced by named `queries` and `actions`.
+- Write steps live inside the write. `write.sequence`, `completion`, and `verify` were removed; a matched `expect` is the acknowledgement.
+- Sequences hold only shared steps and run on the caller's endpoint.
+- Endpoints are the ECU target, and VSS `ControlUnit` instance names are not addresses.
+- The future diagnostics contract was removed from this draft.
+
+Migration from v0.3:
+
+- Flatten the nested properties tree into exact VSS-path keys.
+- Put passive bindings under `read.signal` and active bindings under `read.query`.
+- A property may contain both; replace positional alternatives with the explicit acquisition policy.
+- Rename passive source kinds to `signal` and keep active source kind `query`.
+- Preserve DBC signal names, numeric write constraints, and canonical property semantics.
+- Remove any OBDb compatibility/import/parity release requirements.
+
+During 0.x, minor versions may break compatibility and require migration notes. A published 1.x standard uses major versions for breaking interpretation changes. Pin VSS and feature versions independently. Publish schemas, examples, and conformance fixtures with each implemented release. Do not present an unsupported feature as working merely because the standard has an extension point for it.
+
+## Implemented migration
+
+`vprofile migrate OLD -o NEW` reads format 1 and writes a strictly validated package into an empty destination. It preserves DBC files, combines passive and queried bindings on one property, translates shared sequences and wildcards, and maps single-actuator commands to write cases. Multi-actuator commands remain actions. Unconverted objects retain their original data and reason in `unmapped`.
+
+Request/response conversion requires an explicit `--framing` declaration:
+
+- `raw`: preserve request bytes and raw response patterns on CAN endpoints.
+- `isotp`: requests and response patterns already contain application data.
+- `isotp-single-frame`: validate and remove single-frame PCI/padding from requests; response patterns already contain application data. DBC query offsets additionally account for the one-byte raw response header.
+
+No framing is inferred from the first byte. Without the flag, request-only commands and known signals can migrate, while response bindings remain unmapped. A multi-responder endpoint requires `--responder ENDPOINT=HEX`. Physical left/right door names require `--steering-side left|right`.
+
+```sh
+vprofile migrate examples/legacy/nissan-versa-1-6 -o /tmp/versa-format2 \
+  --framing isotp-single-frame --steering-side left
+```
+
+DBC query fields become prefix-relative byte/bit decoders, preserving native Motorola/little-endian layout and scaling. Known spelling aliases such as `R/min` to `rpm` are normalized without numerical conversion; passive bindings with a renamed unit use an inline decoder. Explicit raw enum mappings preserve supported label normalization. Fixed-length VIN and byte/hex queries are supported; byte-array results become uppercase hex strings, recorded in the migration notes.
+
+Unsupported or uncertain inputs stay unmapped: multiplexed DBC declarations, unknown canonical identities, fractional values targeting integer VSS properties, variable-length codecs, generic ASCII trailing-NUL trimming, sequence cycles, and steps that switch endpoints. An unmapped report is work to review, not an active capability.
+
+The [Versa example](../examples/nissan-versa/README.md) is reproduced by `scripts/migrate-versa.py`; `--check` verifies it without editing files. Request/response commands use the declared single-frame conversion, while request-only commands remain raw CAN. The 2011 timing overlay is explicitly synthetic. No physical vehicle compatibility is claimed.

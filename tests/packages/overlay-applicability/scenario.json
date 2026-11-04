@@ -1,0 +1,20 @@
+[
+  {
+    "packages": [
+      "."
+    ],
+    "vehicle": {
+      "year": 2008
+    },
+    "expected": "expected_2008.json"
+  },
+  {
+    "packages": [
+      "."
+    ],
+    "vehicle": {
+      "year": 2011
+    },
+    "expected": "expected_2011.json"
+  }
+]

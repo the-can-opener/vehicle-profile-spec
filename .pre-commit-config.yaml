@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: generated
+        name: Generated schemas and error reference
+        entry: tools/.venv/bin/python scripts/generate.py --check
+        language: system
+        pass_filenames: false
+      - id: ruff
+        name: Python lint
+        entry: tools/.venv/bin/ruff check
+        language: system
+        types: [python]

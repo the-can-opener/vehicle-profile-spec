@@ -1,0 +1,31 @@
+{
+  "manifest": 1,
+  "format": 2,
+  "id": "org.test.base",
+  "version": "1.0.0",
+  "name": "Test",
+  "vss": "6.1",
+  "documents": [
+    {
+      "path": "base.json"
+    },
+    {
+      "path": "overlay.json",
+      "applies_to": {
+        "years": [
+          2011
+        ]
+      }
+    }
+  ],
+  "applies_to": {
+    "years": [
+      {
+        "range": [
+          2007,
+          2012
+        ]
+      }
+    ]
+  }
+}

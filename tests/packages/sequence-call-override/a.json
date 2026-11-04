@@ -1,0 +1,43 @@
+{
+  "channels": {
+    "bus": {
+      "protocol": "can",
+      "configuration": "runtime"
+    }
+  },
+  "endpoints": {
+    "ecu": {
+      "channel": "bus",
+      "protocol": "isotp",
+      "tx": "700",
+      "rx": [
+        "708"
+      ],
+      "id_format": "standard",
+      "timeout_ms": 300
+    }
+  },
+  "sequences": {
+    "setup": {
+      "steps": [
+        {
+          "request": "01"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "TEST": {
+      "description": "Shared setup",
+      "endpoint": "ecu",
+      "steps": [
+        {
+          "call": "setup"
+        },
+        {
+          "request": "03"
+        }
+      ]
+    }
+  }
+}

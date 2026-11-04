@@ -1,0 +1,10 @@
+[
+  {
+    "packages": [
+      "base",
+      "overlay"
+    ],
+    "vehicle": {},
+    "expected": "expected.json"
+  }
+]

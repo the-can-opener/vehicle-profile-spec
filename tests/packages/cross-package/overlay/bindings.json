@@ -1,0 +1,21 @@
+{
+  "properties": {
+    "Vehicle.Speed": {
+      "read": {
+        "query": {
+          "endpoint": "ecu",
+          "request": "01 0D",
+          "response": {
+            "prefix": "41 0D",
+            "min_data_bytes": 1
+          },
+          "decode": {
+            "byte": 0,
+            "bytes": 1,
+            "type": "uint"
+          }
+        }
+      }
+    }
+  }
+}

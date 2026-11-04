@@ -1,0 +1,102 @@
+# Keyword vocabulary
+
+Generated from `vocabulary.yaml`; do not edit this listing by hand.
+
+- `ACTUAL_TORQUE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ACTUATE_TRUNK_FRONT`: action ACTUATE_TRUNK_FRONT
+- `ACTUATE_TRUNK_REAR`: action ACTUATE_TRUNK_REAR
+- `ADD_CHARGE_SCHEDULE`: action ADD_CHARGE_SCHEDULE
+- `ADD_PRECONDITION_SCHEDULE`: action ADD_PRECONDITION_SCHEDULE
+- `AUTO_CONDITIONING_START`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `AUTO_CONDITIONING_STOP`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `BARO`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `BATTERY_LEVEL`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `BATTERY_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `BRAKE_LIGHTS`: Vehicle.Body.Lights.Brake.IsActive
+- `CABIN_TEMP`: Vehicle.Cabin.HVAC.AmbientAirTemperature
+- `CANCEL_SOFTWARE_UPDATE`: action CANCEL_SOFTWARE_UPDATE
+- `CHARGER_CURRENT`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGER_POWER`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGER_VOLTAGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_ENERGY_ADDED`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_LIMIT_SOC`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_PORT_CLOSE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_PORT_OPEN`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_RATE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_START`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGE_STOP`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGING_STATE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CLIMATE_OFF`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CLIMATE_ON`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CLOSE_FRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CLOSE_TRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `DEFROST_OFF`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `DEFROST_ON`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `DIST_SINCE_CLEAR`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `DRIVER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature
+- `DRIVER_TORQUE_DEMAND`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ECT`: Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature
+- `ECU_WAKE`: action ECU_WAKE
+- `ENGINE_LOAD`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ESTIMATED_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `FRONT_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
+- `FRONT_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
+- `FUEL_LEVEL`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `FUEL_PRESSURE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `FUEL_RATE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `GEAR`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `HAZARD_LIGHTS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `HIGH_BEAM`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
+- `HIGH_BEAMS`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
+- `HORN`: Vehicle.Body.Horn.IsActive (write target true)
+- `IAT`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `IDEAL_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LAMBDA`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
+- `LOCK`: action LOCK
+- `LOCKED`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
+- `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
+- `LTFT_B1`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LTFT_B2`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `MAF`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `MAP`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `MIL_STATUS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `MODULE_VOLTAGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `O2_DATA`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ODOMETER`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature
+- `OPEN_FRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `OPEN_TRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature
+- `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature
+- `PLUGGED_IN`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `READINESS_STATUS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `REAR_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
+- `REAR_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
+- `REMOTE_START`: action REMOTE_START
+- `REMOVE_CHARGE_SCHEDULE`: action REMOVE_CHARGE_SCHEDULE
+- `REMOVE_PRECONDITION_SCHEDULE`: action REMOVE_PRECONDITION_SCHEDULE
+- `REVERSE_LIGHTS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `RIGHT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling (write target true)
+- `RPM`: Vehicle.Powertrain.CombustionEngine.Speed
+- `RUNNING_LIGHTS`: Vehicle.Body.Lights.Running.IsOn (write target true)
+- `RUNTIME`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SCHEDULE_SOFTWARE_UPDATE`: action SCHEDULE_SOFTWARE_UPDATE
+- `SEATBELT_WARNING`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SET_CHARGE_LIMIT`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SET_CHARGING_AMPS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SET_TEMPERATURE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SIGNAL_OFF`: action SIGNAL_OFF
+- `SPEED`: Vehicle.Speed
+- `STEERING_ANGLE`: Vehicle.Chassis.SteeringWheel.Angle
+- `STFT_B1`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `STFT_B2`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SUPPORTED_PIDS_01_20`: query SUPPORTED_PIDS_01_20
+- `TIME_TO_FULL_CHARGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `TIMING_ADVANCE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `TPS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `UNLOCK`: action UNLOCK
+- `VIN`: Vehicle.VehicleIdentification.VIN
+- `WAKE_UP`: action WAKE_UP
+- `WIPERS`: action WIPERS
