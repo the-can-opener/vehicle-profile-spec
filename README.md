@@ -1,4 +1,4 @@
-# Vehicle Profile Standard 2.0
+# Vehicle Profile Standard 2.1
 
 [Overview](#overview) · [Vehicle Signal Specification](#vehicle-signal-specification) · [Quick start](#quick-start) · [Example](#example) · [Specification reference](#specification-reference) · [Guides and resources](#guides-and-resources) · [Development](#development)
 
@@ -136,13 +136,13 @@ properties:
 
 ### Checked-in example packages
 
-| Package            | Highlights                                                                                     | Files                                                                                                                                                       |
-| ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Universal OBD**  | Mode `01`/`09` queries (`Vehicle.Speed`, `RPM`, `VIN`) and a named PID bitmap query            | [vehicle.yaml](examples/universal-obd/vehicle.yaml) · [fixtures.yaml](examples/universal-obd/fixtures.yaml)                                                 |
-| **Synthetic HVAC** | Shared signal sources, passive acquisition, and a scaled numeric actuator write                | [README](examples/hvac-synthetic/README.md) · [vehicle.yaml](examples/hvac-synthetic/vehicle.yaml) · [fixtures.yaml](examples/hvac-synthetic/fixtures.yaml) |
-| **Nissan Versa**   | Split documents, DBC signals, shared diagnostic sequences, horn cases, and central lock writes | [README](examples/nissan-versa/README.md) · [vehicle.yaml](examples/nissan-versa/vehicle.yaml)                                                              |
-| **Dual-bus CAN FD** | Two channels, `auto` bitrate, CAN FD request defaults and overrides, and a responder range    | [README](examples/canfd-dual-bus/README.md) · [vehicle.yaml](examples/canfd-dual-bus/vehicle.yaml) · [fixtures.yaml](examples/canfd-dual-bus/fixtures.yaml) |
-| **ISO-TP addressing** | BMW-style extended and mixed addressing on the default `can0` channel                       | [README](examples/bmw-addressing/README.md) · [vehicle.yaml](examples/bmw-addressing/vehicle.yaml) · [fixtures.yaml](examples/bmw-addressing/fixtures.yaml) |
+| Package               | Highlights                                                                                     | Files                                                                                                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Universal OBD**     | Mode `01`/`09` queries (`Vehicle.Speed`, `RPM`, `VIN`) and a named PID bitmap query            | [vehicle.yaml](examples/universal-obd/vehicle.yaml) · [fixtures.yaml](examples/universal-obd/fixtures.yaml)                                                 |
+| **Synthetic HVAC**    | Shared signal sources, passive acquisition, and a scaled numeric actuator write                | [README](examples/hvac-synthetic/README.md) · [vehicle.yaml](examples/hvac-synthetic/vehicle.yaml) · [fixtures.yaml](examples/hvac-synthetic/fixtures.yaml) |
+| **Nissan Versa**      | Split documents, DBC signals, shared diagnostic sequences, horn cases, and central lock writes | [README](examples/nissan-versa/README.md) · [vehicle.yaml](examples/nissan-versa/vehicle.yaml)                                                              |
+| **Dual-bus CAN FD**   | Two channels, `auto` bitrate, CAN FD request defaults and overrides, and a responder range     | [README](examples/canfd-dual-bus/README.md) · [vehicle.yaml](examples/canfd-dual-bus/vehicle.yaml) · [fixtures.yaml](examples/canfd-dual-bus/fixtures.yaml) |
+| **ISO-TP addressing** | BMW-style extended and mixed addressing on the default `can0` channel                          | [README](examples/bmw-addressing/README.md) · [vehicle.yaml](examples/bmw-addressing/vehicle.yaml) · [fixtures.yaml](examples/bmw-addressing/fixtures.yaml) |
 
 Examples and fixtures illustrate the format. Validation performs no vehicle I/O and does not prove physical compatibility.
 
