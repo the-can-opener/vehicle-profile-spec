@@ -10,7 +10,10 @@ def test_migrate(tmp_path):
     result = resolve([new])
     assert "Vehicle.Speed" in result["properties"]
     assert result["actions"]["ECU_WAKE"]["steps"][0]["request"] == "00 00 00 00 00 00 00 00"
-    assert result["actions"]["WIPERS"]["request"] == "C1 03 40 00 00 00 00 00"
+    wipers = result["properties"]["Vehicle.Body.Windshield.Front.Wiping.Mode"]
+    assert wipers["aliases"] == ["WIPERS"]
+    assert wipers["write"]["cases"]["MEDIUM"]["request"] == "C1 03 40 00 00 00 00 00"
+    assert "WIPERS" not in result["actions"]
     assert (new / "signals.dbc").read_bytes() == (old / "signals.dbc").read_bytes()
     lock = next(x for x in report if x["capability"] == "LOCK")
     assert "original" in lock and "--framing" in lock["reason"]
@@ -27,10 +30,19 @@ def test_versa_request_response_migration(tmp_path):
     assert result["endpoints"]["body"]["protocol"] == "isotp"
     horn = prepare_write(result, "Vehicle.Body.Horn.IsActive", True)
     assert [s["request"] for s in horn["steps"]] == ["10 81", "10 C0", "30 30 00 01"]
-    assert result["actions"]["LOCK"]["steps"][-1]["request"] == "30 38 00 01"
-    assert matches(result["actions"]["LOCK"]["steps"][-1]["expect"], "70 38 FF")
-    assert result["actions"]["UNLOCK"]["steps"][-1]["request"] == "30 38 00 02"
+    lock = prepare_write(result, "Vehicle.Cabin.Door.IsLocked", True)
+    assert [step["request"] for step in lock["steps"]] == ["10 81", "10 C0", "30 38 00 01"]
+    assert matches(lock["steps"][-1]["expect"], "70 38 FF")
+    unlock = prepare_write(result, "Vehicle.Cabin.Door.IsLocked", False)
+    assert unlock["steps"][-1]["request"] == "30 38 00 02"
+    assert result["properties"]["Vehicle.Cabin.Door.IsLocked"]["aliases"] == ["LOCK", "UNLOCK"]
+    assert "Vehicle.Cabin.Door.Row1.DriverSide.IsLocked" not in result["properties"]
+    assert "LOCK" not in result["actions"] and "UNLOCK" not in result["actions"]
     assert "HORN" not in result["actions"]
+    assert "WIPERS" not in result["actions"]
+    wipers = result["properties"]["Vehicle.Body.Windshield.Front.Wiping.Mode"]
+    assert wipers["aliases"] == ["WIPERS"]
+    assert wipers["write"]["cases"]["MEDIUM"]["request"] == "C1 03 40 00 00 00 00 00"
     assert result["properties"]["Vehicle.Body.Lights.Beam.Low.IsOn"]["read"]
     assert result["properties"]["Vehicle.Body.Lights.Beam.Low.IsOn"]["write"]
     assert "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen" in result["properties"]
@@ -59,8 +71,10 @@ def test_raw_request_and_exact_wildcard_preserved(tmp_path):
     assert migrate(old, new, framing="raw") == []
     doc = resolve([new])
     assert doc["endpoints"]["ecu"]["protocol"] == "can"
-    assert doc["actions"]["LOCK"]["request"] == "01 02"
-    assert doc["actions"]["LOCK"]["expect"] == {"prefix": "03 *", "exact": True}
+    lock = doc["properties"]["Vehicle.Cabin.Door.IsLocked"]["write"]["cases"]["true"]
+    assert lock["request"] == "01 02"
+    assert lock["expect"] == {"prefix": "03 *", "exact": True}
+    assert "LOCK" not in doc.get("actions", {})
 
 
 def test_queries_share_property_and_translate_dbc_offsets(tmp_path):

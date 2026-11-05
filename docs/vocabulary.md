@@ -55,7 +55,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `IDEAL_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
 - `LAMBDA`: unmapped: Exact VSS identity, semantics or command target requires review.
 - `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
-- `LOCK`: action LOCK
+- `LOCK`: Vehicle.Cabin.Door.IsLocked (write target true)
 - `LOCKED`: unmapped: Exact VSS identity, semantics or command target requires review.
 - `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
@@ -98,10 +98,10 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `TIME_TO_FULL_CHARGE`: unmapped: Exact VSS identity, semantics or command target requires review.
 - `TIMING_ADVANCE`: unmapped: Exact VSS identity, semantics or command target requires review.
 - `TPS`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `UNLOCK`: action UNLOCK
+- `UNLOCK`: Vehicle.Cabin.Door.IsLocked (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN
 - `WAKE_UP`: action WAKE_UP
-- `WIPERS`: action WIPERS
+- `WIPERS`: Vehicle.Body.Windshield.Front.Wiping.Mode (write target "MEDIUM"); Front windshield. Use MEDIUM when the command does not select a speed.
 
 ## Related pages
 

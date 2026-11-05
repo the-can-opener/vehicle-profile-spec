@@ -47,8 +47,9 @@ cases:
     error: UNSUPPORTED
     sent: []
 - label: Lock wildcard acknowledged
-  kind: action
-  name: LOCK
+  kind: write
+  path: Vehicle.Cabin.Door.IsLocked
+  target: true
   responses:
   - 50 81
   - 50 C0
@@ -60,8 +61,9 @@ cases:
     - 30 38 00 01
     result: acknowledged
 - label: Unknown lock outcome
-  kind: action
-  name: LOCK
+  kind: write
+  path: Vehicle.Cabin.Door.IsLocked
+  target: true
   responses:
   - 50 81
   - 50 C0
@@ -69,8 +71,9 @@ cases:
     result: unknown
     error: OUTCOME_UNKNOWN
 - label: Failed acknowledgement
-  kind: action
-  name: LOCK
+  kind: write
+  path: Vehicle.Cabin.Door.IsLocked
+  target: true
   responses:
   - 7F 10
   expect:

@@ -16,23 +16,3 @@ actions:
     - request: 30 2F 00 00
       expect:
         prefix: 70 2F *
-  LOCK:
-    description: LOCK
-    endpoint: body
-    steps:
-    - call: body_session_prep
-    - request: 30 38 00 01
-      expect:
-        prefix: 70 38 *
-  UNLOCK:
-    description: UNLOCK
-    endpoint: body
-    steps:
-    - call: body_session_prep
-    - request: 30 38 00 02
-      expect:
-        prefix: 70 38 *
-  WIPERS:
-    description: WIPERS
-    endpoint: generated-wipers
-    request: C1 03 40 00 00 00 00 00

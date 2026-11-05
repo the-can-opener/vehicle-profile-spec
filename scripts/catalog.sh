@@ -31,5 +31,19 @@ new = (
 count = text.count(old)
 if count != 1:
     raise SystemExit(f"expected one upstream SteeringWheel.Angle node, found {count}")
-path.write_text(text.replace(old, new, 1))
+text = text.replace(old, new, 1)
+# Local addition: one actuator for a command that locks or unlocks every cabin door.
+# Upstream VSS 6.1 has IsLocked only on each door. See catalog/README.md.
+door = '"Door": {"children": {"Row1":'
+locked = (
+    '"Door": {"children": {"IsLocked": {"comment": "Not in upstream COVESA VSS 6.1. '
+    "One command that locks or unlocks every cabin door binds here. Per-door lock "
+    'state remains on each door\'s IsLocked actuator.", "datatype": "boolean", '
+    '"description": "Lock state of every cabin door as one actuator. True = Locked. '
+    'False = Unlocked.", "type": "actuator"}, "Row1":'
+)
+count = text.count(door)
+if count != 1:
+    raise SystemExit(f"expected one Cabin.Door branch, found {count}")
+path.write_text(text.replace(door, locked, 1))
 PY

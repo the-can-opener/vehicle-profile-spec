@@ -165,7 +165,8 @@
     "target": true
   },
   "LOCK": {
-    "action": "LOCK"
+    "path": "Vehicle.Cabin.Door.IsLocked",
+    "target": true
   },
   "LOCKED": {
     "reason": "Exact VSS identity, semantics or command target requires review."
@@ -302,7 +303,8 @@
     "reason": "Exact VSS identity, semantics or command target requires review."
   },
   "UNLOCK": {
-    "action": "UNLOCK"
+    "path": "Vehicle.Cabin.Door.IsLocked",
+    "target": false
   },
   "VIN": {
     "path": "Vehicle.VehicleIdentification.VIN"
@@ -311,6 +313,8 @@
     "action": "WAKE_UP"
   },
   "WIPERS": {
-    "action": "WIPERS"
+    "note": "Front windshield. Use MEDIUM when the command does not select a speed.",
+    "path": "Vehicle.Body.Windshield.Front.Wiping.Mode",
+    "target": "MEDIUM"
   }
 }

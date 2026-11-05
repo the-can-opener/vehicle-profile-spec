@@ -44,7 +44,7 @@ Pin package, VSS and extension versions independently. Publish schemas, examples
 
 ## Implemented migration
 
-`vprofile migrate OLD -o NEW` reads format 1 and writes a strictly validated package into an empty destination. It preserves DBC files, combines passive and queried bindings on one property, translates shared sequences and wildcards, and maps single-actuator commands to write cases. Multi-actuator commands remain actions. Unconverted objects retain their original data and reason in `unmapped`.
+`vprofile migrate OLD -o NEW` reads format 1 and writes a strictly validated package into an empty destination. It preserves DBC files, combines passive and queried bindings on one property, translates shared sequences and wildcards, and maps single-actuator commands to write cases. `LOCK` and `UNLOCK` become `"true"` and `"false"` cases on `Vehicle.Cabin.Door.IsLocked`. Other multi-actuator commands remain actions. Unconverted objects retain their original data and reason in `unmapped`.
 
 Request/response conversion requires an explicit `--framing` declaration:
 
@@ -63,7 +63,7 @@ DBC query fields become prefix-relative byte/bit decoders, preserving native Mot
 
 Unsupported or uncertain inputs stay unmapped: multiplexed DBC declarations, unknown canonical identities, fractional values targeting integer VSS properties, variable-length codecs, generic ASCII trailing-NUL trimming, sequence cycles, and steps that switch endpoints. An unmapped report is work to review, not an active capability.
 
-The [Versa example](../examples/nissan-versa/README.md) is reproduced by `scripts/migrate-versa.py`; `--check` verifies it without editing files. Request/response commands use the declared single-frame conversion, while request-only commands remain raw CAN. The 2011 timing overlay is explicitly synthetic. No physical vehicle compatibility is claimed.
+The [Versa example](../examples/nissan-versa/README.md) is reproduced by `scripts/migrate-versa.py`; `--check` verifies it without editing files. Request/response commands use the declared single-frame conversion, while request-only commands remain raw CAN. No physical vehicle compatibility is claimed.
 
 ## Related pages
 

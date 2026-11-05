@@ -35,7 +35,7 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 
 - [Universal OBD](../examples/universal-obd/vehicle.yaml) — a single-file package with property and named queries.
 - [Synthetic HVAC](../examples/hvac-synthetic/README.md) — shared acquisition and an exactly encoded numeric write; [package](../examples/hvac-synthetic/vehicle.yaml) and [fixtures](../examples/hvac-synthetic/fixtures.yaml).
-- [Nissan Versa migration](../examples/nissan-versa/README.md) — split documents, shared sequences, actions and a synthetic year overlay.
+- [Nissan Versa migration](../examples/nissan-versa/README.md) — split documents, shared sequences, and an all-door lock write.
 - [Manifest schema](../schemas/manifest.schema.json), [document schema](../schemas/document.schema.json) and [fixture schema](../schemas/fixture.schema.json).
 - [Pinned VSS catalog and provenance](../catalog/README.md).
 - [Agent skills and installation](../skills/README.md).

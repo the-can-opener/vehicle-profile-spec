@@ -12,16 +12,18 @@ A fixture file lists cases. Each case has a `kind` of `signal`, `query`, `write`
 fixture: 1
 cases:
   - label: lock acknowledged
-    kind: action
-    name: LOCK
+    kind: write
+    path: Vehicle.Cabin.Door.IsLocked
+    target: true
     responses: ["50 81", "50 C0", "70 38 01"]
     expect:
       sent: ["10 81", "10 C0", "30 38 00 01"]
       result: acknowledged
 
   - label: lock sent with no reply
-    kind: action
-    name: LOCK
+    kind: write
+    path: Vehicle.Cabin.Door.IsLocked
+    target: true
     responses: ["50 81", "50 C0"]
     expect: {result: unknown, error: OUTCOME_UNKNOWN}
 ```

@@ -1,12 +1,10 @@
 """Reproduce the Versa example from the retained legacy input and declared framing.
 
-The year overlay is deliberately a synthetic timing example, not an OEM claim.
 Run with --check to compare generated files without changing the checkout.
 """
 
 import argparse
 import tempfile
-from copy import deepcopy
 from pathlib import Path
 
 import yaml
@@ -42,11 +40,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
             else "powertrain.yaml"
         )
         documents[filename]["properties"][path] = value
-    overlay = deepcopy(bindings["sequences"]["body_session_prep"])
-    overlay["steps"].insert(1, {"wait_ms": 10})
-    documents["overlays/2011.yaml"] = {"sequences": {"body_session_prep": overlay}}
     manifest["documents"] = [{"path": name} for name in documents]
-    manifest["documents"][-1]["applies_to"] = {"years": [2011]}
     manifest["fixtures"] = ["fixtures/body.yaml"]
     fixtures = {
         "fixture": 1,
@@ -89,22 +83,25 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
             },
             {
                 "label": "Lock wildcard acknowledged",
-                "kind": "action",
-                "name": "LOCK",
+                "kind": "write",
+                "path": "Vehicle.Cabin.Door.IsLocked",
+                "target": True,
                 "responses": ["50 81", "50 C0", "70 38 01"],
                 "expect": {"sent": ["10 81", "10 C0", "30 38 00 01"], "result": "acknowledged"},
             },
             {
                 "label": "Unknown lock outcome",
-                "kind": "action",
-                "name": "LOCK",
+                "kind": "write",
+                "path": "Vehicle.Cabin.Door.IsLocked",
+                "target": True,
                 "responses": ["50 81", "50 C0"],
                 "expect": {"result": "unknown", "error": "OUTCOME_UNKNOWN"},
             },
             {
                 "label": "Failed acknowledgement",
-                "kind": "action",
-                "name": "LOCK",
+                "kind": "write",
+                "path": "Vehicle.Cabin.Door.IsLocked",
+                "target": True,
                 "responses": ["7F 10"],
                 "expect": {"error": "NEGATIVE_RESPONSE"},
             },
@@ -120,13 +117,11 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
     (package / "README.md").write_text("""# Nissan Versa migration example
 
 Reproduce with `python scripts/migrate-versa.py` from the repository root.
-The script declares `--framing isotp-single-frame --steering-side left` for the retained legacy input. It removes validated single-frame PCI and padding from request/response commands and retains the original application response patterns, including wildcards. The request-only ECU_WAKE and WIPERS commands remain byte-exact raw CAN. The original DBC and complete format 1 input remain under `../legacy/nissan-versa-1-6`.
+The script declares `--framing isotp-single-frame --steering-side left` for the retained legacy input. It removes validated single-frame PCI and padding from request/response commands and retains the original application response patterns, including wildcards. The request-only ECU_WAKE command remains byte-exact raw CAN. WIPERS is the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode, and its request remains the original raw CAN frame. The original DBC and complete format 1 input remain under `../legacy/nissan-versa-1-6`.
 
 These declarations describe the source framing and left-hand-drive mapping; they are not physical test evidence. DBC comments identify Sentra-derived observations. Do not infer model-year compatibility from the package metadata. TPS has no established canonical mapping and remains in unmapped with the original data. STEERING_ANGLE maps because the pinned catalog declares Vehicle.Chassis.SteeringWheel.Angle as float; upstream VSS 6.1 uses int16, which cannot preserve the 0.1 deg factor.
 
-The 2011 overlay is **synthetic**: it inserts a 10 ms wait in the shared setup sequence to demonstrate late call resolution and narrower applicability. It claims no real 2011 ECU difference. Compare exports with `--vehicle make=Nissan,model=Versa,year=2008` and `year=2011`.
-
-LOCK/UNLOCK control all doors and remain actions. HORN supports only the true case. Fixture expectations preserve the legacy application bytes; no raw receive PCI values are invented. Runtime execution and vehicle testing are outside this repository.
+LOCK and UNLOCK are the true and false cases of Vehicle.Cabin.Door.IsLocked. That actuator commands every cabin door at once. This package does not bind those commands to a single door. HORN supports only the true case. WIPERS supports only the MEDIUM case of the front windshield wiper mode. Fixture expectations preserve the legacy application bytes; no raw receive PCI values are invented. Runtime execution and vehicle testing are outside this repository.
 """)
     resolve([package], {"year": 2008})
     resolve([package], {"year": 2011})

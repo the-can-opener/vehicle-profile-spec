@@ -9,10 +9,11 @@ A vehicle definition is a **package**: a directory, or a zip whose root is that 
 ```text
 nissan-versa/
   vehicle.yaml          # manifest
-  base.yaml             # channels, engine endpoint, powertrain properties
-  body.yaml             # body endpoints, sequences, body properties and actions
-  overlays/2011.yaml    # narrower applicability, merged last
-  dbc/signals.dbc
+  base.yaml             # channels and endpoints
+  body.yaml             # shared sequence and body properties
+  powertrain.yaml       # powertrain properties
+  actions.yaml          # commands that are not one VSS actuator
+  signals.dbc
   fixtures/body.yaml
   README.md             # not loaded
 ```

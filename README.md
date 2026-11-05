@@ -51,7 +51,7 @@ To write your own profile, follow the [authoring guide](docs/authoring-guide.md)
 
 - [Universal OBD package](examples/universal-obd/vehicle.yaml) — property queries, VIN and a named PID query; [fixtures](examples/universal-obd/fixtures.yaml).
 - [Synthetic HVAC](examples/hvac-synthetic/README.md) — shared reads, passive acquisition and a numeric write; [package](examples/hvac-synthetic/vehicle.yaml).
-- [Nissan Versa migration](examples/nissan-versa/README.md) — split documents, horn cases, all-door actions and a synthetic year overlay.
+- [Nissan Versa migration](examples/nissan-versa/README.md) — split documents, horn cases, and an all-door lock write.
 
 Examples and fixtures illustrate the format. Validation performs no vehicle I/O and does not prove physical compatibility.
 

@@ -22,10 +22,6 @@ documents:
 - path: body.yaml
 - path: powertrain.yaml
 - path: actions.yaml
-- path: overlays/2011.yaml
-  applies_to:
-    years:
-    - 2011
 unmapped:
 - capability: TPS
   reason: Exact VSS identity, semantics or command target requires review.

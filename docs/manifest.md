@@ -42,8 +42,7 @@ dbc:
 documents:
   - path: base.yaml
   - path: body.yaml
-  - path: overlays/2011.yaml
-    applies_to: {years: [2011]}
+  - path: actions.yaml
 
 fixtures:
   - fixtures/body.yaml
