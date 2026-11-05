@@ -48,7 +48,7 @@ fixtures:
   - fixtures/body.yaml
 
 unmapped:
-  - {capability: SEATBELT_WARNING, reason: "exact VSS identity and frame not established"}
+  - {capability: IDEAL_RANGE, reason: "VSS has no ideal or rated range separate from remaining range"}
 ```
 
 A document may contain `applies_to`, `channels`, `endpoints`, `sources`, `properties`, `sequences`, `queries`, `actions`, `requires`, and `extensions`. This `base.yaml` binds one property to both a broadcast signal and an engine query:

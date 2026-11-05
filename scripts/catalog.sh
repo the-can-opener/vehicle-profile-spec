@@ -32,23 +32,25 @@ count = text.count(old)
 if count != 1:
     raise SystemExit(f"expected one upstream SteeringWheel.Angle node, found {count}")
 text = text.replace(old, new, 1)
-# Local addition: Central is a sibling of Row1 and Row2, not a door position.
-# Upstream VSS 6.1 has IsLocked only on each door. See catalog/README.md.
-door = '"Door": {"children": {"Row1":'
-locked = (
-    '"Door": {"children": {"Central": {"children": {"IsLocked": {"comment": '
-    '"Not in upstream COVESA VSS 6.1. One command that locks or unlocks every '
-    "cabin door binds here. Per-door lock state remains on each door's IsLocked "
-    'actuator.", "datatype": "boolean", "description": "Central lock command for '
-    'every cabin door. True = Locked. False = Unlocked.", "type": "actuator"}}, '
-    '"comment": "Not in upstream COVESA VSS 6.1. Sibling of Row1 and Row2. This '
-    'branch is the central lock, not a door position, and contains only IsLocked.", '
-    '"description": "Central locking for every cabin door.", "type": "branch"}, "Row1":'
+# Local additions beside IsWindowChildLockEngaged. See catalog/README.md.
+# Upstream VSS 6.1 has IsLocked only on each door and IsBelted only on each seat.
+child_lock = '"IsWindowChildLockEngaged":'
+leaves = (
+    '"IsCentralLockEngaged": {"comment": "Not in upstream COVESA VSS 6.1. '
+    "One command that locks or unlocks every cabin door binds here. Per-door lock "
+    'state remains on each door\'s IsLocked actuator.", "datatype": "boolean", '
+    '"description": "Is central lock engaged. True = Engaged. False = Disengaged.", '
+    '"type": "actuator"}, "IsSeatBeltWarningActive": {"comment": "Not in upstream '
+    "COVESA VSS 6.1. The vehicle seatbelt warning indicator binds here. Per-seat "
+    'buckle state remains on each seat\'s IsBelted sensor.", "datatype": "boolean", '
+    '"description": "Is the vehicle seatbelt warning indicator active. '
+    'True = Active. False = Inactive.", "type": "sensor"}, '
+    '"IsWindowChildLockEngaged":'
 )
-count = text.count(door)
+count = text.count(child_lock)
 if count != 1:
-    raise SystemExit(f"expected one Cabin.Door branch, found {count}")
-path.write_text(text.replace(door, locked, 1))
+    raise SystemExit(f"expected one Cabin child-lock signal, found {count}")
+path.write_text(text.replace(child_lock, leaves, 1))
 PY
 # Vehicle.OBD comes from the v6.1 OBD overlay. The standard catalog export omits it.
 python3 - "$task_tmp/overlays/extensions/OBD/OBD.vspec" catalog/vss-6.1.json <<'PY'

@@ -59,8 +59,8 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `IDEAL_RANGE`: unmapped: VSS has no ideal or rated range separate from remaining range.
 - `LAMBDA`: Vehicle.OBD.O2WR.Sensor1.Lambda; First wideband oxygen sensor, PID 24. Sensors 2 through 8 are Vehicle.OBD.O2WR.Sensor2.Lambda through Sensor8.Lambda.
 - `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
-- `LOCK`: Vehicle.Cabin.Door.Central.IsLocked (write target true)
-- `LOCKED`: Vehicle.Cabin.Door.Central.IsLocked
+- `LOCK`: Vehicle.Cabin.IsCentralLockEngaged (write target true)
+- `LOCKED`: Vehicle.Cabin.IsCentralLockEngaged
 - `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LTFT_B1`: Vehicle.OBD.LongTermFuelTrim1; COVESA OBD overlay, PID 07. Unit is percent.
@@ -93,7 +93,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `RUNNING_LIGHTS`: Vehicle.Body.Lights.Running.IsOn (write target true)
 - `RUNTIME`: Vehicle.OBD.RunTime; Engine run time. COVESA OBD overlay, PID 1F. Unit is seconds.
 - `SCHEDULE_SOFTWARE_UPDATE`: action SCHEDULE_SOFTWARE_UPDATE
-- `SEATBELT_WARNING`: unmapped: VSS has per-seat IsBelted and no seatbelt warning lamp.
+- `SEATBELT_WARNING`: Vehicle.Cabin.IsSeatBeltWarningActive; Vehicle seatbelt warning indicator. True means the indicator is active. Per-seat buckle state remains IsBelted.
 - `SET_CHARGE_LIMIT`: unmapped: The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit.
 - `SET_CHARGING_AMPS`: unmapped: No commanded charging-current actuator. MaximumChargingCurrent is inlet capability, not a setpoint.
 - `SET_TEMPERATURE`: unmapped: The station is not fixed. Use DRIVER_TEMP_SETTING or PASSENGER_TEMP_SETTING.
@@ -110,7 +110,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `TPMS_REAR_LEFT`: Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure; Rear-axle left tire pressure. VSS unit is kPa.
 - `TPMS_REAR_RIGHT`: Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure; Rear-axle right tire pressure. VSS unit is kPa.
 - `TPS`: Vehicle.Powertrain.CombustionEngine.TPS
-- `UNLOCK`: Vehicle.Cabin.Door.Central.IsLocked (write target false)
+- `UNLOCK`: Vehicle.Cabin.IsCentralLockEngaged (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN
 - `WAKE_UP`: action WAKE_UP
 - `WINDOW_CHILD_LOCK`: Vehicle.Cabin.IsWindowChildLockEngaged (write target true); Disables the rear window switches so only the driver can operate them.

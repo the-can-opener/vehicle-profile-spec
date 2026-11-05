@@ -220,11 +220,11 @@
     "target": true
   },
   "LOCK": {
-    "path": "Vehicle.Cabin.Door.Central.IsLocked",
+    "path": "Vehicle.Cabin.IsCentralLockEngaged",
     "target": true
   },
   "LOCKED": {
-    "path": "Vehicle.Cabin.Door.Central.IsLocked"
+    "path": "Vehicle.Cabin.IsCentralLockEngaged"
   },
   "LOW_BEAM": {
     "path": "Vehicle.Body.Lights.Beam.Low.IsOn",
@@ -350,7 +350,8 @@
     "action": "SCHEDULE_SOFTWARE_UPDATE"
   },
   "SEATBELT_WARNING": {
-    "reason": "VSS has per-seat IsBelted and no seatbelt warning lamp."
+    "note": "Vehicle seatbelt warning indicator. True means the indicator is active. Per-seat buckle state remains IsBelted.",
+    "path": "Vehicle.Cabin.IsSeatBeltWarningActive"
   },
   "SET_CHARGE_LIMIT": {
     "reason": "The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit."
@@ -409,7 +410,7 @@
     "path": "Vehicle.Powertrain.CombustionEngine.TPS"
   },
   "UNLOCK": {
-    "path": "Vehicle.Cabin.Door.Central.IsLocked",
+    "path": "Vehicle.Cabin.IsCentralLockEngaged",
     "target": false
   },
   "VIN": {

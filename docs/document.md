@@ -137,7 +137,7 @@ outgoing = (last-rx AND NOT mask) OR patch
 
 The runtime stores the requested target and the observed actual value separately. Sending or acknowledging a request never changes the observed value; only a `read` observation does. A caller that needs readback reads or subscribes to the property after the write. A command that affects several actuators cannot be advertised as independent control of one of them. Bind it to the catalog actuator that means the whole set, or define it as an [action](document.md#actions) when no such actuator exists.
 
-`Vehicle.Cabin.Door.Central.IsLocked` is that actuator. `Central` sits beside `Row1` and `Row2` and is not a door position. `"true"` locks every door and `"false"` unlocks every door. The per-door paths, such as `Vehicle.Cabin.Door.Row1.DriverSide.IsLocked`, remain the lock state of one door.
+`Vehicle.Cabin.IsCentralLockEngaged` is that actuator. It sits beside `IsWindowChildLockEngaged`. `"true"` locks every door and `"false"` unlocks every door. The per-door paths, such as `Vehicle.Cabin.Door.Row1.DriverSide.IsLocked`, remain the lock state of one door.
 
 ### Horn example
 
@@ -318,7 +318,7 @@ Preconditions use fresh valid property values. Session-affecting work acquires a
 
 A capability with a VSS path is a property: it is read through `read.signal` or `read.query` and controlled through `write`. Everything else is a named query or a named action. A query returns data and does not change vehicle state. An action changes vehicle state. There is no third procedure kind.
 
-Names are uppercase with underscores. When the standard keyword vocabulary lists the capability, for example `ECU_WAKE`, `WAKE_UP`, or `SIGNAL_OFF`, the package MUST use that name; other names are vehicle-specific. A keyword that maps to exactly one VSS actuator is a write on that path, with the keyword as an alias, and MUST NOT also be an action. `HORN` is therefore a write on `Vehicle.Body.Horn.IsActive`. `LOCK` and `UNLOCK` are aliases on `Vehicle.Cabin.Door.Central.IsLocked`, for targets `"true"` and `"false"`. `WIPERS` is a write on `Vehicle.Body.Windshield.Front.Wiping.Mode` for target `"MEDIUM"` when the command does not select a speed. `OPEN_FRONT_LEFT_WINDOW`, `OPEN_FRONT_RIGHT_WINDOW`, `OPEN_REAR_LEFT_WINDOW`, and `OPEN_REAR_RIGHT_WINDOW` write `100` on that door's `Window.Position`, and the matching `CLOSE_*_WINDOW` names write `0`. Left and right assume left-hand drive. `WINDOW_CHILD_LOCK` and `WINDOW_CHILD_UNLOCK` are the true and false cases of `Vehicle.Cabin.IsWindowChildLockEngaged`. A name MUST NOT be both a query and an action.
+Names are uppercase with underscores. When the standard keyword vocabulary lists the capability, for example `ECU_WAKE`, `WAKE_UP`, or `SIGNAL_OFF`, the package MUST use that name; other names are vehicle-specific. A keyword that maps to exactly one VSS actuator is a write on that path, with the keyword as an alias, and MUST NOT also be an action. `HORN` is therefore a write on `Vehicle.Body.Horn.IsActive`. `LOCK` and `UNLOCK` are aliases on `Vehicle.Cabin.IsCentralLockEngaged`, for targets `"true"` and `"false"`. `WIPERS` is a write on `Vehicle.Body.Windshield.Front.Wiping.Mode` for target `"MEDIUM"` when the command does not select a speed. `OPEN_FRONT_LEFT_WINDOW`, `OPEN_FRONT_RIGHT_WINDOW`, `OPEN_REAR_LEFT_WINDOW`, and `OPEN_REAR_RIGHT_WINDOW` write `100` on that door's `Window.Position`, and the matching `CLOSE_*_WINDOW` names write `0`. Left and right assume left-hand drive. `WINDOW_CHILD_LOCK` and `WINDOW_CHILD_UNLOCK` are the true and false cases of `Vehicle.Cabin.IsWindowChildLockEngaged`. A name MUST NOT be both a query and an action.
 
 Queries and actions may declare `input_schema` (JSON Schema) when a request uses encoded `parts`; each encoded field's `input` names a property of the input object. An action cannot call another action or query. A caller that needs the body network awake invokes `ECU_WAKE` first.
 
@@ -363,7 +363,7 @@ actions:
         expect: {prefix: "70 2F *"}
 ```
 
-`ECU_WAKE` has no VSS actuator, and its steps have no `expect`, so its result is `sent`. `SIGNAL_OFF` turns off both indicators at once, and the catalog has no actuator for that pair, so it stays an action. An all-door lock is not an action: it is a write on `Vehicle.Cabin.Door.Central.IsLocked`.
+`ECU_WAKE` has no VSS actuator, and its steps have no `expect`, so its result is `sent`. `SIGNAL_OFF` turns off both indicators at once, and the catalog has no actuator for that pair, so it stays an action. An all-door lock is not an action: it is a write on `Vehicle.Cabin.IsCentralLockEngaged`.
 
 Writes and actions default to no retries. A timeout after transmission can mean outcome unknown, not failure to execute. `idempotent` is an explicit semantic assertion and does not guarantee exactly-once ECU execution.
 

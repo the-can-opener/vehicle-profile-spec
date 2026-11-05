@@ -88,12 +88,12 @@ The last full `make mandatory_targets` run passed **111 tests**, lint/format, my
 
 Implemented reference alignment:
 
-- Named `queries` and `actions` replace the earlier operations design. LOCK/UNLOCK are the true and false cases of `Vehicle.Cabin.Door.Central.IsLocked`; HORN is an actuator write with only a true case.
+- Named `queries` and `actions` replace the earlier operations design. LOCK/UNLOCK are the true and false cases of `Vehicle.Cabin.IsCentralLockEngaged`; HORN is an actuator write with only a true case.
 - Fixture descriptions use `label`; `name` identifies a named capability. Duplicate keys are rejected.
 - Request-only endpoints omit response settings. Multi-responder endpoints require an explicit `responder`.
 - Catalog source: v6.1 tag, commit `2817646d1808fc7c470c0432fc7f4ed685e5c9e3`, exported with vss-tools 1.9.9.
 - Migration supports raw/application/single-frame ISO-TP declarations, DBC query offsets, fixed VIN/hex queries, shared sequences, patterns, cases and passive-plus-query merging. It validates output before writing the destination. Uncertain or unsupported inputs retain their original objects in `unmapped`.
-- The Versa example is reproducibly generated from the retained legacy input using an explicit single-frame framing declaration and left-hand-drive mapping. Request-only frames remain byte-exact; request/response bindings use ISO-TP application bytes rather than invented raw receive PCI. LOCK and UNLOCK are cases on `Vehicle.Cabin.Door.Central.IsLocked`.
+- The Versa example is reproducibly generated from the retained legacy input using an explicit single-frame framing declaration and left-hand-drive mapping. Request-only frames remain byte-exact; request/response bindings use ISO-TP application bytes rather than invented raw receive PCI. LOCK and UNLOCK are cases on `Vehicle.Cabin.IsCentralLockEngaged`.
 - `export`/`resolve` support exact unknown-field exceptions, logged with reasons. Core-field and semantic errors cannot be excepted.
 - The mandatory target now builds and checks a wheel in temporary storage. `make clean` removes disposable caches/build output and retains the development environment.
 
@@ -181,7 +181,7 @@ Acceptance: the repository contains intended source/reference artifacts, disposa
 
 ### Migration review and scope boundaries
 
-Unknown TPS identity and unsupported multiplexed/variable-length/custom codecs remain explicit in `unmapped`. Resolving these mappings requires evidence or a separately specified codec; it is not a reason to guess values or silently activate capabilities. Expanding codec support is not required by the remaining tasks above. `Vehicle.Chassis.SteeringWheel.Angle` is `float` in the pinned catalog, noted as a departure from upstream VSS 6.1 `int16`, so the Versa 0.1 deg steering signal maps. `Vehicle.Cabin.Door.Central.IsLocked` is a local boolean actuator for one command that locks or unlocks every cabin door. Fractional values that still target an integer VSS property stay unmapped.
+Unknown TPS identity and unsupported multiplexed/variable-length/custom codecs remain explicit in `unmapped`. Resolving these mappings requires evidence or a separately specified codec; it is not a reason to guess values or silently activate capabilities. Expanding codec support is not required by the remaining tasks above. `Vehicle.Chassis.SteeringWheel.Angle` is `float` in the pinned catalog, noted as a departure from upstream VSS 6.1 `int16`, so the Versa 0.1 deg steering signal maps. `Vehicle.Cabin.IsCentralLockEngaged` is a local boolean actuator for one command that locks or unlocks every cabin door. Fractional values that still target an integer VSS property stay unmapped.
 
 Physical vehicle testing and consuming-runtime behavior remain outside this repository. BLE interfaces and firmware behavior remain out of scope.
 
@@ -315,7 +315,7 @@ Layer 4, Semantics, is new compared with the earlier package plan. It checks bin
   - `vss.md` (catalog pinning, roles, aliases, `unmapped`), `extensions.md`, `fixtures.md`, `validation.md`
   - `dbc.md`, moved from the README.
   - `authoring-guide.md`, `migration.md`
-- `docs/vocabulary.yaml` maps each former keyword to a VSS path, plus a write target value or an action name. The generated vocabulary listing linked from `vss.md` and the `migrate` command both read it. `LOCK` and `UNLOCK` map to `Vehicle.Cabin.Door.Central.IsLocked`. Keywords with no one-to-one actuator, such as `ECU_WAKE` and `SIGNAL_OFF`, become actions.
+- `docs/vocabulary.yaml` maps each former keyword to a VSS path, plus a write target value or an action name. The generated vocabulary listing linked from `vss.md` and the `migrate` command both read it. `LOCK` and `UNLOCK` map to `Vehicle.Cabin.IsCentralLockEngaged`. Keywords with no one-to-one actuator, such as `ECU_WAKE` and `SIGNAL_OFF`, become actions.
 
 ### Schemas and catalog
 
@@ -431,7 +431,7 @@ skills/
 - **`migrating-vehicle-profiles`** applies when the agent finds a `profile.yaml` with `version: 1`, or hits `DOC_LEGACY_FORMAT`. The agent:
   1. Runs `vprofile migrate`.
   2. Goes through the `unmapped` report.
-  3. Confirms that each converted action affects exactly the paths it is now mapped to; an all-door lock is `Vehicle.Cabin.Door.Central.IsLocked`, not a per-door write.
+  3. Confirms that each converted action affects exactly the paths it is now mapped to; an all-door lock is `Vehicle.Cabin.IsCentralLockEngaged`, not a per-door write.
   4. Splits the result into documents.
   5. Validates the package.
 - Every skill tells the agent to use `vprofile` when it is installed. Otherwise the agent uses `uvx --from "git+https://github.com/the-can-opener/vehicle-profile-spec#subdirectory=tools" vprofile ...`.

@@ -48,7 +48,7 @@ cases:
     sent: []
 - label: Lock wildcard acknowledged
   kind: write
-  path: Vehicle.Cabin.Door.Central.IsLocked
+  path: Vehicle.Cabin.IsCentralLockEngaged
   target: true
   responses:
   - 50 81
@@ -62,7 +62,7 @@ cases:
     result: acknowledged
 - label: Unknown lock outcome
   kind: write
-  path: Vehicle.Cabin.Door.Central.IsLocked
+  path: Vehicle.Cabin.IsCentralLockEngaged
   target: true
   responses:
   - 50 81
@@ -72,7 +72,7 @@ cases:
     error: OUTCOME_UNKNOWN
 - label: Failed acknowledgement
   kind: write
-  path: Vehicle.Cabin.Door.Central.IsLocked
+  path: Vehicle.Cabin.IsCentralLockEngaged
   target: true
   responses:
   - 7F 10

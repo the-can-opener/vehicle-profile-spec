@@ -11,9 +11,15 @@ def test_pinned_full_catalog():
     assert cat["Vehicle.Speed"]["unit"] == "km/h"
     assert cat["Vehicle.Body.Horn.IsActive"]["type"] == "actuator"
     assert "Vehicle.Cabin.Door.IsLocked" not in cat
-    door_lock = cat["Vehicle.Cabin.Door.Central.IsLocked"]
+    assert "Vehicle.Cabin.Door.Central.IsLocked" not in cat
+    assert "Vehicle.Cabin.DoorLock.IsLocked" not in cat
+    assert "Vehicle.Cabin.SeatBelt.IsWarning" not in cat
+    door_lock = cat["Vehicle.Cabin.IsCentralLockEngaged"]
     assert door_lock["type"] == "actuator" and door_lock["datatype"] == "boolean"
     assert cat["Vehicle.Cabin.Door.Row1.DriverSide.IsLocked"]["type"] == "actuator"
+    belt_warning = cat["Vehicle.Cabin.IsSeatBeltWarningActive"]
+    assert belt_warning["type"] == "sensor" and belt_warning["datatype"] == "boolean"
+    assert cat["Vehicle.Cabin.Seat.Row1.DriverSide.IsBelted"]["type"] == "sensor"
     assert cat["Vehicle.OBD.EngineLoad"]["unit"] == "percent"
     assert cat["Vehicle.OBD.O2.Sensor8.Voltage"]["unit"] == "V"
     assert cat["Vehicle.OBD.O2WR.Sensor1.Lambda"]["datatype"] == "float"

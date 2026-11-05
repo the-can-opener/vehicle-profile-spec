@@ -239,16 +239,16 @@ def test_duration_excludes_repeat(package):
 def test_latched_duration(package):
     data = base()
     data["properties"] = {
-        "Vehicle.Cabin.Door.Central.IsLocked": {
+        "Vehicle.Cabin.IsCentralLockEngaged": {
             "write": {
                 "cases": {"true": {"endpoint": "ecu", "request": "01", "duration": "latched"}}
             }
         }
     }
     result = resolve([package(data)])
-    case = result["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["write"]["cases"]["true"]
+    case = result["properties"]["Vehicle.Cabin.IsCentralLockEngaged"]["write"]["cases"]["true"]
     assert case["duration"] == "latched"
-    data["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["write"]["cases"]["true"][
+    data["properties"]["Vehicle.Cabin.IsCentralLockEngaged"]["write"]["cases"]["true"][
         "duration"
     ] = 0
     with pytest.raises(ProfileError):

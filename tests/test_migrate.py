@@ -30,12 +30,12 @@ def test_versa_request_response_migration(tmp_path):
     assert result["endpoints"]["body"]["protocol"] == "isotp"
     horn = prepare_write(result, "Vehicle.Body.Horn.IsActive", True)
     assert [s["request"] for s in horn["steps"]] == ["10 81", "10 C0", "30 30 00 01"]
-    lock = prepare_write(result, "Vehicle.Cabin.Door.Central.IsLocked", True)
+    lock = prepare_write(result, "Vehicle.Cabin.IsCentralLockEngaged", True)
     assert [step["request"] for step in lock["steps"]] == ["10 81", "10 C0", "30 38 00 01"]
     assert matches(lock["steps"][-1]["expect"], "70 38 FF")
-    unlock = prepare_write(result, "Vehicle.Cabin.Door.Central.IsLocked", False)
+    unlock = prepare_write(result, "Vehicle.Cabin.IsCentralLockEngaged", False)
     assert unlock["steps"][-1]["request"] == "30 38 00 02"
-    assert result["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["aliases"] == [
+    assert result["properties"]["Vehicle.Cabin.IsCentralLockEngaged"]["aliases"] == [
         "LOCK",
         "UNLOCK",
     ]
@@ -74,7 +74,7 @@ def test_raw_request_and_exact_wildcard_preserved(tmp_path):
     assert migrate(old, new, framing="raw") == []
     doc = resolve([new])
     assert doc["endpoints"]["ecu"]["protocol"] == "can"
-    lock = doc["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["write"]["cases"]["true"]
+    lock = doc["properties"]["Vehicle.Cabin.IsCentralLockEngaged"]["write"]["cases"]["true"]
     assert lock["request"] == "01 02"
     assert lock["expect"] == {"prefix": "03 *", "exact": True}
     assert "LOCK" not in doc.get("actions", {})

@@ -13,7 +13,7 @@ fixture: 1
 cases:
   - label: lock acknowledged
     kind: write
-    path: Vehicle.Cabin.Door.Central.IsLocked
+    path: Vehicle.Cabin.IsCentralLockEngaged
     target: true
     responses: ["50 81", "50 C0", "70 38 01"]
     expect:
@@ -22,7 +22,7 @@ cases:
 
   - label: lock sent with no reply
     kind: write
-    path: Vehicle.Cabin.Door.Central.IsLocked
+    path: Vehicle.Cabin.IsCentralLockEngaged
     target: true
     responses: ["50 81", "50 C0"]
     expect: {result: unknown, error: OUTCOME_UNKNOWN}

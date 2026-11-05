@@ -44,7 +44,7 @@ Pin package, VSS and extension versions independently. Publish schemas, examples
 
 ## Implemented migration
 
-`vprofile migrate OLD -o NEW` reads format 1 and writes a strictly validated package into an empty destination. It preserves DBC files, combines passive and queried bindings on one property, translates shared sequences and wildcards, and maps single-actuator commands to write cases. `LOCK` and `UNLOCK` become `"true"` and `"false"` cases on `Vehicle.Cabin.Door.Central.IsLocked`. Other multi-actuator commands remain actions. Unconverted objects retain their original data and reason in `unmapped`.
+`vprofile migrate OLD -o NEW` reads format 1 and writes a strictly validated package into an empty destination. It preserves DBC files, combines passive and queried bindings on one property, translates shared sequences and wildcards, and maps single-actuator commands to write cases. `LOCK` and `UNLOCK` become `"true"` and `"false"` cases on `Vehicle.Cabin.IsCentralLockEngaged`. Other multi-actuator commands remain actions. Unconverted objects retain their original data and reason in `unmapped`.
 
 Request/response conversion requires an explicit `--framing` declaration:
 

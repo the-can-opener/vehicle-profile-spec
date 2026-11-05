@@ -6,6 +6,8 @@ Run `make catalog VSS_SOURCE=/path/to/vehicle_signal_specification`. The script 
 
 `Vehicle.Chassis.SteeringWheel.Angle` is `float` in this catalog. Upstream VSS 6.1 declares it as `int16`. The local type keeps fractional degree signals, such as a 0.1 deg CAN factor, exact. The same note is on the signal in the sibling `vehicle_signal_specification` tree (`spec/Chassis/Chassis.vspec`).
 
-`Vehicle.Cabin.Door.Central` is a branch added beside `Row1` and `Row2`. It is the central lock, not a door position, and it contains only `IsLocked`. True locks every cabin door and false unlocks every cabin door. Upstream VSS 6.1 has `IsLocked` only on each door. This actuator does not report or command a single door.
+`Vehicle.Cabin.IsCentralLockEngaged` is a boolean actuator added beside `IsWindowChildLockEngaged`. True locks every cabin door and false unlocks every cabin door. Upstream VSS 6.1 has `IsLocked` only on each door. This actuator does not report or command a single door.
 
-`Vehicle.OBD` is the COVESA OBD overlay from the same tag (`overlays/extensions/OBD.vspec`). Upstream VSS 6.1 removed that branch from the standard catalog. `scripts/catalog.sh` reapplies the steering-wheel type, the central-lock branch, and this overlay after every export.
+`Vehicle.Cabin.IsSeatBeltWarningActive` is a boolean sensor added beside `IsWindowChildLockEngaged`. True means the vehicle seatbelt warning indicator is active. Upstream VSS 6.1 has `IsBelted` only on each seat. This sensor does not report or stand in for one seat's buckle.
+
+`Vehicle.OBD` is the COVESA OBD overlay from the same tag (`overlays/extensions/OBD.vspec`). Upstream VSS 6.1 removed that branch from the standard catalog. `scripts/catalog.sh` reapplies the steering-wheel type, the central-lock actuator, the seatbelt-warning sensor, and this overlay after every export.
