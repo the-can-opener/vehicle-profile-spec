@@ -577,18 +577,37 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "anyOf": [
-            {
-              "required": [
-                "bitrate"
-              ]
-            },
-            {
-              "required": [
-                "configuration"
+          "not": {
+            "required": [
+              "bitrate",
+              "configuration"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "protocol": {
+                "const": "can"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "data_bitrate"
+                  ]
+                },
+                {
+                  "required": [
+                    "fd"
+                  ]
+                }
               ]
             }
-          ]
+          }
         }
       ],
       "properties": {
@@ -597,6 +616,10 @@
             {
               "exclusiveMinimum": 0,
               "type": "integer"
+            },
+            {
+              "const": "auto",
+              "type": "string"
             },
             {
               "type": "null"
@@ -630,6 +653,21 @@
           ],
           "default": null,
           "title": "Data Bitrate"
+        },
+        "fd": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/FdFrames"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fd"
         },
         "protocol": {
           "enum": [
@@ -694,6 +732,7 @@
       "additionalProperties": false,
       "properties": {
         "channel": {
+          "default": "can0",
           "title": "Channel",
           "type": "string"
         },
@@ -716,8 +755,7 @@
         }
       },
       "required": [
-        "path",
-        "channel"
+        "path"
       ],
       "title": "DbcRef",
       "type": "object"
@@ -1374,12 +1412,57 @@
               "timeout_ms"
             ]
           }
+        },
+        {
+          "if": {
+            "required": [
+              "addressing"
+            ]
+          },
+          "then": {
+            "properties": {
+              "protocol": {
+                "const": "isotp"
+              }
+            }
+          }
         }
       ],
       "properties": {
+        "addressing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExtendedAddressing"
+            },
+            {
+              "$ref": "#/$defs/MixedAddressing"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Addressing"
+        },
         "channel": {
+          "default": "can0",
           "title": "Channel",
           "type": "string"
+        },
+        "fd": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/FdFrames"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fd"
         },
         "id_format": {
           "enum": [
@@ -1412,8 +1495,15 @@
         },
         "rx": {
           "items": {
-            "pattern": "^[0-9A-F]{1,8}$",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^[0-9A-F]{1,8}$",
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/IdRange"
+              }
+            ]
           },
           "title": "Rx",
           "type": "array"
@@ -1438,7 +1528,6 @@
         }
       },
       "required": [
-        "channel",
         "protocol",
         "tx",
         "id_format"
@@ -1446,10 +1535,76 @@
       "title": "Endpoint",
       "type": "object"
     },
+    "ExtendedAddressing": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "extended",
+          "title": "Mode",
+          "type": "string"
+        },
+        "source_address": {
+          "pattern": "^[0-9A-F]{2}$",
+          "title": "Source Address",
+          "type": "string"
+        },
+        "target_address": {
+          "pattern": "^[0-9A-F]{2}$",
+          "title": "Target Address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "target_address",
+        "source_address"
+      ],
+      "title": "ExtendedAddressing",
+      "type": "object"
+    },
+    "FdFrames": {
+      "additionalProperties": false,
+      "properties": {
+        "tx_dl": {
+          "enum": [
+            8,
+            64
+          ],
+          "title": "Tx Dl",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tx_dl"
+      ],
+      "title": "FdFrames",
+      "type": "object"
+    },
+    "IdRange": {
+      "additionalProperties": false,
+      "properties": {
+        "range": {
+          "items": {
+            "pattern": "^[0-9A-F]{1,8}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Range",
+          "type": "array"
+        }
+      },
+      "required": [
+        "range"
+      ],
+      "title": "IdRange",
+      "type": "object"
+    },
     "InlineSignal": {
       "additionalProperties": false,
       "properties": {
         "channel": {
+          "default": "can0",
           "title": "Channel",
           "type": "string"
         },
@@ -1477,13 +1632,33 @@
         }
       },
       "required": [
-        "channel",
         "id",
         "id_format",
         "length",
         "decode"
       ],
       "title": "InlineSignal",
+      "type": "object"
+    },
+    "MixedAddressing": {
+      "additionalProperties": false,
+      "properties": {
+        "address_extension": {
+          "pattern": "^[0-9A-F]{2}$",
+          "title": "Address Extension",
+          "type": "string"
+        },
+        "mode": {
+          "const": "mixed",
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "address_extension"
+      ],
+      "title": "MixedAddressing",
       "type": "object"
     },
     "NamedQuery": {
@@ -2082,6 +2257,7 @@
       "additionalProperties": false,
       "properties": {
         "channel": {
+          "default": "can0",
           "title": "Channel",
           "type": "string"
         },
@@ -2120,7 +2296,6 @@
       },
       "required": [
         "kind",
-        "channel",
         "id",
         "id_format",
         "length",

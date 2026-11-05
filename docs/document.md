@@ -15,7 +15,7 @@ On this page: [Core concepts](#core-concepts) · [Passive signals and active que
 | `write` | Steps that change one VSS actuator to a target value |
 | `value` | Static value of a VSS attribute |
 | `sources` | Optional shared frames or multi-output requests |
-| `channels` | Bus protocol and bitrate |
+| `channels` | Logical buses: protocol, bitrate, and CAN FD defaults |
 | `endpoints` | The ECU a request targets: addressing, framing, and timing |
 | `sequences` | Shared steps called from writes, queries, and actions |
 | `queries` | Named request/response reads that have no VSS path |
@@ -249,23 +249,60 @@ properties:
 
 ## Endpoints, ECU targets, and steps
 
-Channels declare protocol and explicit bitrate(s) or runtime configuration. Runtime configuration must resolve before activation.
+### Channels
+
+A channel is a logical CAN bus. Endpoints, inline signals, and manifest DBC files name a channel; the runtime maps each channel name to one of its controllers at activation. Channel names are portable: `can0` in a package means "the vehicle's first bus", and a runtime binds it to SocketCAN `can0`, adapter controller 0, or a serial adapter as it sees fit. A package never names a host interface.
+
+| Channel field | Meaning |
+|---|---|
+| `protocol` | `can` for a classic controller or `canfd` for a CAN FD controller |
+| `bitrate` | Nominal (arbitration) bitrate in bit/s, or `auto` for runtime detection. Omitted: 500000 |
+| `configuration: runtime` | The runtime supplies the bitrate; excludes `bitrate` |
+| `data_bitrate` | CAN FD data-phase bitrate in bit/s for frames sent with bit-rate switching. `canfd` only |
+| `fd` | Default format of frames sent on this channel: `true`, `false`, or `{tx_dl: 8 \| 64}`. `canfd` only; omitted means classic |
+
+Defaults:
+
+- A missing `channel` on an endpoint, inline signal, signal source, or manifest DBC reference names `can0`.
+- A referenced `can0` with no declaration is `{protocol: can, bitrate: 500000}`. Any other undeclared channel is an error.
+- A declared channel without `bitrate` or `configuration` runs at 500000 bit/s.
+- Resolved output materializes these defaults, so an exported document always states its channels and bitrates.
+
+```yaml
+channels:
+  can0:
+    protocol: can                # 500000 bit/s by default
+  can1:
+    protocol: canfd
+    bitrate: auto                # the runtime searches the nominal rate only
+    data_bitrate: 2000000
+    fd: {tx_dl: 64}              # requests default to CAN FD with 64-byte ISO-TP frames
+```
+
+`auto` detects the nominal bitrate at activation. The data bitrate is never detected; declare `data_bitrate` on every channel that carries bit-rate-switched FD frames, even when the package never sends FD, or the controller cannot decode them. A failed detection leaves the channel unavailable rather than guessing. `configuration: runtime` defers the whole timing to the runtime, for packages that bind to several adapters. A channel declared by one package may be used by another in the same composition.
+
+A `canfd` channel receives classic and FD frames without further declaration; `fd` only governs what the runtime sends. `fd: true` sends CAN FD with 8-byte ISO-TP frames; `{tx_dl: 64}` uses the ISO 15765-2:2016 escape form padded to 64 bytes. Sending FD on a `can` channel is an error, because classic nodes flag FD frames with error frames.
+
+### Endpoints
 
 An endpoint is the ECU a request targets. VSS supplies no addresses; the endpoint does. Property queries, writes, named queries, and actions name an endpoint instead of repeating CAN IDs, so two controllers on one bus are two endpoints, and a request reaches only the controller whose endpoint it names.
 
 | Endpoint field | Meaning |
 |---|---|
-| `channel` | Channel the endpoint is on |
+| `channel` | Channel the endpoint is on. Omitted: `can0` |
 | `protocol` | `can` for raw frames or `isotp` for ISO-TP transport |
 | `tx` | Transmit CAN ID |
-| `rx` | List of accepted response CAN IDs; omitted on a request-only endpoint |
+| `rx` | Accepted response CAN IDs or inclusive `{range: [low, high]}` entries; omitted on a request-only endpoint |
+| `responder` | Required when `rx` covers more than one ID: the one ID whose responses this endpoint accepts |
 | `id_format` | `standard` or `extended` |
 | `timeout_ms` | Response wait per request |
+| `fd` | Request frame format, overriding the channel: `true`, `false`, or `{tx_dl: 8 \| 64}` (`isotp` only) |
+| `addressing` | ISO-TP extended or mixed addressing (`isotp` only). Omitted: normal addressing |
 
 ```yaml
 endpoints:
   body:
-    channel: vehicle
+    channel: can0
     protocol: isotp
     tx: "745"
     rx: ["765"]
@@ -273,15 +310,59 @@ endpoints:
     timeout_ms: 300
 
   body-wake:
-    channel: vehicle
+    channel: can0
     protocol: can
     tx: "60D"
     id_format: standard
+
+  obd:
+    channel: can1
+    protocol: isotp
+    tx: "7DF"
+    rx: [{range: ["7E8", "7EF"]}]
+    responder: "7E8"
+    id_format: standard
+    timeout_ms: 500
+
+  legacy-ecu:
+    channel: can1
+    protocol: isotp
+    tx: "7B0"
+    rx: ["7B8"]
+    id_format: standard
+    timeout_ms: 500
+    fd: false                    # a classic-only node on the FD channel
 ```
 
-`body` is the Versa body control module. `body-wake` is request-only, so it has no `rx` and no `timeout_ms`.
+`body` is the Versa body control module. `body-wake` is request-only, so it has no `rx` and no `timeout_ms`. `rx` entries may not overlap and together cover at most 1000 IDs. Functional or multi-responder requests, such as `obd` above, require explicit `responder` selection; responses from other IDs in the range belong to other exchanges and are ignored. Separate per-responder results need separate endpoints.
 
-Distinguish extended CAN IDs from ISO-TP extended addressing. Missing protocol adapters make affected capabilities unavailable. For raw CAN endpoints, payloads and response patterns refer to the exact CAN data field. For ISO-TP endpoints, they refer to reassembled application payloads; adapters own PCI, padding, and flow control. Do not infer framing from the first byte. The format 1 Versa profile sends raw frames that include the PCI byte and padding; a migration that must stay byte-exact keeps those endpoints as `protocol: can`. Functional or multi-responder requests, such as `tx: "7DF"` with responses from `7E8` through `7EF`, require explicit responder selection or separate per-responder results.
+The runtime sends each request in the first format it finds: the endpoint `fd`, then the channel `fd`, then classic. `tx_dl` is the ISO-TP frame size for requests and for the flow control the runtime returns, `8` or `64`. Raw CAN endpoints take only `fd: true` or `fd: false`; a raw request on a classic endpoint holds at most 8 data bytes and on an FD endpoint at most 64. Replies describe themselves by frame length, so response patterns and decoders do not change with `tx_dl`.
+
+#### ISO-TP addressing
+
+With normal addressing, the CAN IDs alone identify the two ends and the PCI is the first data byte. With extended and mixed addressing, every frame of the exchange in both directions carries one address byte in front of the PCI:
+
+| Mode | Fields | Byte sent to the ECU | Byte the ECU sends back |
+|---|---|---|---|
+| `extended` | `target_address`, `source_address` | `target_address` (N_TA) | `source_address` (N_SA) |
+| `mixed` | `address_extension` | `address_extension` (N_AE) | `address_extension` (N_AE) |
+
+Each address is one hex byte, for example `"12"` or `F1`. Each mode accepts only its own fields.
+
+```yaml
+endpoints:
+  dme:                           # BMW engine ECU, address 12; every ECU listens on 6F1
+    protocol: isotp
+    tx: "6F1"
+    rx: ["612"]
+    id_format: standard
+    timeout_ms: 500
+    addressing: {mode: extended, target_address: "12", source_address: F1}
+```
+
+Requests and response patterns stay application bytes. The adapter inserts the transmit address before the PCI and strips the receive address and PCI from each reply frame; a reply frame whose first byte is not the receive address is ignored. Flow control goes to `tx` with the transmit address first. The address byte takes one data byte from every frame, so a classic single frame carries 6 application bytes instead of 7. Normal fixed addressing, the 29-bit `18DAttss` scheme of OBD-II and UDS, needs no `addressing`: declare a 29-bit `tx` with `id_format: extended`.
+
+Distinguish extended CAN IDs (`id_format`) from ISO-TP extended addressing (`addressing`). Missing protocol adapters make affected capabilities unavailable. For raw CAN endpoints, payloads and response patterns refer to the exact CAN data field. For ISO-TP endpoints, they refer to reassembled application payloads; adapters own PCI, padding, segmentation, and flow control. Do not infer framing from the first byte. The format 1 Versa profile sends raw frames that include the PCI byte and padding; a migration that must stay byte-exact keeps those endpoints as `protocol: can`.
 
 ### Response patterns
 

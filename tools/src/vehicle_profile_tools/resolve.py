@@ -9,19 +9,46 @@ import jsonschema
 from semantic_version import NpmSpec, Version
 
 from .catalog import check_value, load_catalog, resource, validate_properties
+from .codec import frame_limit
 from .container import Package, validate_model
 from .dbc import Dbc
 from .errors import fail
 from .merge import applicable, intersect, merge_document
-from .model import Document, Fixture
+from .model import DEFAULT_BITRATE, DEFAULT_CHANNEL, Document, Fixture
+
+
+def apply_transport_defaults(doc, dbc_channels=()):
+    """Materialize the channel and bitrate defaults so exports are explicit."""
+    channels = doc.setdefault("channels", {})
+    referenced = set(dbc_channels)
+    for ep in doc.get("endpoints", {}).values():
+        referenced.add(ep.setdefault("channel", DEFAULT_CHANNEL))
+    for source in doc.get("sources", {}).values():
+        if source["kind"] == "signal" and "id" in source:
+            referenced.add(source.setdefault("channel", DEFAULT_CHANNEL))
+    for prop in doc.get("properties", {}).values():
+        binding = prop.get("read", {}).get("signal", {})
+        if "id" in binding:
+            referenced.add(binding.setdefault("channel", DEFAULT_CHANNEL))
+    if DEFAULT_CHANNEL in referenced and DEFAULT_CHANNEL not in channels:
+        channels[DEFAULT_CHANNEL] = {"protocol": "can"}
+    for channel in channels.values():
+        if "bitrate" not in channel and "configuration" not in channel:
+            channel["bitrate"] = DEFAULT_BITRATE
+    if not channels:
+        doc.pop("channels")
 
 
 def validate_references(doc, dbcs, catalog):
     endpoints, sources = doc.get("endpoints", {}), doc.get("sources", {})
     sequences = doc.get("sequences", {})
+    channels = doc.get("channels", {})
     for name, ep_value in endpoints.items():
-        if ep_value["channel"] not in doc.get("channels", {}):
+        channel = channels.get(ep_value["channel"])
+        if channel is None:
             fail("DOC_INVALID", f"endpoints.{name}.channel", "unknown channel")
+        if channel["protocol"] == "can" and ep_value.get("fd"):
+            fail("DOC_INVALID", f"endpoints.{name}.fd", "CAN FD request on a classic channel")
     for name in doc.get("queries", {}):
         if name in doc.get("actions", {}):
             fail("DOC_EXCLUSIVE_FORMS", name, "name is both query and action")
@@ -70,9 +97,9 @@ def validate_references(doc, dbcs, catalog):
             elif "request" in step and ep is not None:
                 endpoint(ep, loc, "expect" in step)
                 request = step["request"]
-                if isinstance(request, str) and endpoints[ep]["protocol"] == "can":
-                    if len(request.split()) > 8:
-                        fail("DOC_INVALID", loc, "classic CAN payload exceeds 8 bytes")
+                limit = frame_limit(channels[endpoints[ep]["channel"]], endpoints[ep])
+                if isinstance(request, str) and limit and len(request.split()) > limit:
+                    fail("DOC_INVALID", loc, f"raw CAN request exceeds {limit} bytes")
 
     for name, sequence in sequences.items():
         steps(sequence["steps"], None, f"sequences.{name}", (name,))
@@ -96,7 +123,7 @@ def validate_references(doc, dbcs, catalog):
         ep = endpoints[value["endpoint"]]
         if ep["protocol"] != "can":
             fail("DOC_INVALID", loc, "repeat frame requires a raw CAN endpoint")
-        limit = 64 if doc["channels"][ep["channel"]]["protocol"] == "canfd" else 8
+        limit = frame_limit(channels[ep["channel"]], ep)
         mask = repeat["frame"]["mask"]
         if len(mask.split()) > limit:
             fail("DOC_INVALID", loc, "repeat frame exceeds the channel payload length")
@@ -256,6 +283,7 @@ def resolve(
     result: dict[str, Any] = {}
     owners: dict[tuple[str, str], str] = {}
     dbcs: dict[str, Dbc] = {}
+    dbc_channels: dict[str, str] = {}
     loaded: dict[str, str] = {}
     fixtures, metadata = [], []
     for source in [*packages, *overlays]:
@@ -276,6 +304,7 @@ def resolve(
         # Namespace DBC assets internally; references in exported bindings use these stable IDs.
         for key, ref in m.dbc.items():
             dbcs[f"{m.id}:{key}"] = Dbc(pkg.read(ref.path).decode("utf-8"))
+            dbc_channels[f"{m.id}:{key}"] = ref.channel
         for raw, ref_app, override in pkg.documents():
             if not isinstance(raw, dict):
                 fail("DOC_INVALID", str(source), "document must be object")
@@ -305,6 +334,10 @@ def resolve(
         )
     typed = validate_model(Document, result, strict=strict)
     result = typed.model_dump(exclude_unset=True, exclude_none=True)
+    apply_transport_defaults(result, dbc_channels.values())
+    for key, channel in dbc_channels.items():
+        if channel not in result.get("channels", {}):
+            fail("DOC_INVALID", f"dbc.{key.split(':', 1)[1]}.channel", "unknown channel")
     catalog = load_catalog()
     validate_properties(result, catalog)
     validate_references(result, dbcs, catalog)

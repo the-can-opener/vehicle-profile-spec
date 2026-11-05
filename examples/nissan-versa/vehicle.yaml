@@ -16,7 +16,7 @@ applies_to:
 dbc:
   main:
     path: signals.dbc
-    channel: vehicle
+    channel: can0
 documents:
 - path: base.yaml
 - path: body.yaml

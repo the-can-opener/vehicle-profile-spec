@@ -107,20 +107,55 @@ sequences:
   pause: {steps: [{wait_ms: 10}]}
 ```
 
-A passive-only property requires no endpoint:
+A passive-only property requires no endpoint. With no `channels` and no `channel`, the binding is on the default `can0` channel, classic CAN at 500000 bit/s:
 
 ```yaml vprofile-fragment
-channels:
-  vehicle: {protocol: can, configuration: runtime}
 properties:
   Vehicle.Speed:
     read:
       signal:
-        channel: vehicle
         id: "100"
         id_format: standard
         length: 1
         decode: {byte: 0, bytes: 1, type: uint}
+```
+
+A CAN FD channel with a detected nominal bitrate, a responder range, and a BMW-style extended-addressing endpoint on the default channel:
+
+```yaml vprofile-fragment
+channels:
+  can1: {protocol: canfd, bitrate: auto, data_bitrate: 2000000, fd: {tx_dl: 64}}
+endpoints:
+  obd:
+    channel: can1
+    protocol: isotp
+    tx: "7DF"
+    rx: [{range: ["7E8", "7EF"]}]
+    responder: "7E8"
+    id_format: standard
+    timeout_ms: 500
+  dme:
+    protocol: isotp
+    tx: "6F1"
+    rx: ["612"]
+    id_format: standard
+    timeout_ms: 500
+    addressing: {mode: extended, target_address: "12", source_address: F1}
+properties:
+  Vehicle.Speed:
+    read:
+      query:
+        endpoint: obd
+        request: "01 0D"
+        response: {prefix: "41 0D", min_data_bytes: 1}
+        decode: {byte: 0, bytes: 1, type: uint}
+  Vehicle.VehicleIdentification.VIN:
+    read:
+      query:
+        endpoint: dme
+        request: "22 F1 90"
+        response: {prefix: "62 F1 90", min_data_bytes: 17}
+        decode: {byte: 0, bytes: 17, type: ascii}
 ```
 
 A timed indicator command and a masked repeat frame. `duration` is information: milliseconds the effect has been observed to last, or `latched` when it has been observed to stay. The repeat copies unowned bits from the latest frame.

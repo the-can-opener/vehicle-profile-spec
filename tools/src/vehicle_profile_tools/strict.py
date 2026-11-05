@@ -11,7 +11,7 @@ from .errors import fail
 
 
 class Loader(yaml.SafeLoader):
-    pass
+    integer_keys = False
 
 
 Loader.yaml_implicit_resolvers = {
@@ -29,6 +29,8 @@ def mapping(loader, node):
     result = {}
     for key_node, value_node in node.value:
         key = loader.construct_object(key_node)
+        if isinstance(key, int) and not isinstance(key, bool) and loader.integer_keys:
+            key = str(key)
         if not isinstance(key, str) or key in result:
             fail("DOC_INVALID", str(key), "object keys must be unique strings")
         result[key] = loader.construct_object(value_node)
@@ -38,7 +40,13 @@ def mapping(loader, node):
 Loader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping)
 
 
-def parse(text: str, location: str = ""):
+class LegacyLoader(Loader):
+    """Format 1 keys `can.buses` by integer; those keys become strings."""
+
+    integer_keys = True
+
+
+def parse(text: str, location: str = "", loader=Loader):
     try:
         if location.endswith(".json"):
 
@@ -63,7 +71,7 @@ def parse(text: str, location: str = ""):
                 token, (yaml.tokens.AnchorToken, yaml.tokens.AliasToken, yaml.tokens.TagToken)
             ):
                 fail("DOC_INVALID", location, "YAML tags, anchors and aliases are forbidden")
-        value = yaml.load(text, Loader=Loader)
+        value = yaml.load(text, Loader=loader)
         json.dumps(value, allow_nan=False)
 
         def check(v):

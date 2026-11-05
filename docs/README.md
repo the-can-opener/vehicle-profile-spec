@@ -15,7 +15,7 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 
 - [Package and file format](package.md) — directory/ZIP layout, safe paths, JSON-compatible YAML and asset limits.
 - [Manifest and applicability](manifest.md) — package identity, versions, document order, DBC assets, dependencies and vehicle selectors.
-- [Properties and bindings](document.md) — [reads](document.md#passive-signals-and-active-queries), [shared sources](document.md#shared-sources), [writes](document.md#writes), [endpoints and steps](document.md#endpoints-ecu-targets-and-steps), [queries and actions](document.md#queries-and-actions), and [runtime results](document.md#runtime-results-and-discovery).
+- [Properties and bindings](document.md) — [reads](document.md#passive-signals-and-active-queries), [shared sources](document.md#shared-sources), [writes](document.md#writes), [channels](document.md#channels), [endpoints and steps](document.md#endpoints), [queries and actions](document.md#queries-and-actions), and [runtime results](document.md#runtime-results-and-discovery).
 - [VSS paths and semantics](vss.md) — canonical identities, roles, aliases and catalog resolution.
 - [Decoding and encoding](decoding.md) — byte/bit extraction, scaling, enums and exact request encoding.
 - [DBC assets](dbc.md) — native signal layout and the boundary between DBC data and binding behavior.
@@ -36,6 +36,8 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 - [Universal OBD](../examples/universal-obd/vehicle.yaml) — a single-file package with property and named queries.
 - [Synthetic HVAC](../examples/hvac-synthetic/README.md) — shared acquisition and an exactly encoded numeric write; [package](../examples/hvac-synthetic/vehicle.yaml) and [fixtures](../examples/hvac-synthetic/fixtures.yaml).
 - [Nissan Versa migration](../examples/nissan-versa/README.md) — split documents, shared sequences, and an all-door lock write.
+- [Synthetic dual-bus CAN FD](../examples/canfd-dual-bus/README.md) — two channels, `auto` bitrate, FD request defaults and overrides, and a responder range; [package](../examples/canfd-dual-bus/vehicle.yaml).
+- [ISO-TP addressing](../examples/bmw-addressing/README.md) — BMW-style extended and mixed addressing on the default `can0` channel; [package](../examples/bmw-addressing/vehicle.yaml).
 - [Manifest schema](../schemas/manifest.schema.json), [document schema](../schemas/document.schema.json) and [fixture schema](../schemas/fixture.schema.json).
 - [Pinned VSS catalog and provenance](../catalog/README.md).
 - [Agent skills and installation](../skills/README.md).

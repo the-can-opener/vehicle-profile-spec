@@ -15,8 +15,8 @@ from .catalog import check_value, load_catalog, resource
 from .container import MAX_FILE, safe_path, validate_model
 from .dbc import Dbc
 from .errors import ProfileError
-from .model import Action, NamedQuery, Property
-from .strict import parse
+from .model import Action, Channel, Endpoint, NamedQuery, Property, expand_rx
+from .strict import LegacyLoader, parse
 
 FRAMINGS = (None, "raw", "isotp", "isotp-single-frame")
 # These are spelling aliases for identical units, not numerical conversions.
@@ -84,7 +84,9 @@ class Migrator:
         self.framing = framing
         self.responders = responders or {}
         self.steering_side = steering_side
-        self.legacy = parse(self.read("profile.yaml").decode("utf-8"), "profile.yaml")
+        self.legacy = parse(
+            self.read("profile.yaml").decode("utf-8"), "profile.yaml", loader=LegacyLoader
+        )
         if (
             not isinstance(self.legacy, dict)
             or type(self.legacy.get("version")) is not int
@@ -94,7 +96,7 @@ class Migrator:
         self.vocabulary = json.loads(resource("vocabulary.yaml").read_text())
         self.catalog = load_catalog()
         self.doc: dict[str, Any] = {
-            "channels": {"vehicle": {"protocol": "can", "configuration": "runtime"}},
+            "channels": {},
             "endpoints": {},
             "properties": {},
             "sequences": {},
@@ -149,46 +151,87 @@ class Migrator:
                 )
         return result
 
+    def channel(self, bus):
+        """Logical bus N becomes channel canN. An undeclared bus kept adapter timing."""
+        if type(bus) is not int or not 0 <= bus <= 255:
+            raise ValueError("legacy bus must be an integer from 0 to 255")
+        name = f"can{bus}"
+        if name in self.doc["channels"]:
+            return name
+        old = self.legacy.get("can", {}).get("buses", {}).get(str(bus))
+        if old is None:
+            channel: dict[str, Any] = {"protocol": "can", "configuration": "runtime"}
+        else:
+            fd = old.get("fd")
+            sends_fd = fd is not None and fd is not False  # true, {} and {isotp: ...} all mean FD
+            channel = {
+                "protocol": "canfd" if sends_fd or "data_bitrate" in old else "can",
+                "bitrate": old["bitrate"],
+            }
+            if "data_bitrate" in old:
+                channel["data_bitrate"] = old["data_bitrate"]
+            if isinstance(fd, dict) and "isotp" in fd:
+                channel["fd"] = {"tx_dl": fd["isotp"]["tx_dl"]}
+            elif sends_fd:
+                channel["fd"] = True
+        validate_model(Channel, channel, f"channels.{name}")
+        self.doc["channels"][name] = channel
+        return name
+
+    @staticmethod
+    def addressing(old):
+        fields = {
+            "extended": ("target_address", "source_address"),
+            "mixed": ("address_extension",),
+        }
+        keys = fields.get(old["mode"])
+        if keys is None:
+            raise ValueError("addressing mode must be extended or mixed")
+        if set(old) != {"mode", *keys}:
+            raise ValueError(f"{old['mode']} addressing takes exactly {', '.join(keys)}")
+        return {"mode": old["mode"], **{key: f"{old[key]:02X}" for key in keys}}
+
     def endpoint(self, name):
         if name not in self.legacy.get("endpoints", {}):
             raise ValueError(f"unknown legacy endpoint {name}")
         if name in self.doc["endpoints"]:
             return self.doc["endpoints"][name]
         old = self.legacy["endpoints"][name]
-        rx = [old["response_id"]] if "response_id" in old else []
+        rx: list[Any] = [f"{old['response_id']:X}"] if "response_id" in old else []
         for value in old.get("response_ids", []):
             if isinstance(value, dict):
                 low, high = value["range"]
-                if not (0 <= high - low < 1000):
-                    raise ValueError("invalid response ID range")
-                rx.extend(range(low, high + 1))
+                rx.append({"range": [f"{low:X}", f"{high:X}"]})
             else:
-                rx.append(value)
+                rx.append(f"{value:X}")
+        ids = expand_rx(rx)
         ep: dict[str, Any] = {
-            "channel": "vehicle",
+            "channel": self.channel(old.get("bus", 0)),
             "protocol": "isotp"
             if rx and self.framing in ("isotp", "isotp-single-frame")
             else "can",
             "tx": f"{old['request_id']:X}",
             "id_format": "extended"
-            if old.get("request_id_extended") or any(x > 0x7FF for x in [old["request_id"], *rx])
+            if old.get("extended") or any(x > 0x7FF for x in [old["request_id"], *ids])
             else "standard",
         }
         if rx:
-            ep.update(rx=[f"{x:X}" for x in rx], timeout_ms=old.get("timeout_ms", 500))
-        if len(rx) > 1:
+            ep.update(rx=rx, timeout_ms=old.get("timeout_ms", 500))
+        if len(ids) > 1:
             selected = self.responders.get(name)
             if (
                 selected is None
                 or not re.fullmatch("[0-9A-F]{1,8}", selected)
-                or int(selected, 16) not in rx
+                or int(selected, 16) not in ids
             ):
                 raise ValueError(
                     f"multiple responders require --responder {name}=HEX selecting a listed ID"
                 )
             ep["responder"] = selected
-        from .model import Endpoint
-
+        if "fd" in old:
+            ep["fd"] = old["fd"]
+        if "addressing" in old:
+            ep["addressing"] = self.addressing(old["addressing"])
         validate_model(Endpoint, ep, f"endpoints.{name}")
         self.doc["endpoints"][name] = ep
         return ep
@@ -229,6 +272,10 @@ class Migrator:
                     raise ValueError(
                         "inline send inside steps changes endpoint; split into separate actions"
                     )
+                if "timeout_ms" in item:
+                    raise ValueError(
+                        "per-step timeout_ms has no format 2 form; the endpoint timeout applies"
+                    )
                 step = {"request": self.request(item["send"], ep)}
                 if "expect" in item:
                     if self.framing is None:
@@ -239,6 +286,8 @@ class Migrator:
                         raise ValueError("expect requires response IDs")
                     step["expect"] = response_pattern(item["expect"])
                 converted.append(step)
+                if item.get("delay_ms"):
+                    converted.append({"wait_ms": item["delay_ms"]})
         return converted
 
     def dbc_signal(self, mapping):
@@ -304,6 +353,7 @@ class Migrator:
         path = mapping["path"]
         entry = self.catalog[path]
         key, message, signal = self.dbc_signal(old["monitor"])
+        channel = self.channel(old["monitor"].get("bus", 0))
         decoder = dbc_decoder(signal)
         norm = self.normalization(name, old, signal, entry)
         if norm:
@@ -311,11 +361,16 @@ class Migrator:
             decoder.pop("offset", None)
             decoder.update(norm)
         self.validate_decoder(decoder, entry, name)
-        if signal.unit == decoder.get("unit", ""):
-            binding = {"dbc": key, **old["monitor"], **norm}
+        monitor = {k: v for k, v in old["monitor"].items() if k != "bus"}
+        if (
+            signal.unit == decoder.get("unit", "")
+            and channel == self.manifest["dbc"][key]["channel"]
+        ):
+            binding = {"dbc": key, **monitor, **norm}
         else:
+            # A renamed unit or a DBC bound to another channel needs an inline frame binding.
             binding = {
-                "channel": "vehicle",
+                "channel": channel,
                 "id": f"{message.id & 0x1FFFFFFF:X}",
                 "id_format": "extended" if message.id > 0x7FF else "standard",
                 "length": message.length,
@@ -331,6 +386,10 @@ class Migrator:
         ep = self.endpoint(old["endpoint"])
         if not ep.get("rx"):
             raise ValueError("query requires response IDs")
+        if "timeout_ms" in old:
+            raise ValueError(
+                "per-query timeout_ms has no format 2 form; the endpoint timeout applies"
+            )
         mapping = self.mapping(name)
         path = mapping.get("path")
         if mapping.get("reason"):
@@ -404,15 +463,23 @@ class Migrator:
             self.doc["queries"][mapping.get("query", name)] = query
 
     def action(self, name, old):
+        if "batch" in old:
+            self.notes.append(
+                f"{name}: legacy batch is runtime transport policy and has no format 2 field."
+            )
         if isinstance(old.get("send"), dict):
             send = old["send"]
             endpoint = "generated-" + name.lower()
-            self.doc["endpoints"][endpoint] = {
-                "channel": "vehicle",
+            generated = {
+                "channel": self.channel(send.get("bus", 0)),
                 "protocol": "can",
                 "tx": f"{send['request_id']:X}",
                 "id_format": "extended" if send["request_id"] > 0x7FF else "standard",
             }
+            if "fd" in send:
+                generated["fd"] = send["fd"]
+            validate_model(Endpoint, generated, f"endpoints.{endpoint}")
+            self.doc["endpoints"][endpoint] = generated
             body = {"endpoint": endpoint, "request": hex_string(send["request"])}
         else:
             endpoint = old["endpoint"]
@@ -448,6 +515,11 @@ class Migrator:
             self.doc["actions"][new_name] = action
 
     def convert(self):
+        for bus, original in self.legacy.get("can", {}).get("buses", {}).items():
+            try:
+                self.channel(int(bus))
+            except (ValueError, KeyError, TypeError) as exc:
+                self.unmapped(f"can.buses.{bus}", exc, original)
         for i, ref in enumerate(self.legacy.get("dbc", {}).get("files", [])):
             name = ref["path"] if isinstance(ref, dict) else ref
             if name in self.assets or name in ("vehicle.yaml", "bindings.yaml", "README.md"):
@@ -460,8 +532,20 @@ class Migrator:
                 self.unmapped(f"dbc.{key}", exc, {"path": name})
                 continue
             self.assets[name] = data
-            self.manifest["dbc"][key] = {"path": name, "channel": "vehicle"}
+            self.manifest["dbc"][key] = {"path": name}
             self.dbcs[key] = dbc
+        # A DBC binds to one channel: the single bus its monitored messages use, else bus 0.
+        buses: dict[str, set[int]] = {key: set() for key in self.dbcs}
+        for old in self.legacy.get("signals", {}).values():
+            try:
+                key, _, _ = self.dbc_signal(old["monitor"])
+                buses[key].add(old["monitor"].get("bus", 0))
+            except (ValueError, KeyError, TypeError):
+                continue
+        for key, used in buses.items():
+            self.manifest["dbc"][key]["channel"] = self.channel(
+                next(iter(used)) if len(used) == 1 else 0
+            )
         for section, method in [
             ("signals", self.signal),
             ("queries", self.query),
@@ -474,6 +558,11 @@ class Migrator:
                 except (ValueError, KeyError, TypeError) as exc:
                     self.doc, self.notes = before, notes
                     self.unmapped(name, exc, original)
+        for name, original in self.legacy.get("endpoints", {}).items():
+            try:
+                self.endpoint(name)
+            except (ValueError, KeyError, TypeError) as exc:
+                self.unmapped(f"endpoints.{name}", exc, original)
         used = {name.split("--")[0] for name in self.doc["sequences"]}
         for name, original in self.legacy.get("sequences", {}).items():
             if name not in used:

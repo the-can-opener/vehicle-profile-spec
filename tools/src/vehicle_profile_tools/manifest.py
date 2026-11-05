@@ -3,7 +3,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, model_validator
 from semantic_version import NpmSpec, Version
 
-from .model import Model
+from .model import DEFAULT_CHANNEL, Model
 
 
 class YearRange(Model):
@@ -36,7 +36,7 @@ class DocumentRef(AssetRef):
 
 
 class DbcRef(AssetRef):
-    channel: str
+    channel: str = DEFAULT_CHANNEL
 
 
 class Dependency(Model):

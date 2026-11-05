@@ -65,7 +65,13 @@ def augment(name, schema):
             "allOf": [{"$ref": "#/$defs/Decoder"}, {"required": ["datatype"]}]
         }
     elif name == "Channel":
-        rules += [{"anyOf": [{"required": ["bitrate"]}, {"required": ["configuration"]}]}]
+        rules += [
+            {"not": {"required": ["bitrate", "configuration"]}},
+            {
+                "if": {"properties": {"protocol": {"const": "can"}}},
+                "then": {"not": {"anyOf": [{"required": ["data_bitrate"]}, {"required": ["fd"]}]}},
+            },
+        ]
     elif name == "FixtureCase":
         rules += [
             exclusive(("path",), ("name",)),
@@ -81,7 +87,11 @@ def augment(name, schema):
             {
                 "if": {"properties": {"rx": {"minItems": 1}}, "required": ["rx"]},
                 "then": {"required": ["timeout_ms"]},
-            }
+            },
+            {
+                "if": {"required": ["addressing"]},
+                "then": {"properties": {"protocol": {"const": "isotp"}}},
+            },
         ]
     if rules:
         schema.setdefault("allOf", []).extend(rules)

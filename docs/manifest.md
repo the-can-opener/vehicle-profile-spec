@@ -13,7 +13,7 @@
 | `name` | Human-readable name |
 | `vss` | Pinned VSS release, for example `"6.1"` |
 | `applies_to` | Package-wide applicability |
-| `dbc` | Map from a DBC id to `{path, channel, sha256?}` |
+| `dbc` | Map from a DBC id to `{path, channel?, sha256?}`; `channel` defaults to `can0` and must be a declared or default channel |
 | `documents` | Ordered list; each entry has `path` and may set `applies_to` and `override` |
 | `fixtures` | [Fixture files](fixtures.md) |
 | `depends` | Packages that must load first: `{id, version}` with a semver range |
@@ -51,7 +51,7 @@ unmapped:
   - {capability: IDEAL_RANGE, reason: "VSS has no ideal or rated range separate from remaining range"}
 ```
 
-A document may contain `applies_to`, `channels`, `endpoints`, `sources`, `properties`, `sequences`, `queries`, `actions`, `requires`, and `extensions`. This `base.yaml` binds one property to both a broadcast signal and an engine query:
+A document may contain `applies_to`, `channels`, `endpoints`, `sources`, `properties`, `sequences`, `queries`, `actions`, `requires`, and `extensions`. This `base.yaml` binds one property to both a broadcast signal and an engine query. The channel keeps runtime-supplied timing; omitting `channels` entirely would instead declare `can0` at 500000 bit/s (see [channels](document.md#channels)):
 
 ```yaml
 channels:

@@ -171,6 +171,206 @@ def test_endpoint_switch_and_cycle_are_reported(tmp_path):
     assert not resolve([tmp_path / "new"]).get("actions")
 
 
+def _legacy(tmp_path, data, dbc=None):
+    import yaml
+
+    old = tmp_path / "old"
+    old.mkdir()
+    (old / "profile.yaml").write_text(yaml.safe_dump(data, sort_keys=False))
+    if dbc:
+        (old / "signals.dbc").write_text(dbc)
+    return old
+
+
+def test_bmw_extended_addressing_migrates(tmp_path):
+    # Mirrors can-opener-js tests/fixtures/vehicles/bmw/extended-addressing/profile.yaml.
+    data = {
+        "version": 1,
+        "endpoints": {
+            "dme": {
+                "request_id": 0x6F1,
+                "response_id": 0x612,
+                "timeout_ms": 500,
+                "addressing": {"mode": "extended", "target_address": 0x12, "source_address": 0xF1},
+            }
+        },
+        "queries": {
+            "VIN": {
+                "endpoint": "dme",
+                "send": [0x03, 0x22, 0xF1, 0x90, 0, 0, 0, 0],
+                "expect": [0x62, 0xF1, 0x90],
+                "decoder": "ascii",
+                "length": 17,
+            }
+        },
+        "actions": {
+            "TESTER_PRESENT": {
+                "endpoint": "dme",
+                "send": [0x02, 0x3E, 0x00],
+                "expect": [0x7E, 0x00],
+            }
+        },
+    }
+    report = migrate(_legacy(tmp_path, data), tmp_path / "new", framing="isotp-single-frame")
+    assert report == []
+    doc = resolve([tmp_path / "new"])
+    dme = doc["endpoints"]["dme"]
+    assert dme["channel"] == "can0"
+    assert dme["addressing"] == {"mode": "extended", "target_address": "12", "source_address": "F1"}
+    assert doc["channels"] == {"can0": {"protocol": "can", "configuration": "runtime"}}
+    vin = doc["properties"]["Vehicle.VehicleIdentification.VIN"]["read"]["query"]
+    assert vin["request"] == "22 F1 90"
+    assert doc["actions"]["TESTER_PRESENT"]["request"] == "3E 00"
+
+
+def test_addressing_on_raw_framing_stays_unmapped(tmp_path):
+    data = {
+        "version": 1,
+        "endpoints": {
+            "body": {
+                "request_id": 0x7A0,
+                "response_id": 0x7A8,
+                "addressing": {"mode": "mixed", "address_extension": 0xA5},
+            }
+        },
+        "actions": {"TESTER_PRESENT": {"endpoint": "body", "send": [0x02, 0x3E, 0x00]}},
+    }
+    report = migrate(_legacy(tmp_path, data), tmp_path / "new", framing="raw")
+    assert "isotp" in report[0]["reason"]
+
+
+def test_dual_bus_canfd_migrates(tmp_path):
+    dbc = """BO_ 256 BODY: 8 ECU
+ SG_ DRIVER_DOOR : 0|1@1+ (1,0) [0|1] "" ECU
+BO_ 2024 OBD: 8 ECU
+ SG_ SPEED : 24|8@1+ (1,0) [0|255] "km/h" ECU
+"""
+    data = {
+        "version": 1,
+        "dbc": {"files": [{"path": "signals.dbc"}]},
+        "can": {
+            "buses": {
+                0: {"bitrate": 500000, "data_bitrate": 2000000, "fd": {"isotp": {"tx_dl": 64}}},
+                1: {"bitrate": "auto"},
+            }
+        },
+        "endpoints": {
+            "obd": {"bus": 0, "request_id": 0x7DF, "response_ids": [{"range": [0x7E8, 0x7EF]}]},
+            "bcm": {"bus": 0, "request_id": 0x7A0, "response_id": 0x7A8, "fd": {"tx_dl": 8}},
+            "legacy": {"bus": 0, "request_id": 0x7B0, "response_id": 0x7B8, "fd": False},
+            "body": {"bus": 1, "request_id": 0x745, "response_id": 0x765, "extended": False},
+        },
+        "signals": {
+            "FRONT_LEFT_DOOR_OPEN": {
+                "monitor": {"bus": 1, "message": "BODY", "signal": "DRIVER_DOOR"},
+            }
+        },
+        "queries": {
+            "SPEED": {
+                "endpoint": "obd",
+                "send": [2, 1, 13, 0, 0, 0, 0, 0],
+                "expect": [0x41, 0x0D],
+                "dbc_mapping": {"message": "OBD", "signal": "SPEED"},
+            }
+        },
+        "actions": {
+            "LEFT_SIGNAL": {"send": {"bus": 1, "request_id": 0x123, "request": [1, 0, 0, 0]}},
+            "CHIME": {"send": {"bus": 0, "request_id": 0x3F1, "fd": False, "request": [1]}},
+            "WAKE_UP": {
+                "endpoint": "body",
+                "batch": False,
+                "steps": [{"send": [2, 0x3E, 0], "delay_ms": 50}, {"send": [2, 0x3E, 0]}],
+            },
+        },
+    }
+    report = migrate(
+        _legacy(tmp_path, data, dbc),
+        tmp_path / "new",
+        framing="isotp-single-frame",
+        responders={"obd": "7E8"},
+        steering_side="left",
+    )
+    assert report == []
+    doc = resolve([tmp_path / "new"])
+    assert doc["channels"] == {
+        "can0": {
+            "protocol": "canfd",
+            "bitrate": 500000,
+            "data_bitrate": 2000000,
+            "fd": {"tx_dl": 64},
+        },
+        "can1": {"protocol": "can", "bitrate": "auto"},
+    }
+    assert doc["endpoints"]["obd"]["rx"] == [{"range": ["7E8", "7EF"]}]
+    assert doc["endpoints"]["obd"]["responder"] == "7E8"
+    assert doc["endpoints"]["bcm"]["fd"] == {"tx_dl": 8}
+    assert doc["endpoints"]["legacy"]["fd"] is False
+    assert doc["endpoints"]["body"]["channel"] == "can1"
+    assert doc["endpoints"]["generated-left_signal"]["channel"] == "can1"
+    assert doc["endpoints"]["generated-chime"] == {
+        "channel": "can0",
+        "protocol": "can",
+        "tx": "3F1",
+        "id_format": "standard",
+        "fd": False,
+    }
+    # The DBC's only monitored message is on bus 1, so the DBC binds there and stays DBC-backed.
+    door = doc["properties"]["Vehicle.Cabin.Door.Row1.DriverSide.IsOpen"]["read"]["signal"]
+    assert door["dbc"].endswith(":main") and "bus" not in door
+    manifest = resolve([tmp_path / "new"])["packages"][0]
+    assert manifest["id"].startswith("org.canopener.migrated.")
+    assert doc["actions"]["WAKE_UP"]["steps"] == [
+        {"request": "3E 00"},
+        {"wait_ms": 50},
+        {"request": "3E 00"},
+    ]
+    readme = (tmp_path / "new" / "README.md").read_text()
+    assert "batch" in readme
+
+
+def test_dbc_shared_across_buses_uses_inline_binding(tmp_path):
+    dbc = """BO_ 256 BODY: 8 ECU
+ SG_ DRIVER_DOOR : 0|1@1+ (1,0) [0|1] "" ECU
+BO_ 257 BRAKE: 8 ECU
+ SG_ BRAKE_ON : 0|1@1+ (1,0) [0|1] "" ECU
+VAL_ 257 BRAKE_ON 0 "off" 1 "on";
+"""
+    data = {
+        "version": 1,
+        "dbc": {"files": ["signals.dbc"]},
+        "signals": {
+            "FRONT_LEFT_DOOR_OPEN": {
+                "monitor": {"bus": 1, "message": "BODY", "signal": "DRIVER_DOOR"}
+            },
+            "BRAKE_LIGHTS": {"monitor": {"message": "BRAKE", "signal": "BRAKE_ON"}},
+        },
+    }
+    assert migrate(_legacy(tmp_path, data, dbc), tmp_path / "new", steering_side="left") == []
+    doc = resolve([tmp_path / "new"])
+    door = doc["properties"]["Vehicle.Cabin.Door.Row1.DriverSide.IsOpen"]["read"]["signal"]
+    assert door["channel"] == "can1" and door["id"] == "100"
+    brake = doc["properties"]["Vehicle.Body.Lights.Brake.IsActive"]["read"]["signal"]
+    assert "dbc" in brake
+    assert set(doc["channels"]) == {"can0", "can1"}
+
+
+def test_invalid_bus_and_step_timeout_are_reported(tmp_path):
+    data = {
+        "version": 1,
+        "can": {"buses": {0: {"bitrate": 500000, "fd": {}}}},
+        "endpoints": {"ecu": {"request_id": 0x700, "response_id": 0x708}},
+        "actions": {
+            "WAKE_UP": {"endpoint": "ecu", "steps": [{"send": [1], "timeout_ms": 50}]},
+        },
+    }
+    report = migrate(_legacy(tmp_path, data), tmp_path / "new", framing="raw")
+    reasons = {r["capability"]: r["reason"] for r in report}
+    assert "timeout_ms" in reasons["WAKE_UP"]
+    assert "can.buses.0" not in reasons
+    doc = resolve([tmp_path / "new"])
+    assert doc["channels"]["can0"] == {"protocol": "canfd", "bitrate": 500000, "fd": True}
+
+
 def test_checked_in_versa_is_reproducible():
     import subprocess
     import sys

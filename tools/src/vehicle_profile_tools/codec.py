@@ -5,6 +5,15 @@ from decimal import Decimal
 from fractions import Fraction
 from typing import Any
 
+from .model import sends_fd
+
+
+def frame_limit(channel, endpoint):
+    """Largest raw CAN data field an endpoint sends; ISO-TP adapters segment payloads."""
+    if endpoint["protocol"] != "can":
+        return None
+    return 64 if sends_fd(channel, endpoint) else 8
+
 
 def hex_bytes(value):
     if not isinstance(value, str) or not re.fullmatch(r"[0-9A-F]{2}( [0-9A-F]{2})*", value):
@@ -184,8 +193,10 @@ def prepare_write(document, path, target, catalog=None):
             elif "request" in step:
                 payload = encode(step["request"], {"value": target})
                 endpoint = document["endpoints"][body["endpoint"]]
-                if endpoint["protocol"] == "can" and len(payload) > 8:
-                    raise ValueError("raw CAN request exceeds 8 bytes")
+                channel = document.get("channels", {}).get(endpoint.get("channel"), {})
+                limit = frame_limit(channel, endpoint)
+                if limit is not None and len(payload) > limit:
+                    raise ValueError(f"raw CAN request exceeds {limit} bytes")
                 result.append({**step, "request": payload.hex(" ").upper()})
             else:
                 result.append(dict(step))

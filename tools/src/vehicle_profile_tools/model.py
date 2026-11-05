@@ -7,7 +7,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 Positive = Annotated[int, Field(gt=0, strict=True)]
 Nonnegative = Annotated[int, Field(ge=0, strict=True)]
 Hex = Annotated[str, Field(pattern=r"^[0-9A-F]{2}( [0-9A-F]{2})*$")]
+Byte = Annotated[str, Field(pattern=r"^[0-9A-F]{2}$")]
 CanID = Annotated[str, Field(pattern=r"^[0-9A-F]{1,8}$")]
+
+# Transport defaults. A missing channel reference names DEFAULT_CHANNEL; a missing
+# DEFAULT_CHANNEL declaration is classic CAN at DEFAULT_BITRATE.
+DEFAULT_CHANNEL = "can0"
+DEFAULT_BITRATE = 500000
+MAX_RX_IDS = 1000
 
 
 Datatype = Annotated[
@@ -165,38 +172,104 @@ class CasesWrite(Model):
     constraints: Constraints | None = None
 
 
+class IdRange(Model):
+    range: list[CanID] = Field(min_length=2, max_length=2)
+
+    @model_validator(mode="after")
+    def ordered(self):
+        low, high = (int(x, 16) for x in self.range)
+        if low > high:
+            raise ValueError("response ID range is reversed")
+        if high - low >= MAX_RX_IDS:
+            raise ValueError(f"response ID range exceeds {MAX_RX_IDS} IDs")
+        return self
+
+
+def expand_rx(rx):
+    """Inclusive receive IDs as integers, in declaration order."""
+    result: list[int] = []
+    for item in rx:
+        if isinstance(item, str):
+            result.append(int(item, 16))
+        else:
+            entry = item["range"] if isinstance(item, dict) else item.range
+            result.extend(range(int(entry[0], 16), int(entry[1], 16) + 1))
+    return result
+
+
+class FdFrames(Model):
+    tx_dl: Literal[8, 64]
+
+
+class ExtendedAddressing(Model):
+    mode: Literal["extended"]
+    target_address: Byte
+    source_address: Byte
+
+
+class MixedAddressing(Model):
+    mode: Literal["mixed"]
+    address_extension: Byte
+
+
+Addressing = ExtendedAddressing | MixedAddressing
+
+
 class Endpoint(Model):
-    channel: str
+    channel: str = DEFAULT_CHANNEL
     protocol: Literal["can", "isotp"]
     tx: CanID
-    rx: list[CanID] = Field(default_factory=list)
+    rx: list[CanID | IdRange] = Field(default_factory=list)
     id_format: Literal["standard", "extended"]
     timeout_ms: Positive | None = None
     responder: CanID | None = None
+    fd: bool | FdFrames | None = None
+    addressing: Addressing | None = None
 
     @model_validator(mode="after")
     def addresses(self):
         limit = 0x7FF if self.id_format == "standard" else 0x1FFFFFFF
-        if any(int(x, 16) > limit for x in [self.tx, *self.rx]):
+        ids = expand_rx(self.rx)
+        if any(x > limit for x in [int(self.tx, 16), *ids]):
             raise ValueError("CAN ID outside selected format")
-        if self.rx and self.timeout_ms is None:
+        if len(ids) != len(set(ids)):
+            raise ValueError("response IDs overlap")
+        if len(ids) > MAX_RX_IDS:
+            raise ValueError(f"response IDs exceed {MAX_RX_IDS}")
+        if ids and self.timeout_ms is None:
             raise ValueError("response endpoints need timeout_ms")
-        if len(self.rx) > 1 and self.responder not in self.rx:
+        if len(ids) > 1 and (self.responder is None or int(self.responder, 16) not in ids):
             raise ValueError("multi-responder endpoints need explicit responder selection")
+        if self.protocol == "can":
+            if self.addressing is not None:
+                raise ValueError("ISO-TP addressing requires protocol isotp")
+            if isinstance(self.fd, FdFrames):
+                raise ValueError("tx_dl applies to ISO-TP endpoints; raw CAN takes fd true/false")
         return self
 
 
 class Channel(Model):
     protocol: Literal["can", "canfd"]
     configuration: Literal["runtime"] | None = None
-    bitrate: Positive | None = None
+    bitrate: Positive | Literal["auto"] | None = None
     data_bitrate: Positive | None = None
+    fd: bool | FdFrames | None = None
 
     @model_validator(mode="after")
     def configured(self):
-        if self.configuration is None and self.bitrate is None:
-            raise ValueError("declare bitrate or runtime configuration")
+        if self.configuration is not None and self.bitrate is not None:
+            raise ValueError("DOC_EXCLUSIVE_FORMS: bitrate and runtime configuration")
+        if self.protocol == "can" and (self.data_bitrate is not None or self.fd):
+            raise ValueError("data_bitrate and fd require protocol canfd")
         return self
+
+
+def sends_fd(channel, endpoint):
+    """Resolved frame format of an endpoint's requests: endpoint fd, then channel fd."""
+    for value in (endpoint.get("fd"), channel.get("fd")):
+        if value is not None:
+            return bool(value)
+    return False
 
 
 class DbcSignal(Model):
@@ -214,7 +287,7 @@ class DbcSignal(Model):
 
 
 class InlineSignal(Model):
-    channel: str
+    channel: str = DEFAULT_CHANNEL
     id: CanID
     id_format: Literal["standard", "extended"]
     length: Annotated[int, Field(ge=0, le=64)]
@@ -316,7 +389,7 @@ class DbcSource(Model):
 
 class SignalSource(Model):
     kind: Literal["signal"]
-    channel: str
+    channel: str = DEFAULT_CHANNEL
     id: CanID
     id_format: Literal["standard", "extended"]
     length: Annotated[int, Field(ge=0, le=64)]

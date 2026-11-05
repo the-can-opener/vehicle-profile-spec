@@ -10,8 +10,8 @@ Validation layers:
 
 1. Container: one manifest, safe paths, listed files present, hashes, size limits.
 2. Syntax: JSON-compatible parsing, manifest and format versions, allowed fields, mutually exclusive forms (`value` with `read`, two write shapes, a query and an action with one name).
-3. References: assets, source kind, outputs, endpoints, sequence calls and cycles, DBC messages and signals, `depends`.
-4. Semantics: exact VSS catalog paths, roles (no write on a sensor), datatypes, units, ranges, allowed values, target constraints, alias and name collisions.
+3. References: assets, source kind, outputs, endpoints, channels (including manifest DBC channels), sequence calls and cycles, DBC messages and signals, `depends`.
+4. Semantics: exact VSS catalog paths, roles (no write on a sensor), datatypes, units, ranges, allowed values, target constraints, alias and name collisions, transport consistency (CAN FD only on `canfd` channels, raw frame lengths against the resolved frame format, non-overlapping receive IDs with a selected responder, ISO-TP addressing only on ISO-TP endpoints).
 5. Composition: merge conflicts and widened applicability.
 6. Extensions: every extension payload in `requires`, and whether the package can be fully activated.
 7. Behavior: decode/encode, shared acquisition, freshness, source selection, response correlation, acknowledgement, failures.
@@ -43,7 +43,7 @@ Only unknown fields can be excepted. Known fields, conflicting binding forms, re
 
 ## Remaining validation work
 
-The implementation does not yet prove full decoder-output compatibility with every VSS datatype and range, and manifest DBC channel references need a dedicated resolution check. The document authoring schema permits null deletions but still describes complete typed entries; earlier partial entries that are replaced before validation are accepted by the merge pipeline, not by that standalone schema. These gaps are tracked in the [implementation plan](../vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up).
+The implementation does not yet prove full decoder-output compatibility with every VSS datatype and range. The document authoring schema permits null deletions but still describes complete typed entries; earlier partial entries that are replaced before validation are accepted by the merge pipeline, not by that standalone schema. These gaps are tracked in the [implementation plan](../vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up).
 
 ## Related pages
 

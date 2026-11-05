@@ -40,7 +40,7 @@ Separate three categories:
 
 | Category | Location | Example |
 |---|---|---|
-| Connection/runtime configuration | channels/endpoints/runtime | bitrate, timeout |
+| Connection/runtime configuration | channels/endpoints/runtime | bitrate, CAN FD, addressing, timeout; the mapping from a channel name to a host interface, transport batching and wake retries are runtime |
 | Vehicle property already represented by VSS | properties + write | HVAC setting |
 | Persistent vehicle parameter without a matching VSS property | configuration extension | OEM auto-relock delay |
 

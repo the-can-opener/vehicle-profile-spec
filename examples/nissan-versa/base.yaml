@@ -1,15 +1,15 @@
 channels:
-  vehicle:
+  can0:
     protocol: can
     configuration: runtime
 endpoints:
   body_status:
-    channel: vehicle
+    channel: can0
     protocol: can
     tx: 60D
     id_format: standard
   body:
-    channel: vehicle
+    channel: can0
     protocol: isotp
     tx: '745'
     id_format: standard
@@ -17,7 +17,7 @@ endpoints:
     - '765'
     timeout_ms: 300
   generated-wipers:
-    channel: vehicle
+    channel: can0
     protocol: can
     tx: 35D
     id_format: standard

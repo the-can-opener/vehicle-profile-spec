@@ -10,7 +10,10 @@ from vehicle_profile_tools.errors import ProfileError
 from vehicle_profile_tools.resolve import resolve
 
 
-@pytest.mark.parametrize("name", ["nissan-versa", "universal-obd", "hvac-synthetic"])
+@pytest.mark.parametrize(
+    "name",
+    ["nissan-versa", "universal-obd", "hvac-synthetic", "canfd-dual-bus", "bmw-addressing"],
+)
 def test_examples(name):
     result = resolve([ROOT / "examples" / name])
     assert result["format"] == 2

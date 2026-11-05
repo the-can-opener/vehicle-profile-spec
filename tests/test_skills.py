@@ -68,7 +68,13 @@ def test_examples_against_generated_schemas():
     from vehicle_profile_tools.exporters.jsonschema import schemas
 
     definitions = schemas()
-    for name in ("nissan-versa", "universal-obd", "hvac-synthetic"):
+    for name in (
+        "nissan-versa",
+        "universal-obd",
+        "hvac-synthetic",
+        "canfd-dual-bus",
+        "bmw-addressing",
+    ):
         pkg = Package(ROOT / "examples" / name)
         jsonschema.validate(pkg.raw, definitions["manifest"])
         for doc, _, _ in pkg.documents():

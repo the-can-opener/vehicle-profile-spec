@@ -4,8 +4,10 @@
 - A single-actuator action becomes a quoted write case. LOCK and UNLOCK become the true and false cases of Vehicle.Cabin.IsCentralLockEngaged. WIPERS becomes the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode when the command does not select a speed. OPEN_*_WINDOW writes 100 on that door's Window.Position and CLOSE_*_WINDOW writes 0. WINDOW_CHILD_LOCK and WINDOW_CHILD_UNLOCK are the true and false cases of Vehicle.Cabin.IsWindowChildLockEngaged. Left and right assume left-hand drive. SEATBELT_WARNING maps to Vehicle.Cabin.IsSeatBeltWarningActive, the vehicle indicator, and not to a seat's IsBelted sensor. Any other multi-actuator or non-VSS command becomes a named action.
 - Byte arrays become uppercase spaced hex. A wildcard remains `*`.
 - ref: sequences.x becomes call: x, with the endpoint owned by the caller.
-- request_id/response_id become tx/rx on a raw CAN endpoint; request-only endpoints omit rx/timeout.
-- Inline send objects receive a generated request-only endpoint.
+- request_id/response_id become tx/rx on a raw CAN endpoint; request-only endpoints omit rx/timeout. response_ids ranges stay `{range: [lo, hi]}`. `extended`, `fd` and `addressing` carry over; addresses become hex bytes.
+- can.buses.N becomes channel canN with its bitrate (integer or auto), data_bitrate and fd; a bus that is used but not declared becomes `{protocol: can, configuration: runtime}`. Every declared bus and endpoint is converted, used or not.
+- Inline send objects receive a generated request-only endpoint on channel canN with any declared fd.
+- A DBC binds to the single bus its monitored messages use, else can0; a monitor on another bus becomes an inline frame binding. Step delay_ms becomes a wait_ms step. Per-step/per-query timeout_ms and `batch` have no format 2 form: timeouts stay unmapped, batch is noted as runtime policy.
 - Shared endpoint-free sequences can be converted after their dependencies.
 - Declare --framing raw, isotp or isotp-single-frame for request/response migration. No framing is guessed. The last mode validates/removes request PCI and adjusts DBC response offsets for the raw one-byte header.
 - Use --responder ENDPOINT=HEX when response IDs are a range, and --steering-side left|right for physical door names.
