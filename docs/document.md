@@ -251,7 +251,14 @@ properties:
 
 ### Channels
 
-A channel is a logical CAN bus. Endpoints, inline signals, and manifest DBC files name a channel; the runtime maps each channel name to one of its controllers at activation. Channel names are portable: `can0` in a package means "the vehicle's first bus", and a runtime binds it to SocketCAN `can0`, adapter controller 0, or a serial adapter as it sees fit. A package never names a host interface.
+A channel is a logical CAN bus. Endpoints, inline signals, and manifest DBC files name a channel; the runtime maps each channel name to one of its controllers at activation. The names identify the OBD connector, not a host device:
+
+| Channel | OBD pins | Pair |
+|---|---|---|
+| `can0` | 6 and 14 | CAN-H on 6, CAN-L on 14 |
+| `can1` | 3 and 11 | CAN-H on 3, CAN-L on 11 |
+
+A runtime binds `can0` to the controller wired to pins 6 and 14. That is SocketCAN interface `can0`, or controller 0 on a dual-bus adapter. `can1` binds to the controller on pins 3 and 11. A deployment may override that host binding. A package never names a host interface.
 
 | Channel field | Meaning |
 |---|---|

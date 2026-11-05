@@ -49,7 +49,7 @@ Format 2 replaces the can-opener-js profile specification. Every transport decla
 | `ECU_WAKE` retries, bus-sleep detection, polling scheduling | none | Runtime policy. `ECU_WAKE` itself stays an action |
 | `VehicleTransport` adapter API, BLE protocol | none | Outside this standard; see [extensions](extensions.md#configuration-model) |
 
-Logical channel names remain portable. A runtime binds `can0` to its first controller, whether that is SocketCAN `can0`, a BLE adapter's bus 0, or a serial adapter, and may override that mapping in deployment configuration.
+Logical channel names identify the OBD connector: `can0` is pins 6 (CAN-H) and 14 (CAN-L), and `can1` is pins 3 (CAN-H) and 11 (CAN-L). A runtime binds each name to the controller wired to those pins, SocketCAN `can0` for pins 6 and 14 by default, and may override that host binding in deployment configuration.
 
 Format 2 structure:
 

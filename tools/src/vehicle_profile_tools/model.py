@@ -12,6 +12,7 @@ CanID = Annotated[str, Field(pattern=r"^[0-9A-F]{1,8}$")]
 
 # Transport defaults. A missing channel reference names DEFAULT_CHANNEL; a missing
 # DEFAULT_CHANNEL declaration is classic CAN at DEFAULT_BITRATE.
+# can0 is OBD pins 6 (CAN-H) and 14 (CAN-L); can1 is pins 3 (CAN-H) and 11 (CAN-L).
 DEFAULT_CHANNEL = "can0"
 DEFAULT_BITRATE = 500000
 MAX_RX_IDS = 1000
