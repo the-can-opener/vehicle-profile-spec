@@ -84,7 +84,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
             {
                 "label": "Lock wildcard acknowledged",
                 "kind": "write",
-                "path": "Vehicle.Cabin.Door.IsLocked",
+                "path": "Vehicle.Cabin.Door.Central.IsLocked",
                 "target": True,
                 "responses": ["50 81", "50 C0", "70 38 01"],
                 "expect": {"sent": ["10 81", "10 C0", "30 38 00 01"], "result": "acknowledged"},
@@ -92,7 +92,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
             {
                 "label": "Unknown lock outcome",
                 "kind": "write",
-                "path": "Vehicle.Cabin.Door.IsLocked",
+                "path": "Vehicle.Cabin.Door.Central.IsLocked",
                 "target": True,
                 "responses": ["50 81", "50 C0"],
                 "expect": {"result": "unknown", "error": "OUTCOME_UNKNOWN"},
@@ -100,7 +100,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
             {
                 "label": "Failed acknowledgement",
                 "kind": "write",
-                "path": "Vehicle.Cabin.Door.IsLocked",
+                "path": "Vehicle.Cabin.Door.Central.IsLocked",
                 "target": True,
                 "responses": ["7F 10"],
                 "expect": {"error": "NEGATIVE_RESPONSE"},
@@ -121,7 +121,7 @@ The script declares `--framing isotp-single-frame --steering-side left` for the 
 
 These declarations describe the source framing and left-hand-drive mapping; they are not physical test evidence. DBC comments identify Sentra-derived observations. Do not infer model-year compatibility from the package metadata. TPS maps to Vehicle.Powertrain.CombustionEngine.TPS, but the DBC factor 0.392 cannot be stored in that uint8 signal, so it remains in unmapped with the original data. STEERING_ANGLE maps because the pinned catalog declares Vehicle.Chassis.SteeringWheel.Angle as float; upstream VSS 6.1 uses int16, which cannot preserve the 0.1 deg factor.
 
-LOCK and UNLOCK are the true and false cases of Vehicle.Cabin.Door.IsLocked. That actuator commands every cabin door at once. This package does not bind those commands to a single door. HORN supports only the true case. WIPERS supports only the MEDIUM case of the front windshield wiper mode. Fixture expectations preserve the legacy application bytes; no raw receive PCI values are invented. Runtime execution and vehicle testing are outside this repository.
+LOCK and UNLOCK are the true and false cases of Vehicle.Cabin.Door.Central.IsLocked. That actuator commands every cabin door at once. This package does not bind those commands to a single door. HORN supports only the true case. WIPERS supports only the MEDIUM case of the front windshield wiper mode. Fixture expectations preserve the legacy application bytes; no raw receive PCI values are invented. Runtime execution and vehicle testing are outside this repository.
 """)
     resolve([package], {"year": 2008})
     resolve([package], {"year": 2011})

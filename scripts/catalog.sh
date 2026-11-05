@@ -32,15 +32,18 @@ count = text.count(old)
 if count != 1:
     raise SystemExit(f"expected one upstream SteeringWheel.Angle node, found {count}")
 text = text.replace(old, new, 1)
-# Local addition: one actuator for a command that locks or unlocks every cabin door.
+# Local addition: Central is a sibling of Row1 and Row2, not a door position.
 # Upstream VSS 6.1 has IsLocked only on each door. See catalog/README.md.
 door = '"Door": {"children": {"Row1":'
 locked = (
-    '"Door": {"children": {"IsLocked": {"comment": "Not in upstream COVESA VSS 6.1. '
-    "One command that locks or unlocks every cabin door binds here. Per-door lock "
-    'state remains on each door\'s IsLocked actuator.", "datatype": "boolean", '
-    '"description": "Lock state of every cabin door as one actuator. True = Locked. '
-    'False = Unlocked.", "type": "actuator"}, "Row1":'
+    '"Door": {"children": {"Central": {"children": {"IsLocked": {"comment": '
+    '"Not in upstream COVESA VSS 6.1. One command that locks or unlocks every '
+    "cabin door binds here. Per-door lock state remains on each door's IsLocked "
+    'actuator.", "datatype": "boolean", "description": "Central lock command for '
+    'every cabin door. True = Locked. False = Unlocked.", "type": "actuator"}}, '
+    '"comment": "Not in upstream COVESA VSS 6.1. Sibling of Row1 and Row2. This '
+    'branch is the central lock, not a door position, and contains only IsLocked.", '
+    '"description": "Central locking for every cabin door.", "type": "branch"}, "Row1":'
 )
 count = text.count(door)
 if count != 1:

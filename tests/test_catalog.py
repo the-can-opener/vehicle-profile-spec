@@ -10,7 +10,8 @@ def test_pinned_full_catalog():
     assert len(cat) > 1300
     assert cat["Vehicle.Speed"]["unit"] == "km/h"
     assert cat["Vehicle.Body.Horn.IsActive"]["type"] == "actuator"
-    door_lock = cat["Vehicle.Cabin.Door.IsLocked"]
+    assert "Vehicle.Cabin.Door.IsLocked" not in cat
+    door_lock = cat["Vehicle.Cabin.Door.Central.IsLocked"]
     assert door_lock["type"] == "actuator" and door_lock["datatype"] == "boolean"
     assert cat["Vehicle.Cabin.Door.Row1.DriverSide.IsLocked"]["type"] == "actuator"
     assert cat["Vehicle.OBD.EngineLoad"]["unit"] == "percent"

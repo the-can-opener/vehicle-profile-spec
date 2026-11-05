@@ -200,11 +200,11 @@
     "target": true
   },
   "LOCK": {
-    "path": "Vehicle.Cabin.Door.IsLocked",
+    "path": "Vehicle.Cabin.Door.Central.IsLocked",
     "target": true
   },
   "LOCKED": {
-    "path": "Vehicle.Cabin.Door.IsLocked"
+    "path": "Vehicle.Cabin.Door.Central.IsLocked"
   },
   "LOW_BEAM": {
     "path": "Vehicle.Body.Lights.Beam.Low.IsOn",
@@ -369,7 +369,7 @@
     "path": "Vehicle.Powertrain.CombustionEngine.TPS"
   },
   "UNLOCK": {
-    "path": "Vehicle.Cabin.Door.IsLocked",
+    "path": "Vehicle.Cabin.Door.Central.IsLocked",
     "target": false
   },
   "VIN": {

@@ -7,7 +7,7 @@
 The pinned VSS release supplies datatype, unit, meaning, range, and allowed values. A binding MUST NOT redefine a standard property's semantics. The pinned catalog differs from upstream VSS 6.1 in the ways recorded on the node and in [catalog provenance](../catalog/README.md):
 
 - `Vehicle.Chassis.SteeringWheel.Angle` is `float` here and `int16` upstream, so a fractional degree signal can be published without rounding.
-- `Vehicle.Cabin.Door.IsLocked` is a boolean actuator added here. Upstream has `IsLocked` only on each door. True locks every cabin door and false unlocks every cabin door. A package that has one command for every door MUST bind that command here, and MUST NOT copy it onto one door's `IsLocked` path.
+- `Vehicle.Cabin.Door.Central` is a branch added beside `Row1` and `Row2`. It is the central lock, not a door position, and it contains only `IsLocked`. True locks every cabin door and false unlocks every cabin door. Upstream has `IsLocked` only on each door. A package that has one command for every door MUST bind that command here, and MUST NOT copy it onto one door's `IsLocked` path.
 - `Vehicle.OBD` is the COVESA OBD overlay. Upstream removed that branch from the standard catalog. A keyword that exists only as an OBD PID maps there.
 
 Namespaced catalog additions require an explicit overlay validated with VSS tooling. Always check for a matching standard concept before adding an extension.

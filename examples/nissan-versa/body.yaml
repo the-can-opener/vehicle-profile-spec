@@ -169,7 +169,7 @@ properties:
           - request: 30 3A 00 01
             expect:
               prefix: 70 3A 01
-  Vehicle.Cabin.Door.IsLocked:
+  Vehicle.Cabin.Door.Central.IsLocked:
     aliases:
     - LOCK
     - UNLOCK
