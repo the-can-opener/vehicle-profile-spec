@@ -1,6 +1,6 @@
-# Decoding
+# Decoding and encoding
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Decoding and encoding
 
@@ -17,3 +17,7 @@ DBC physical decoding applies factor/offset without automatically substituting `
 Units and ranges must match VSS. Inline decoder `unit`, if specified, describes the physical result. If absent, the result is in the target property unit. Core 0.4 does not silently convert incompatible units. Shared outputs require compatible semantics and units for all consumers.
 
 A `request` is either a hex string or `parts`, a list that mixes literal hex strings with encoded fields. An encoded field declares `input`, `type`, `bytes`, `endian`, `scale`, and `offset`. Encode raw = (input − offset) / scale, requiring an integral result within the wire width. Do not round, clamp, or overflow silently. More complex codecs require a declared versioned extension.
+
+## Related pages
+
+[Read bindings](document.md#passive-signals-and-active-queries) · [Writes](document.md#writes) · [Native DBC decoding](dbc.md)

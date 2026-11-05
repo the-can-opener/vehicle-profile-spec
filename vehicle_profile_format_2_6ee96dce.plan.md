@@ -1,6 +1,6 @@
 ---
 name: Vehicle profile format 2
-overview: Rewrite vehicle-profile-spec around a package container whose documents use flat VSS paths with read/write bindings (format 2), where a write carries its own steps and a matched expect is the acknowledgement. Format 1 is retired and handled only by a migration command. Ship docs, JSON schemas, a pinned VSS catalog, example packages, a Python validator (vprofile) with vss-tools-style tests and CI, and agent skills for authoring, validating, and migrating profiles that install by copying the folders, running scripts/install-skills.sh, or running vprofile skills install. Updated against Vehicle_BInding_Standardv0.4.0.md.
+overview: Rewrite vehicle-profile-spec around a package container whose documents use flat VSS paths with read/write bindings (format 2), where a write carries its own steps and a matched expect is the acknowledgement. Format 1 is retired and handled only by a migration command. Ship docs, JSON schemas, a pinned VSS catalog, example packages, a Python validator (vprofile) with vss-tools-style tests and CI, and agent skills for authoring, validating, and migrating profiles that install by copying the folders, running scripts/install-skills.sh, or running vprofile skills install. The maintained standard is in docs/README.md.
 todos:
   - id: docs-core
     content: Write docs/package.md, manifest.md, document.md (read/write/steps/expect/sequences/actions/endpoints), decoding.md, composition.md
@@ -19,19 +19,19 @@ todos:
     status: completed
   - id: tools-pipeline
     content: "tools/: merge.py, resolve.py, catalog.py, exporters (json/tree/csv/jsonschema), compose.py, diff.py"
-    status: pending
+    status: completed
   - id: tools-migrate
     content: "tools/: migrate.py converting format 1 folders to format 2 packages using vocabulary.yaml, with unmapped report"
     status: completed
   - id: schemas
     content: Generate schemas/manifest, document, fixture .schema.json from models; CI drift check
-    status: pending
+    status: completed
   - id: examples
     content: Create examples/nissan-versa (migrated + split + overlay + fixtures), universal-obd, hvac-synthetic, legacy/nissan-versa-1-6
-    status: pending
+    status: completed
   - id: tests
     content: tests/packages positive and negative cases, unit tests for dbc/codec/merge/catalog, test_migrate over the legacy Versa folder
-    status: pending
+    status: completed
   - id: skills-content
     content: "Write skills/authoring-vehicle-profiles, skills/validating-vehicle-profiles, skills/migrating-vehicle-profiles (SKILL.md + reference files); generate error-codes.md from the error enum"
     status: completed
@@ -46,6 +46,27 @@ todos:
     status: completed
   - id: ci
     content: Makefile mandatory_targets (includes skills checks), .github/workflows/buildcheck.yml, .pre-commit-config.yaml, noxfile.py, CHANGELOG.md 2.0.0
+    status: completed
+  - id: remaining-dbc-channels
+    content: Resolve loaded manifest DBC channel references against the composed channels; add missing/deleted-channel and cross-package regression tests.
+    status: pending
+  - id: remaining-decoder-vss
+    content: Validate decoder result types and representable domains against VSS across inline, DBC and shared-source reads; distinguish static failures from runtime value checks.
+    status: pending
+  - id: remaining-raw-schema
+    content: Generate distinct raw-document and resolved-document schema contracts so replaceable partial entries are authorable without weakening final typed validation.
+    status: pending
+  - id: remaining-migration-zip-goldens
+    content: Add deterministic CLI golden exports for migrated packages and ZIP round trips, including vehicle selection, unmapped reports and error locations.
+    status: pending
+  - id: remaining-fixture-coverage
+    content: Inventory active example bindings; add positive and negative fixtures for each and a coverage check that prevents omissions.
+    status: pending
+  - id: remaining-python311-ci
+    content: Run the full acceptance target on Python 3.11 and 3.13, fix compatibility failures, and record successful remote CI evidence when available.
+    status: pending
+  - id: remaining-final-review
+    content: Reconcile documentation and task statuses with verified behavior, run final acceptance and reproducibility checks, then remove disposable artifacts.
     status: pending
 isProject: false
 ---
@@ -55,7 +76,7 @@ isProject: false
 Before implementation, the repo held a single README (now preserved as [format-1.md](docs/format-1.md)) describing format 1: keyword names (`SPEED`, `LOCK`), sections for `signals`, `queries`, and `actions`, and byte arrays. This plan replaces that format with format 2:
 
 - **Container:** a package with one manifest, from the earlier package plan.
-- **Documents:** [Vehicle Binding Specification v0.4.0](Vehicle_BInding_Standardv0.4.0.md), including named queries/actions, inline writes, and acknowledgement semantics. This reference supersedes conflicting earlier plan details.
+- **Documents:** [format 2 standard](docs/README.md), including named queries/actions, inline writes, and acknowledgement semantics. The maintained topic pages define the current format.
 
 Format 1 is no longer loaded. `vprofile migrate` converts it to format 2.
 
@@ -78,12 +99,91 @@ Implemented reference alignment:
 
 ### Remaining work at wrap-up
 
-1. **Semantic validation:** add manifest DBC-channel resolution and complete decoder-output datatype/range compatibility checks against VSS. Current checks cover identities, roles, declared units/types, static/enum/case values, write constraints, references and inline frame bounds, but do not prove every decoder's output domain.
-2. **Raw document schema:** the standalone document schema describes complete typed entries plus null deletes. A dedicated authoring schema for partial entries replaced before composition is still needed to match the raw-document pipeline fully.
-3. **Acceptance coverage:** finish the original per-scenario golden matrix for migration and ZIP output, and expand positive/negative fixtures to every active example binding. Functional migration and ZIP round-trip tests already pass.
-4. **Verification:** execute Python 3.11 and remote CI. The local acceptance run used Python 3.13.
+The completed frontmatter items record the implemented baseline, not full conformance. The `remaining-*` tasks are the outstanding work. The historical 111-test result is the starting point; do not treat it as verification of future changes.
 
-Migration review work remains explicit in `unmapped`, including unknown TPS identity, fractional steering data incompatible with the VSS integer datatype, and unsupported multiplexed/variable-length/custom codecs. Such inputs are reported rather than silently converted. Physical vehicle testing and consuming-runtime behavior are outside this repository; they are not claimed complete.
+Work in the following order. DBC/reference checks and decoder semantics come first, followed by schema alignment and acceptance coverage. Finish with the version matrix and cleanup. This update is a plan only; none of these pending tasks has been implemented or verified by this update.
+
+#### 1. Resolve DBC channels (`remaining-dbc-channels`)
+
+Relevant files: `tools/src/vehicle_profile_tools/resolve.py`, `manifest.py`, and reference/composition tests.
+
+- Retain each loaded DBC asset's declared channel alongside its package-qualified ID.
+- Resolve that channel against the final composed channel map, after applicability filtering and replacements/deletions. Use the same channel namespace as endpoints and inline signals.
+- Report a missing channel with a stable error code and an actionable location identifying the package, DBC ID and channel field. Reuse `DOC_INVALID` unless a dedicated reference code is justified; regenerate error documentation if codes change.
+- Cover a valid local channel, an unknown channel, a channel deleted by an overlay, and a channel provided by an earlier dependency. Exercise directory and ZIP loading.
+
+Acceptance: valid composed references load; invalid DBC channel references fail strict CLI validation with the expected code and location. Existing packages still pass.
+
+#### 2. Complete decoder/VSS compatibility checks (`remaining-decoder-vss`)
+
+Relevant files: `catalog.py`, `resolve.py`, `dbc.py`, `codec.py`, and their unit/integration tests.
+
+- Apply one compatibility policy to inline signals, inline queries, DBC bindings and shared-source outputs. Check every consumer of a shared output independently.
+- Account for extraction type and width, signedness, scaling/offset, boolean conversion, raw enums and invalid encodings before comparing the result with the canonical datatype, allowed values and range.
+- Reject provably incompatible result types, such as strings for numeric properties or fractional transformations that cannot preserve an integer datatype. Check enum result values and explicitly declared output datatypes consistently.
+- Distinguish static compatibility from runtime observation validation. A wire field's full representable range is not necessarily its valid observation domain; document which out-of-domain values produce invalid observations instead of rejecting otherwise valid bindings.
+- Keep exact numeric encoding and constraint-grid checks. Do not introduce implicit rounding, clamping, unit conversion, or fabricated enum defaults.
+
+Acceptance: positive and negative tests cover numeric widths/signs, fractional scaling, booleans, enum values, string/numeric mismatches, range handling and shared consumers. Failures identify the canonical property and binding. Documentation states which checks remain the runtime's responsibility.
+
+#### 3. Align raw and resolved schemas (`remaining-raw-schema`)
+
+Relevant files: `model.py`, `exporters/jsonschema.py`, `schema_rules.py`, `scripts/generate.py`, `schemas/`, and schema/merge tests.
+
+- Separate the raw authoring contract from the fully composed typed contract. Raw documents may contain partial keyed entries that a later document replaces, plus null deletions.
+- Keep strict final validation after composition. Whole-entry replacement must remain whole-entry replacement; partial entries must not introduce deep merging.
+- Choose and document clear schema names/references for authoring versus resolved data. Update single-file manifest embedding, examples, skill references and generated-file checks accordingly.
+- Preserve top-level field restrictions, JSON-compatible keys and safety rules. Do not make the resolved schema permissive merely to accept partial authoring inputs.
+
+Acceptance: an incomplete entry replaced by a complete later entry passes raw-schema and package validation; the same incomplete entry surviving composition fails final validation. Test null deletion, unknown fields, exclusive forms and single-file packages. Generated schemas remain drift-free.
+
+#### 4. Finish migration and ZIP golden tests (`remaining-migration-zip-goldens`)
+
+Relevant files: `tests/packages/`, `tests/test_golden_cli.py`, `test_migrate.py`, `test_packages.py`, and `scripts/migrate-versa.py`.
+
+- Add checked-in expected CLI JSON output for migration, including combined signal/query properties, actuator cases, named queries/actions and retained unmapped records.
+- Exercise declared raw and ISO-TP single-frame migration. Check exact preservation of raw bytes or the declared application-payload conversion, wildcard/exact matching, responder selection and prefix-relative DBC offsets.
+- Add expected resolved exports for composed ZIPs and compare them with directory exports. Verify deterministic archive bytes and both year selections for the overlay example.
+- Exclude temporary absolute paths and timestamps from snapshots. Retain focused assertions for behavior so snapshots are not the only checks.
+- Ensure the remaining negative CLI cases assert nonzero exit, stable code and offending location. Inexact target preparation remains a pure-codec check; structural fixture validation must not be described as fixture execution.
+
+Acceptance: migration and ZIP scenarios join the existing snapshot matrix and pass through the actual CLI. Repeated runs are deterministic; `scripts/migrate-versa.py --check` confirms the example is reproducible.
+
+#### 5. Complete example fixture coverage (`remaining-fixture-coverage`)
+
+Relevant files: the three non-legacy example packages, their fixture files, and fixture tests.
+
+- Inventory each active signal, property query, named query, actuator write and action after composition. Include both acquisition kinds on dual-read properties and applicable overlay variants.
+- Add a meaningful positive and negative fixture for every active binding. Cover supported write targets, unsupported case targets, invalid/short inputs, acknowledgement failures, wrong responders, timeouts and unknown outcomes as applicable.
+- Preserve shared-source and no-implicit-polling examples. Keep unsupported-extension rejection in negative package tests, rather than making a positive example require an unavailable provider.
+- Add a coverage test that relates fixtures to the active binding inventory and reports omissions. Do not invent unverified vehicle observations; label synthetic expectations and retain source provenance.
+
+Acceptance: every active example binding has documented positive and negative fixture coverage, all fixture references validate, and the coverage check runs in the mandatory target. Fixtures remain runtime inputs; the Python validator does not execute vehicle behavior.
+
+#### 6. Verify supported Python versions and CI (`remaining-python311-ci`)
+
+Relevant files: `tools/pyproject.toml`, `tools/uv.lock`, `Makefile`, `noxfile.py`, and `.github/workflows/buildcheck.yml`.
+
+- Use the locked dependencies to run the full acceptance target on Python 3.11 and Python 3.13 in separate environments.
+- Include lint/format, types, tests, generated-file checks, strict example validation, skill checks and isolated wheel/resource verification. Resolve compatibility or packaging failures without dropping a supported version.
+- Confirm the remote workflow runs equivalent checks and record the successful run URL/commit when a remote run is available. Keep remote verification pending until there is actual evidence.
+
+Acceptance: both local version runs pass and remote CI is green for the reviewed revision. Record exact versions, commands and results rather than only the test count.
+
+#### 7. Final review and cleanup (`remaining-final-review`)
+
+- Reconcile README, validation/migration docs, schemas, examples and skills with the final behavior. Remove stale limitations only when a test demonstrates they are resolved.
+- Run `make mandatory_targets` and `scripts/migrate-versa.py --check` after substantive edits; record the final results in this plan.
+- Run `make clean`, remove task-owned temporary files, and retain source files, expected snapshots, pinned catalogs, generated schemas, the lockfile and development environment.
+- Mark each remaining task complete only after its acceptance criteria pass. Keep any outstanding gaps explicit in the final report.
+
+Acceptance: the repository contains intended source/reference artifacts, disposable build/test output is removed, and task statuses agree with verification evidence.
+
+### Migration review and scope boundaries
+
+Unknown TPS identity, fractional steering data incompatible with the VSS integer datatype, and unsupported multiplexed/variable-length/custom codecs remain explicit in `unmapped`. Resolving these mappings requires evidence or a separately specified codec; it is not a reason to guess values or silently activate capabilities. Expanding codec support is not required by the remaining tasks above.
+
+Physical vehicle testing and consuming-runtime behavior remain outside this repository. The synthetic 2011 timing overlay is a composition demonstration, not an OEM compatibility claim. BLE interfaces and firmware behavior remain out of scope.
 
 ## Format 2 decisions
 
@@ -398,11 +498,13 @@ With `--project`, it installs relative to the current directory. A repository of
 
 ## Tests
 
+This section records the intended acceptance matrix. Existing functional tests and snapshots cover most scenarios; the remaining migration/ZIP snapshots and fixture inventory are tracked above.
+
 The suite follows the vss-tools `test_<feature>` layout.
 
 ### Positive cases
 
-Each runs `export json --strict` and compares the output byte-for-byte with `expected.json`.
+Target coverage: each applicable CLI scenario compares its resolved JSON output byte-for-byte with a checked-in expected file. Migration and ZIP still need the additional golden coverage listed above; multi-package scenarios use `resolve --strict`.
 
 - `test_single_document`, `test_multi_document_merge`, `test_overlay_applicability` (`expected_2008.json`, `expected_2011.json`)
 - `test_signal_and_query` (one path with both bindings)

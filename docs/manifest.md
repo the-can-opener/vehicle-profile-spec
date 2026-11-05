@@ -1,13 +1,13 @@
-# Manifest
+# Manifest and applicability
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Manifest and documents
 
 | Manifest field | Meaning |
 |---|---|
 | `manifest` | Container version; `1` |
-| `format` | Document grammar; `2` is this draft. Format 1 documents are rejected with a pointer to migration |
+| `format` | Document grammar; `2` is this format. Format 1 documents are rejected with a pointer to migration |
 | `id` | Reverse-DNS identifier, stable across package versions |
 | `version` | Semver of this package |
 | `name` | Human-readable name |
@@ -15,7 +15,7 @@ Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0
 | `applies_to` | Package-wide applicability |
 | `dbc` | Map from a DBC id to `{path, channel, sha256?}` |
 | `documents` | Ordered list; each entry has `path` and may set `applies_to` and `override` |
-| `fixtures` | Fixture files (§16) |
+| `fixtures` | [Fixture files](fixtures.md) |
 | `depends` | Packages that must load first: `{id, version}` with a semver range |
 | `unmapped` | Documented gaps, never capabilities |
 
@@ -115,3 +115,7 @@ Equivalent flat property syntax in JSON:
 ```
 
 The JSON above is a property fragment, not a complete document.
+
+## Related pages
+
+[Package safety](package.md) · [Document sections](document.md) · [Applicability and overlays](composition.md) · [Fixtures](fixtures.md)

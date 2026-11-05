@@ -1,6 +1,6 @@
-# Extensions
+# Extensions and configuration
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Extension mechanism
 
@@ -47,3 +47,7 @@ Separate three categories:
 Do not duplicate a VSS actuator in a custom configuration registry. VSS attributes describe characteristics and are not a generic vehicle-coding interface. For a persistent non-VSS parameter, the extension must define datatype, unit, range, permitted values, readback, scope, persistence, defaults if known, required ignition/session state, and whether activation requires restart.
 
 Batch changes must declare atomicity. If not atomic, return per-parameter outcomes and partial success. Do not promise rollback unless verified undo behavior exists. Readback verifies stored/applied state as appropriate; saving an intended setting locally does not prove ECU persistence. Configuration extension contracts must distinguish pending, stored, and active values when they differ.
+
+## Related pages
+
+[VSS properties](vss.md) · [Queries and actions](document.md#queries-and-actions) · [Validation](validation.md)

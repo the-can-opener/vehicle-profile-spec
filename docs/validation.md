@@ -1,8 +1,10 @@
-# Validation
+# Validation and CLI
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
-## Validation, fixtures, and acceptance
+On this page: [Validation layers](#validation-layers) · [Tool commands and limits](#tool-commands-and-limits) · [Strict exceptions and acceptance checks](#strict-exceptions-and-acceptance-checks) · [Remaining validation work](#remaining-validation-work)
+
+## Validation layers
 
 Validation layers:
 
@@ -17,29 +19,7 @@ Validation layers:
 
 A syntax check cannot establish later layers. Missing dependencies and unchecked mappings must be reported.
 
-A fixture file lists cases. Each case has a `kind` of `signal`, `query`, `write`, or `action`; a `path` for signals, writes, and property queries, or a `name` for named queries and actions; inputs from `frame`, `responses`, `target`, and `input`; and an `expect` holding any of `value`, `quality`, `sent`, `result`, and `error`.
-
-```yaml
-fixture: 1
-cases:
-  - label: lock acknowledged
-    kind: action
-    name: LOCK
-    responses: ["50 81", "50 C0", "70 38 01"]
-    expect:
-      sent: ["10 81", "10 C0", "30 38 00 01"]
-      result: acknowledged
-
-  - label: lock sent with no reply
-    kind: action
-    name: LOCK
-    responses: ["50 81", "50 C0"]
-    expect: {result: unknown, error: OUTCOME_UNKNOWN}
-```
-
-The spec defines the fixture format; a validator checks that fixtures are well formed and name existing capabilities, and runtimes execute them. Every active binding should have positive and negative fixtures. Required cases include passive-plus-query acquisition for one property, no implicit polling, numeric targets with exact encoding, an unsupported case target, a failed acknowledgement, wrong responder, timeouts, unknown write or action outcomes, and unsupported required extensions.
-
-OBDb compatibility is not an acceptance criterion. Cross-language claims require shared behavioral fixtures; vehicle-portability claims require demonstrated matching semantics on multiple vehicles.
+The [fixture reference](fixtures.md) defines cases, expected outcomes and behavioral coverage. Fixtures do not establish physical vehicle compatibility by themselves.
 
 ## Tool commands and limits
 
@@ -63,4 +43,8 @@ Only unknown fields can be excepted. Known fields, conflicting binding forms, re
 
 ## Remaining validation work
 
-The implementation does not yet prove full decoder-output compatibility with every VSS datatype and range, and manifest DBC channel references need a dedicated resolution check. The document authoring schema permits null deletions but still describes complete typed entries; earlier partial entries that are replaced before validation are accepted by the merge pipeline, not by that standalone schema. These gaps are tracked in the implementation plan.
+The implementation does not yet prove full decoder-output compatibility with every VSS datatype and range, and manifest DBC channel references need a dedicated resolution check. The document authoring schema permits null deletions but still describes complete typed entries; earlier partial entries that are replaced before validation are accepted by the merge pipeline, not by that standalone schema. These gaps are tracked in the [implementation plan](../vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up).
+
+## Related pages
+
+[Package safety](package.md) · [Fixture format](fixtures.md) · [Error codes](../skills/validating-vehicle-profiles/error-codes.md) · [Migration](migration.md)

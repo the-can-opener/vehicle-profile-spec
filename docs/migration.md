@@ -1,14 +1,14 @@
-# Migration
+# Migrating profiles
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Versioning and migration
 
-This draft changes the authoring format. Previous schemas and tools need updates before they can validate it.
+Format 2 replaces the keyword-based format 1 profile with packages and canonical VSS property bindings. Use the migration command below and review its unmapped report.
 
-Migration from format 1 (`README.md` profiles):
+Migration from the [format 1 profile](format-1.md):
 
-| Format 1 | This draft |
+| Format 1 | Format 2 |
 |---|---|
 | `profile.yaml` with sibling DBC files | A package manifest listing documents and DBC files |
 | `signals.X.monitor` | `read.signal` on the VSS path for X |
@@ -22,14 +22,14 @@ Migration from format 1 (`README.md` profiles):
 
 Keyword names stay usable as aliases on properties and as query and action names. Anything that cannot be mapped goes to `unmapped`.
 
-Changes from the earlier 0.4.0 draft:
+Format 2 structure:
 
 - One root manifest became a package manifest with an ordered document list, composition rules, and `depends`.
 - `operations` were replaced by named `queries` and `actions`.
 - Write steps live inside the write. `write.sequence`, `completion`, and `verify` were removed; a matched `expect` is the acknowledgement.
 - Sequences hold only shared steps and run on the caller's endpoint.
 - Endpoints are the ECU target, and VSS `ControlUnit` instance names are not addresses.
-- The future diagnostics contract was removed from this draft.
+- Diagnostics providers are outside the core binding format.
 
 Migration from v0.3:
 
@@ -40,7 +40,7 @@ Migration from v0.3:
 - Preserve DBC signal names, numeric write constraints, and canonical property semantics.
 - Remove any OBDb compatibility/import/parity release requirements.
 
-During 0.x, minor versions may break compatibility and require migration notes. A published 1.x standard uses major versions for breaking interpretation changes. Pin VSS and feature versions independently. Publish schemas, examples, and conformance fixtures with each implemented release. Do not present an unsupported feature as working merely because the standard has an extension point for it.
+Pin package, VSS and extension versions independently. Publish schemas, examples and conformance fixtures with each implemented release. Do not present an unsupported feature as working merely because the standard has an extension point for it.
 
 ## Implemented migration
 
@@ -64,3 +64,7 @@ DBC query fields become prefix-relative byte/bit decoders, preserving native Mot
 Unsupported or uncertain inputs stay unmapped: multiplexed DBC declarations, unknown canonical identities, fractional values targeting integer VSS properties, variable-length codecs, generic ASCII trailing-NUL trimming, sequence cycles, and steps that switch endpoints. An unmapped report is work to review, not an active capability.
 
 The [Versa example](../examples/nissan-versa/README.md) is reproduced by `scripts/migrate-versa.py`; `--check` verifies it without editing files. Request/response commands use the declared single-frame conversion, while request-only commands remain raw CAN. The 2011 timing overlay is explicitly synthetic. No physical vehicle compatibility is claimed.
+
+## Related pages
+
+[Legacy reference](format-1.md) · [Keyword vocabulary](vocabulary.md) · [Authoring guide](authoring-guide.md) · [Validation](validation.md)

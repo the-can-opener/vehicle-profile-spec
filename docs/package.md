@@ -1,6 +1,6 @@
-# Package
+# Package and file format
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Package and file format
 
@@ -22,3 +22,7 @@ YAML and JSON represent the same JSON-compatible object model. Object keys MUST 
 Property keys are flat, case-sensitive canonical paths, for example `Vehicle.Speed`. The loader MUST NOT accept both flat and nested representations in one document or silently rewrite nonstandard names. Binding objects remain structured; flat property addressing does not mean flattening every protocol field.
 
 Resolve asset paths relative to the package root. Reject absolute paths, `..` traversal, symlinks, duplicate or case-insensitively colliding entries, encrypted zip entries, non-UTF-8 names, and sizes above the implementation's declared limits. Recommended defaults are 16 MiB per package, 4 MiB per file, 1000 entries, and a 1:100 compression ratio. A listed file may carry `sha256`; a loader running with an integrity-required policy rejects listed files that omit it.
+
+## Related pages
+
+[Manifest fields](manifest.md) · [Composition](composition.md) · [Integrity checks](validation.md#tool-commands-and-limits)

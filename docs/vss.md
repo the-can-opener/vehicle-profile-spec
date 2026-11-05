@@ -1,6 +1,6 @@
-# Vss
+# VSS paths and semantics
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Property semantics and catalog resolution
 
@@ -10,8 +10,12 @@ A binding must match the underlying quantity, not merely have a similar label. A
 
 Aliases MAY be supplied as an array on a property for legacy SDK names, such as `SPEED` for `Vehicle.Speed`. They resolve to the same canonical cache entry and MUST NOT collide with another alias, property key, query name, or action name.
 
-VSS does not define a vehicle's ECUs. `Vehicle.ControlUnit` is a branch whose instance names (`Central`, `FrontLeft`, `FrontRight`, `RearLeft1`, `RearLeft2`, `Trunk`) are examples that the catalog expects deployments to replace. Each instance carries only an `ID` attribute and `Health` signals: network status, power, temperature, CPU and memory use, and software supervision. A package MUST NOT treat those instance names as ECU addresses. To bind health properties of a real controller, supply a VSS overlay that sets the instance list, validate it with VSS tooling, and bind the resulting paths like any other property. The ECU that answers a request is identified by its endpoint (§10).
+VSS does not define a vehicle's ECUs. `Vehicle.ControlUnit` is a branch whose instance names (`Central`, `FrontLeft`, `FrontRight`, `RearLeft1`, `RearLeft2`, `Trunk`) are examples that the catalog expects deployments to replace. Each instance carries only an `ID` attribute and `Health` signals: network status, power, temperature, CPU and memory use, and software supervision. A package MUST NOT treat those instance names as ECU addresses. To bind health properties of a real controller, supply a VSS overlay that sets the instance list, validate it with VSS tooling, and bind the resulting paths like any other property. The ECU that answers a request is identified by its [endpoint](document.md#endpoints-ecu-targets-and-steps).
 
 ## Legacy keyword mapping
 
 See the [generated vocabulary](vocabulary.md). Both this listing and migration use [vocabulary.yaml](vocabulary.yaml); unknown mappings remain inactive.
+
+## Related pages
+
+[Pinned catalog](../catalog/README.md) · [Legacy vocabulary](vocabulary.md) · [Property bindings](document.md)

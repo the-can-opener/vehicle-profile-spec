@@ -1,5 +1,7 @@
 # DBC assets
 
+[Overview](../README.md) · [Documentation index](README.md)
+
 ## DBC Rules
 
 DBC files decode received CAN payloads only.
@@ -41,3 +43,7 @@ In this example, `0x7E8` is decimal `2024` and `0x765` is decimal `1893`.
 
 
 Format 2 lists each DBC under manifest `dbc: {main: {path: signals.dbc, channel: vehicle}}`. A property uses `read.signal: {dbc: main, message: MESSAGE, signal: FIELD}`. The parser supports BO_, ordinary SG_ and VAL_; multiplexed SG_ declarations are rejected. Motorola fields use DBC sawtooth numbering. VAL_ labels are retained for inspection but are never substituted automatically. Use `decode_as: boolean` only for raw 0/1, or an explicit raw-key enum. Units must match VSS exactly; unknown units are not converted.
+
+## Related pages
+
+[Manifest assets](manifest.md) · [Core decoders](decoding.md) · [Shared sources](document.md#shared-sources)

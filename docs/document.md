@@ -1,6 +1,8 @@
-# Document
+# Properties and bindings
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
+
+On this page: [Core concepts](#core-concepts) · [Passive signals and active queries](#passive-signals-and-active-queries) · [Shared sources](#shared-sources) · [Writes](#writes) · [Endpoints, ECU targets, and steps](#endpoints-ecu-targets-and-steps) · [Queries and actions](#queries-and-actions) · [Runtime results and discovery](#runtime-results-and-discovery)
 
 ## Core concepts
 
@@ -110,7 +112,7 @@ Optional `constraints` has min, max, and step in canonical units. It MUST narrow
 
 A write succeeds when every `expect` in its steps matches. That match is the vehicle's acknowledgement, and the result is `acknowledged`. A write with no `expect` reports `sent` once the transport has submitted its last request. There is no separate verification or completion field. A response that fails its pattern fails the write. A timeout after transmission is OUTCOME_UNKNOWN, not proof that nothing happened.
 
-The runtime stores the requested target and the observed actual value separately. Sending or acknowledging a request never changes the observed value; only a `read` observation does. A caller that needs readback reads or subscribes to the property after the write. A command that affects several actuators cannot be advertised as independent control of one of them; define it as an action (§11).
+The runtime stores the requested target and the observed actual value separately. Sending or acknowledging a request never changes the observed value; only a `read` observation does. A caller that needs readback reads or subscribes to the property after the write. A command that affects several actuators cannot be advertised as independent control of one of them; define it as an [action](document.md#actions).
 
 ### Horn example
 
@@ -306,3 +308,7 @@ An observation includes path or query name, value when valid, unit when applicab
 Executions report accepted/running/succeeded/failed/cancelled/unknown and evidence `sent` or `acknowledged`. Errors use stable codes: INVALID_PACKAGE, UNKNOWN_PATH, UNSUPPORTED, UNAVAILABLE, VEHICLE_MISMATCH, PERMISSION_DENIED, PRECONDITION_FAILED, TIMEOUT, NEGATIVE_RESPONSE, DECODE_ERROR, CONFLICT, CANCELLED, OUTCOME_UNKNOWN.
 
 Discovery distinguishes defined capability, implementation support, applicability, current availability, and permission. Unmapped properties are explicitly unavailable. Unknown/mismatched applicability cannot automatically authorize writes or actions. Make/model/year declarations are not physical test evidence.
+
+## Related pages
+
+[VSS identity](vss.md) · [Decoders and request encoding](decoding.md) · [DBC references](dbc.md) · [Composition](composition.md) · [Fixtures](fixtures.md)

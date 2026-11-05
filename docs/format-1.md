@@ -1,4 +1,8 @@
-# Historical format 1 vehicle profile and DBC specification
+# Historical format 1 reference
+
+[Overview](../README.md) · [Documentation index](README.md)
+
+On this page: [Core Architecture](#core-architecture) · [Standard Capability Keywords](#standard-capability-keywords) · [Standard PID Keywords](#standard-pid-keywords) · [File Structure](#file-structure) · [YAML Root Structure](#yaml-root-structure) · [Applicability Rules](#applicability-rules) · [DBC Rules](#dbc-rules) · [DBC File References](#dbc-file-references) · [Endpoint Rules](#endpoint-rules) · [Transaction Step Rules](#transaction-step-rules) · [Expect Matching Rules](#expect-matching-rules) · [Sequences](#sequences) · [Sequence References](#sequence-references) · [Signals](#signals) · [Queries](#queries) · [Actions](#actions) · [Runtime Profile Reloading](#runtime-profile-reloading) · [Historical scope](#historical-scope)
 
 This document defines the stable vehicle capability vocabulary, the YAML profile
 format and DBC responsibilities used by
@@ -660,3 +664,7 @@ signal names before or after a reload.
 ## Historical scope
 
 The original firmware interface material is excluded here.
+
+## Related pages
+
+[Migration command](migration.md#implemented-migration) · [Current binding format](document.md) · [Keyword mappings](vocabulary.md)

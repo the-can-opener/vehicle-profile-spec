@@ -20,7 +20,9 @@ vocabulary = json.loads((root / "docs/vocabulary.yaml").read_text())
 lines = [
     "# Keyword vocabulary",
     "",
-    "Generated from `vocabulary.yaml`; do not edit this listing by hand.",
+    "[Overview](../README.md) · [Documentation index](README.md)",
+    "",
+    "Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by hand.",
     "",
 ]
 for name, mapping in vocabulary.items():
@@ -37,6 +39,14 @@ for name, mapping in vocabulary.items():
     else:
         description = "unmapped: " + mapping["reason"]
     lines.append(f"- `{name}`: {description}")
+lines.extend(
+    [
+        "",
+        "## Related pages",
+        "",
+        "[VSS paths and semantics](vss.md) · [Migration](migration.md) · [Historical format 1 reference](format-1.md)",
+    ]
+)
 files[root / "docs/vocabulary.md"] = "\n".join(lines) + "\n"
 for path, text in files.items():
     if args.check:

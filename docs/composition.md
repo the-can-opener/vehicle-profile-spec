@@ -1,6 +1,6 @@
-# Composition
+# Composition and overlays
 
-Based on [Vehicle Binding Specification 0.4.0](../Vehicle_BInding_Standardv0.4.0.md). Format 2 tooling implements structural validation; vehicle execution is outside this repository.
+[Overview](../README.md) · [Documentation index](README.md)
 
 ## Composition
 
@@ -12,3 +12,7 @@ Documents load in manifest order. Keyed sections merge by key: `endpoints`, `sou
 - References (endpoints, sources, sequence calls, DBC names) resolve after the merge.
 
 Packages load in host order; universal, then make, model, and year is recommended. Each `depends` entry must be satisfied earlier in the order. The same key defined by two packages is a conflict unless the later document sets `override: true`.
+
+## Related pages
+
+[Manifest applicability](manifest.md) · [Shared sequences](document.md#sequences) · [Validation](validation.md)
