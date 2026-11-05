@@ -21,7 +21,7 @@ VSS does not define a vehicle's ECUs. `Vehicle.ControlUnit` is a branch whose in
 
 ## Legacy keyword mapping
 
-See the [generated vocabulary](vocabulary.md). Both this listing and migration use [vocabulary.yaml](vocabulary.yaml); unknown mappings remain inactive.
+See the [generated vocabulary](vocabulary.md). Both this listing and migration use [vocabulary.yaml](vocabulary.yaml); unknown mappings remain inactive. When the pinned catalog defines a unit for the mapped property, that COVESA unit is recorded on `unit`. Boolean, string, and enumerated properties have no unit, and actions, queries, and unmapped keywords omit the key.
 
 ## Related pages
 

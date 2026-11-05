@@ -4,58 +4,58 @@
 
 Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by hand.
 
-- `ACTUAL_TORQUE`: Vehicle.Powertrain.CombustionEngine.Torque; Current engine torque. VSS unit is Nm.
+- `ACTUAL_TORQUE`: Vehicle.Powertrain.CombustionEngine.Torque; unit Nm; Current engine torque.
 - `ACTUATE_TRUNK_FRONT`: action ACTUATE_TRUNK_FRONT
 - `ACTUATE_TRUNK_REAR`: action ACTUATE_TRUNK_REAR
 - `ADD_CHARGE_SCHEDULE`: action ADD_CHARGE_SCHEDULE
 - `ADD_PRECONDITION_SCHEDULE`: action ADD_PRECONDITION_SCHEDULE
 - `AUTO_CONDITIONING_START`: action AUTO_CONDITIONING_START
 - `AUTO_CONDITIONING_STOP`: action AUTO_CONDITIONING_STOP
-- `BARO`: Vehicle.OBD.BarometricPressure; COVESA OBD overlay, PID 33. Unit is kPa.
-- `BATTERY_LEVEL`: Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed; Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.
-- `BATTERY_RANGE`: Vehicle.Powertrain.TractionBattery.Range; Battery-only remaining range. VSS unit is meters.
+- `BARO`: Vehicle.OBD.BarometricPressure; unit kPa; COVESA OBD overlay, PID 33.
+- `BATTERY_LEVEL`: Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed; unit percent; Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.
+- `BATTERY_RANGE`: Vehicle.Powertrain.TractionBattery.Range; unit m; Battery-only remaining range.
 - `BRAKE_LIGHTS`: Vehicle.Body.Lights.Brake.IsActive
-- `CABIN_TEMP`: Vehicle.Cabin.HVAC.AmbientAirTemperature
+- `CABIN_TEMP`: Vehicle.Cabin.HVAC.AmbientAirTemperature; unit Celsius
 - `CANCEL_SOFTWARE_UPDATE`: action CANCEL_SOFTWARE_UPDATE
-- `CHARGER_CURRENT`: Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC; DC inlet current. AC current is Phase1, Phase2, and Phase3.
-- `CHARGER_POWER`: Vehicle.Powertrain.TractionBattery.Charging.AveragePower; Average power of the current or last charging event.
-- `CHARGER_VOLTAGE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC; DC inlet voltage. AC voltage is Phase1, Phase2, and Phase3.
+- `CHARGER_CURRENT`: Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC; unit A; DC inlet current. AC current is Phase1, Phase2, and Phase3.
+- `CHARGER_POWER`: Vehicle.Powertrain.TractionBattery.Charging.AveragePower; unit kW; Average power of the current or last charging event.
+- `CHARGER_VOLTAGE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC; unit V; DC inlet voltage. AC voltage is Phase1, Phase2, and Phase3.
 - `CHARGE_ENERGY_ADDED`: unmapped: Session energy added has no VSS signal. Vehicle.Powertrain.TractionBattery.AccumulatedChargedEnergy is lifetime charged energy.
-- `CHARGE_LIMIT_SOC`: Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit
+- `CHARGE_LIMIT_SOC`: Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit; unit percent
 - `CHARGE_PORT_CLOSE`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen (write target false); Single charging port. Use a position instance instead of AnyPosition when the port location is known.
 - `CHARGE_PORT_OPEN`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen (write target true); Single charging port. Use a position instance instead of AnyPosition when the port location is known.
-- `CHARGE_RATE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeRate
+- `CHARGE_RATE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeRate; unit km/h
 - `CHARGE_START`: Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging (write target "START")
 - `CHARGE_STOP`: Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging (write target "STOP")
 - `CHARGING_STATE`: unmapped: disconnected, stopped, charging, and complete do not match Vehicle.Powertrain.TractionBattery.ChargingState.
 - `CLIMATE_OFF`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
 - `CLIMATE_ON`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
-- `CLOSE_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
-- `CLOSE_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 0); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 0); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
 - `CLOSE_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target false); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
-- `CLOSE_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
-- `CLOSE_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 0); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 0); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
 - `CLOSE_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target false)
 - `DEFROST_OFF`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target false); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
 - `DEFROST_ON`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target true); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
-- `DIST_SINCE_CLEAR`: Vehicle.OBD.DistanceSinceDTCClear; COVESA OBD overlay, PID 31. Unit is km.
-- `DRIVER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature
+- `DIST_SINCE_CLEAR`: Vehicle.OBD.DistanceSinceDTCClear; unit km; COVESA OBD overlay, PID 31.
+- `DRIVER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature; unit Celsius
 - `DRIVER_TORQUE_DEMAND`: unmapped: OBD driver-demand engine torque (PID 61) is not in the VSS 6.1 catalog or the OBD overlay.
-- `ECT`: Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature
+- `ECT`: Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature; unit Celsius
 - `ECU_WAKE`: action ECU_WAKE
-- `ENGINE_LOAD`: Vehicle.OBD.EngineLoad; COVESA OBD overlay, PID 04. Unit is percent.
-- `ESTIMATED_RANGE`: Vehicle.Powertrain.Range; Remaining range from all energy sources. VSS unit is meters.
+- `ENGINE_LOAD`: Vehicle.OBD.EngineLoad; unit percent; COVESA OBD overlay, PID 04.
+- `ESTIMATED_RANGE`: Vehicle.Powertrain.Range; unit m; Remaining range from all energy sources.
 - `FRONT_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `FRONT_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
-- `FUEL_LEVEL`: Vehicle.Powertrain.FuelSystem.RelativeLevel
-- `FUEL_PRESSURE`: Vehicle.OBD.FuelPressure; COVESA OBD overlay, PID 0A. Unit is kPa.
-- `FUEL_RATE`: Vehicle.OBD.FuelRate; Engine fuel rate. COVESA OBD overlay, PID 5E. Unit is l/h. FuelSystem.InstantConsumption is l/100km.
+- `FUEL_LEVEL`: Vehicle.Powertrain.FuelSystem.RelativeLevel; unit percent
+- `FUEL_PRESSURE`: Vehicle.OBD.FuelPressure; unit kPa; COVESA OBD overlay, PID 0A.
+- `FUEL_RATE`: Vehicle.OBD.FuelRate; unit l/h; Engine fuel rate. COVESA OBD overlay, PID 5E. FuelSystem.InstantConsumption is l/100km.
 - `GEAR`: Vehicle.Powertrain.Transmission.SelectedGear; Selected gear. 126 = park, -1 = reverse, 0 = neutral, 127 = drive.
 - `HAZARD_LIGHTS`: Vehicle.Body.Lights.Hazard.IsSignaling (write target true)
 - `HIGH_BEAM`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HIGH_BEAMS`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HORN`: Vehicle.Body.Horn.IsActive (write target true)
-- `IAT`: Vehicle.OBD.IntakeTemp; COVESA OBD overlay, PID 0F. Unit is Celsius.
+- `IAT`: Vehicle.OBD.IntakeTemp; unit Celsius; COVESA OBD overlay, PID 0F.
 - `IDEAL_RANGE`: unmapped: VSS has no ideal or rated range separate from remaining range.
 - `LAMBDA`: Vehicle.OBD.O2WR.Sensor1.Lambda; First wideband oxygen sensor, PID 24. Sensors 2 through 8 are Vehicle.OBD.O2WR.Sensor2.Lambda through Sensor8.Lambda.
 - `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
@@ -63,23 +63,23 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `LOCKED`: Vehicle.Cabin.IsCentralLockEngaged
 - `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
-- `LTFT_B1`: Vehicle.OBD.LongTermFuelTrim1; COVESA OBD overlay, PID 07. Unit is percent.
-- `LTFT_B2`: Vehicle.OBD.LongTermFuelTrim2; COVESA OBD overlay, PID 09. Unit is percent.
-- `MAF`: Vehicle.Powertrain.CombustionEngine.MAF
-- `MAP`: Vehicle.Powertrain.CombustionEngine.MAP
+- `LTFT_B1`: Vehicle.OBD.LongTermFuelTrim1; unit percent; COVESA OBD overlay, PID 07.
+- `LTFT_B2`: Vehicle.OBD.LongTermFuelTrim2; unit percent; COVESA OBD overlay, PID 09.
+- `MAF`: Vehicle.Powertrain.CombustionEngine.MAF; unit g/s
+- `MAP`: Vehicle.Powertrain.CombustionEngine.MAP; unit kPa
 - `MIL_STATUS`: Vehicle.OBD.Status.IsMILOn; Malfunction indicator lamp. COVESA OBD overlay, PID 01.
-- `MODULE_VOLTAGE`: Vehicle.OBD.ControlModuleVoltage; COVESA OBD overlay, PID 42. Unit is V.
-- `O2_DATA`: Vehicle.OBD.O2.Sensor1.Voltage; First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.
-- `ODOMETER`: Vehicle.TraveledDistance; Lifetime distance. VSS unit is meters.
-- `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature
-- `OPEN_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
-- `OPEN_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `MODULE_VOLTAGE`: Vehicle.OBD.ControlModuleVoltage; unit V; COVESA OBD overlay, PID 42.
+- `O2_DATA`: Vehicle.OBD.O2.Sensor1.Voltage; unit V; First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.
+- `ODOMETER`: Vehicle.TraveledDistance; unit m; Lifetime distance.
+- `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature; unit Celsius
+- `OPEN_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 100); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `OPEN_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 100); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
 - `OPEN_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target true); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
-- `OPEN_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
-- `OPEN_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `OPEN_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 100); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `OPEN_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 100); unit percent; Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
 - `OPEN_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target true)
-- `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature
-- `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature
+- `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature; unit Celsius
+- `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature; unit Celsius
 - `PLUGGED_IN`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected; Single charging port. Use a position instance instead of AnyPosition when the port location is known.
 - `READINESS_STATUS`: unmapped: OBD readiness monitors are a bitmap in PID 01 and are not a single signal. MIL state is Vehicle.OBD.Status.IsMILOn.
 - `REAR_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
@@ -89,27 +89,27 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `REMOVE_PRECONDITION_SCHEDULE`: action REMOVE_PRECONDITION_SCHEDULE
 - `REVERSE_LIGHTS`: Vehicle.Body.Lights.Backup.IsOn
 - `RIGHT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling (write target true)
-- `RPM`: Vehicle.Powertrain.CombustionEngine.Speed
+- `RPM`: Vehicle.Powertrain.CombustionEngine.Speed; unit rpm
 - `RUNNING_LIGHTS`: Vehicle.Body.Lights.Running.IsOn (write target true)
-- `RUNTIME`: Vehicle.OBD.RunTime; Engine run time. COVESA OBD overlay, PID 1F. Unit is seconds.
+- `RUNTIME`: Vehicle.OBD.RunTime; unit s; Engine run time. COVESA OBD overlay, PID 1F.
 - `SCHEDULE_SOFTWARE_UPDATE`: action SCHEDULE_SOFTWARE_UPDATE
 - `SEATBELT_WARNING`: Vehicle.Cabin.IsSeatBeltWarningActive; Vehicle seatbelt warning indicator. True means the indicator is active. Per-seat buckle state remains IsBelted.
 - `SET_CHARGE_LIMIT`: unmapped: The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit.
 - `SET_CHARGING_AMPS`: unmapped: No commanded charging-current actuator. MaximumChargingCurrent is inlet capability, not a setpoint.
 - `SET_TEMPERATURE`: unmapped: The station is not fixed. Use DRIVER_TEMP_SETTING or PASSENGER_TEMP_SETTING.
 - `SIGNAL_OFF`: action SIGNAL_OFF
-- `SPEED`: Vehicle.Speed
-- `STEERING_ANGLE`: Vehicle.Chassis.SteeringWheel.Angle
-- `STFT_B1`: Vehicle.OBD.ShortTermFuelTrim1; COVESA OBD overlay, PID 06. Unit is percent.
-- `STFT_B2`: Vehicle.OBD.ShortTermFuelTrim2; COVESA OBD overlay, PID 08. Unit is percent.
+- `SPEED`: Vehicle.Speed; unit km/h
+- `STEERING_ANGLE`: Vehicle.Chassis.SteeringWheel.Angle; unit degrees
+- `STFT_B1`: Vehicle.OBD.ShortTermFuelTrim1; unit percent; COVESA OBD overlay, PID 06.
+- `STFT_B2`: Vehicle.OBD.ShortTermFuelTrim2; unit percent; COVESA OBD overlay, PID 08.
 - `SUPPORTED_PIDS_01_20`: query SUPPORTED_PIDS_01_20
-- `TIME_TO_FULL_CHARGE`: Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete; Includes a scheduled delay before charging starts. VSS unit is seconds.
-- `TIMING_ADVANCE`: Vehicle.OBD.TimingAdvance; COVESA OBD overlay, PID 0E. Unit is degrees. The value is the angle, not the raw OBD byte.
-- `TPMS_FRONT_LEFT`: Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure; Front-axle left tire pressure. VSS unit is kPa.
-- `TPMS_FRONT_RIGHT`: Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure; Front-axle right tire pressure. VSS unit is kPa.
-- `TPMS_REAR_LEFT`: Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure; Rear-axle left tire pressure. VSS unit is kPa.
-- `TPMS_REAR_RIGHT`: Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure; Rear-axle right tire pressure. VSS unit is kPa.
-- `TPS`: Vehicle.Powertrain.CombustionEngine.TPS
+- `TIME_TO_FULL_CHARGE`: Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete; unit s; Includes a scheduled delay before charging starts.
+- `TIMING_ADVANCE`: Vehicle.OBD.TimingAdvance; unit degrees; COVESA OBD overlay, PID 0E. The value is the angle, not the raw OBD byte.
+- `TPMS_FRONT_LEFT`: Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure; unit kPa; Front-axle left tire pressure.
+- `TPMS_FRONT_RIGHT`: Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure; unit kPa; Front-axle right tire pressure.
+- `TPMS_REAR_LEFT`: Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure; unit kPa; Rear-axle left tire pressure.
+- `TPMS_REAR_RIGHT`: Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure; unit kPa; Rear-axle right tire pressure.
+- `TPS`: Vehicle.Powertrain.CombustionEngine.TPS; unit percent
 - `UNLOCK`: Vehicle.Cabin.IsCentralLockEngaged (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN
 - `WAKE_UP`: action WAKE_UP

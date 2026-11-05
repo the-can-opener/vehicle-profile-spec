@@ -30,6 +30,8 @@ for name, mapping in vocabulary.items():
         description = mapping["path"]
         if "target" in mapping:
             description += " (write target " + json.dumps(mapping["target"]) + ")"
+        if "unit" in mapping:
+            description += "; unit " + mapping["unit"]
         if "note" in mapping:
             description += "; " + mapping["note"]
     elif "query" in mapping:

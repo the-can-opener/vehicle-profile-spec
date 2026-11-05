@@ -1,7 +1,8 @@
 {
   "ACTUAL_TORQUE": {
-    "note": "Current engine torque. VSS unit is Nm.",
-    "path": "Vehicle.Powertrain.CombustionEngine.Torque"
+    "note": "Current engine torque.",
+    "path": "Vehicle.Powertrain.CombustionEngine.Torque",
+    "unit": "Nm"
   },
   "ACTUATE_TRUNK_FRONT": {
     "action": "ACTUATE_TRUNK_FRONT"
@@ -22,16 +23,19 @@
     "action": "AUTO_CONDITIONING_STOP"
   },
   "BARO": {
-    "note": "COVESA OBD overlay, PID 33. Unit is kPa.",
-    "path": "Vehicle.OBD.BarometricPressure"
+    "note": "COVESA OBD overlay, PID 33.",
+    "path": "Vehicle.OBD.BarometricPressure",
+    "unit": "kPa"
   },
   "BATTERY_LEVEL": {
     "note": "Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.",
-    "path": "Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed"
+    "path": "Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed",
+    "unit": "percent"
   },
   "BATTERY_RANGE": {
-    "note": "Battery-only remaining range. VSS unit is meters.",
-    "path": "Vehicle.Powertrain.TractionBattery.Range"
+    "note": "Battery-only remaining range.",
+    "path": "Vehicle.Powertrain.TractionBattery.Range",
+    "unit": "m"
   },
   "BRAKE_LIGHTS": {
     "enum": {
@@ -41,28 +45,33 @@
     "path": "Vehicle.Body.Lights.Brake.IsActive"
   },
   "CABIN_TEMP": {
-    "path": "Vehicle.Cabin.HVAC.AmbientAirTemperature"
+    "path": "Vehicle.Cabin.HVAC.AmbientAirTemperature",
+    "unit": "Celsius"
   },
   "CANCEL_SOFTWARE_UPDATE": {
     "action": "CANCEL_SOFTWARE_UPDATE"
   },
   "CHARGER_CURRENT": {
     "note": "DC inlet current. AC current is Phase1, Phase2, and Phase3.",
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC"
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC",
+    "unit": "A"
   },
   "CHARGER_POWER": {
     "note": "Average power of the current or last charging event.",
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.AveragePower"
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.AveragePower",
+    "unit": "kW"
   },
   "CHARGER_VOLTAGE": {
     "note": "DC inlet voltage. AC voltage is Phase1, Phase2, and Phase3.",
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC"
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC",
+    "unit": "V"
   },
   "CHARGE_ENERGY_ADDED": {
     "reason": "Session energy added has no VSS signal. Vehicle.Powertrain.TractionBattery.AccumulatedChargedEnergy is lifetime charged energy."
   },
   "CHARGE_LIMIT_SOC": {
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit"
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit",
+    "unit": "percent"
   },
   "CHARGE_PORT_CLOSE": {
     "note": "Single charging port. Use a position instance instead of AnyPosition when the port location is known.",
@@ -75,7 +84,8 @@
     "target": true
   },
   "CHARGE_RATE": {
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeRate"
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeRate",
+    "unit": "km/h"
   },
   "CHARGE_START": {
     "path": "Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging",
@@ -97,11 +107,13 @@
   "CLOSE_FRONT_LEFT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
     "path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+    "unit": "percent",
     "target": 0
   },
   "CLOSE_FRONT_RIGHT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
     "path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+    "unit": "percent",
     "target": 0
   },
   "CLOSE_FRUNK": {
@@ -112,11 +124,13 @@
   "CLOSE_REAR_LEFT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
     "path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+    "unit": "percent",
     "target": 0
   },
   "CLOSE_REAR_RIGHT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
     "path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+    "unit": "percent",
     "target": 0
   },
   "CLOSE_TRUNK": {
@@ -134,28 +148,33 @@
     "target": true
   },
   "DIST_SINCE_CLEAR": {
-    "note": "COVESA OBD overlay, PID 31. Unit is km.",
-    "path": "Vehicle.OBD.DistanceSinceDTCClear"
+    "note": "COVESA OBD overlay, PID 31.",
+    "path": "Vehicle.OBD.DistanceSinceDTCClear",
+    "unit": "km"
   },
   "DRIVER_TEMP_SETTING": {
-    "path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
+    "path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature",
+    "unit": "Celsius"
   },
   "DRIVER_TORQUE_DEMAND": {
     "reason": "OBD driver-demand engine torque (PID 61) is not in the VSS 6.1 catalog or the OBD overlay."
   },
   "ECT": {
-    "path": "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature"
+    "path": "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature",
+    "unit": "Celsius"
   },
   "ECU_WAKE": {
     "action": "ECU_WAKE"
   },
   "ENGINE_LOAD": {
-    "note": "COVESA OBD overlay, PID 04. Unit is percent.",
-    "path": "Vehicle.OBD.EngineLoad"
+    "note": "COVESA OBD overlay, PID 04.",
+    "path": "Vehicle.OBD.EngineLoad",
+    "unit": "percent"
   },
   "ESTIMATED_RANGE": {
-    "note": "Remaining range from all energy sources. VSS unit is meters.",
-    "path": "Vehicle.Powertrain.Range"
+    "note": "Remaining range from all energy sources.",
+    "path": "Vehicle.Powertrain.Range",
+    "unit": "m"
   },
   "FRONT_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
@@ -168,15 +187,18 @@
     "target": true
   },
   "FUEL_LEVEL": {
-    "path": "Vehicle.Powertrain.FuelSystem.RelativeLevel"
+    "path": "Vehicle.Powertrain.FuelSystem.RelativeLevel",
+    "unit": "percent"
   },
   "FUEL_PRESSURE": {
-    "note": "COVESA OBD overlay, PID 0A. Unit is kPa.",
-    "path": "Vehicle.OBD.FuelPressure"
+    "note": "COVESA OBD overlay, PID 0A.",
+    "path": "Vehicle.OBD.FuelPressure",
+    "unit": "kPa"
   },
   "FUEL_RATE": {
-    "note": "Engine fuel rate. COVESA OBD overlay, PID 5E. Unit is l/h. FuelSystem.InstantConsumption is l/100km.",
-    "path": "Vehicle.OBD.FuelRate"
+    "note": "Engine fuel rate. COVESA OBD overlay, PID 5E. FuelSystem.InstantConsumption is l/100km.",
+    "path": "Vehicle.OBD.FuelRate",
+    "unit": "l/h"
   },
   "GEAR": {
     "enum": {
@@ -205,8 +227,9 @@
     "target": true
   },
   "IAT": {
-    "note": "COVESA OBD overlay, PID 0F. Unit is Celsius.",
-    "path": "Vehicle.OBD.IntakeTemp"
+    "note": "COVESA OBD overlay, PID 0F.",
+    "path": "Vehicle.OBD.IntakeTemp",
+    "unit": "Celsius"
   },
   "IDEAL_RANGE": {
     "reason": "VSS has no ideal or rated range separate from remaining range."
@@ -235,46 +258,56 @@
     "target": true
   },
   "LTFT_B1": {
-    "note": "COVESA OBD overlay, PID 07. Unit is percent.",
-    "path": "Vehicle.OBD.LongTermFuelTrim1"
+    "note": "COVESA OBD overlay, PID 07.",
+    "path": "Vehicle.OBD.LongTermFuelTrim1",
+    "unit": "percent"
   },
   "LTFT_B2": {
-    "note": "COVESA OBD overlay, PID 09. Unit is percent.",
-    "path": "Vehicle.OBD.LongTermFuelTrim2"
+    "note": "COVESA OBD overlay, PID 09.",
+    "path": "Vehicle.OBD.LongTermFuelTrim2",
+    "unit": "percent"
   },
   "MAF": {
-    "path": "Vehicle.Powertrain.CombustionEngine.MAF"
+    "path": "Vehicle.Powertrain.CombustionEngine.MAF",
+    "unit": "g/s"
   },
   "MAP": {
-    "path": "Vehicle.Powertrain.CombustionEngine.MAP"
+    "path": "Vehicle.Powertrain.CombustionEngine.MAP",
+    "unit": "kPa"
   },
   "MIL_STATUS": {
     "note": "Malfunction indicator lamp. COVESA OBD overlay, PID 01.",
     "path": "Vehicle.OBD.Status.IsMILOn"
   },
   "MODULE_VOLTAGE": {
-    "note": "COVESA OBD overlay, PID 42. Unit is V.",
-    "path": "Vehicle.OBD.ControlModuleVoltage"
+    "note": "COVESA OBD overlay, PID 42.",
+    "path": "Vehicle.OBD.ControlModuleVoltage",
+    "unit": "V"
   },
   "O2_DATA": {
     "note": "First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.",
-    "path": "Vehicle.OBD.O2.Sensor1.Voltage"
+    "path": "Vehicle.OBD.O2.Sensor1.Voltage",
+    "unit": "V"
   },
   "ODOMETER": {
-    "note": "Lifetime distance. VSS unit is meters.",
-    "path": "Vehicle.TraveledDistance"
+    "note": "Lifetime distance.",
+    "path": "Vehicle.TraveledDistance",
+    "unit": "m"
   },
   "OIL_TEMP": {
-    "path": "Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature"
+    "path": "Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature",
+    "unit": "Celsius"
   },
   "OPEN_FRONT_LEFT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
     "path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+    "unit": "percent",
     "target": 100
   },
   "OPEN_FRONT_RIGHT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
     "path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+    "unit": "percent",
     "target": 100
   },
   "OPEN_FRUNK": {
@@ -285,11 +318,13 @@
   "OPEN_REAR_LEFT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
     "path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+    "unit": "percent",
     "target": 100
   },
   "OPEN_REAR_RIGHT_WINDOW": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
     "path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+    "unit": "percent",
     "target": 100
   },
   "OPEN_TRUNK": {
@@ -297,10 +332,12 @@
     "target": true
   },
   "OUTSIDE_TEMP": {
-    "path": "Vehicle.Exterior.AirTemperature"
+    "path": "Vehicle.Exterior.AirTemperature",
+    "unit": "Celsius"
   },
   "PASSENGER_TEMP_SETTING": {
-    "path": "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature"
+    "path": "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature",
+    "unit": "Celsius"
   },
   "PLUGGED_IN": {
     "note": "Single charging port. Use a position instance instead of AnyPosition when the port location is known.",
@@ -336,15 +373,17 @@
     "target": true
   },
   "RPM": {
-    "path": "Vehicle.Powertrain.CombustionEngine.Speed"
+    "path": "Vehicle.Powertrain.CombustionEngine.Speed",
+    "unit": "rpm"
   },
   "RUNNING_LIGHTS": {
     "path": "Vehicle.Body.Lights.Running.IsOn",
     "target": true
   },
   "RUNTIME": {
-    "note": "Engine run time. COVESA OBD overlay, PID 1F. Unit is seconds.",
-    "path": "Vehicle.OBD.RunTime"
+    "note": "Engine run time. COVESA OBD overlay, PID 1F.",
+    "path": "Vehicle.OBD.RunTime",
+    "unit": "s"
   },
   "SCHEDULE_SOFTWARE_UPDATE": {
     "action": "SCHEDULE_SOFTWARE_UPDATE"
@@ -366,48 +405,59 @@
     "action": "SIGNAL_OFF"
   },
   "SPEED": {
-    "path": "Vehicle.Speed"
+    "path": "Vehicle.Speed",
+    "unit": "km/h"
   },
   "STEERING_ANGLE": {
-    "path": "Vehicle.Chassis.SteeringWheel.Angle"
+    "path": "Vehicle.Chassis.SteeringWheel.Angle",
+    "unit": "degrees"
   },
   "STFT_B1": {
-    "note": "COVESA OBD overlay, PID 06. Unit is percent.",
-    "path": "Vehicle.OBD.ShortTermFuelTrim1"
+    "note": "COVESA OBD overlay, PID 06.",
+    "path": "Vehicle.OBD.ShortTermFuelTrim1",
+    "unit": "percent"
   },
   "STFT_B2": {
-    "note": "COVESA OBD overlay, PID 08. Unit is percent.",
-    "path": "Vehicle.OBD.ShortTermFuelTrim2"
+    "note": "COVESA OBD overlay, PID 08.",
+    "path": "Vehicle.OBD.ShortTermFuelTrim2",
+    "unit": "percent"
   },
   "SUPPORTED_PIDS_01_20": {
     "query": "SUPPORTED_PIDS_01_20"
   },
   "TIME_TO_FULL_CHARGE": {
-    "note": "Includes a scheduled delay before charging starts. VSS unit is seconds.",
-    "path": "Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete"
+    "note": "Includes a scheduled delay before charging starts.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete",
+    "unit": "s"
   },
   "TIMING_ADVANCE": {
-    "note": "COVESA OBD overlay, PID 0E. Unit is degrees. The value is the angle, not the raw OBD byte.",
-    "path": "Vehicle.OBD.TimingAdvance"
+    "note": "COVESA OBD overlay, PID 0E. The value is the angle, not the raw OBD byte.",
+    "path": "Vehicle.OBD.TimingAdvance",
+    "unit": "degrees"
   },
   "TPMS_FRONT_LEFT": {
-    "note": "Front-axle left tire pressure. VSS unit is kPa.",
-    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure"
+    "note": "Front-axle left tire pressure.",
+    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure",
+    "unit": "kPa"
   },
   "TPMS_FRONT_RIGHT": {
-    "note": "Front-axle right tire pressure. VSS unit is kPa.",
-    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure"
+    "note": "Front-axle right tire pressure.",
+    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure",
+    "unit": "kPa"
   },
   "TPMS_REAR_LEFT": {
-    "note": "Rear-axle left tire pressure. VSS unit is kPa.",
-    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure"
+    "note": "Rear-axle left tire pressure.",
+    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure",
+    "unit": "kPa"
   },
   "TPMS_REAR_RIGHT": {
-    "note": "Rear-axle right tire pressure. VSS unit is kPa.",
-    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure"
+    "note": "Rear-axle right tire pressure.",
+    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure",
+    "unit": "kPa"
   },
   "TPS": {
-    "path": "Vehicle.Powertrain.CombustionEngine.TPS"
+    "path": "Vehicle.Powertrain.CombustionEngine.TPS",
+    "unit": "percent"
   },
   "UNLOCK": {
     "path": "Vehicle.Cabin.IsCentralLockEngaged",
