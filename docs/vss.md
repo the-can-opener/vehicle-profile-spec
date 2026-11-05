@@ -4,7 +4,7 @@
 
 ## Property semantics and catalog resolution
 
-The pinned VSS release supplies datatype, unit, meaning, range, and allowed values. A binding MUST NOT redefine a standard property's semantics. Namespaced catalog additions require an explicit overlay validated with VSS tooling. Always check for a matching standard concept before adding an extension.
+The pinned VSS release supplies datatype, unit, meaning, range, and allowed values. A binding MUST NOT redefine a standard property's semantics. One catalog datatype differs from upstream VSS 6.1: `Vehicle.Chassis.SteeringWheel.Angle` is `float` here and `int16` upstream, so a fractional degree signal can be published without rounding. That departure is recorded on the catalog node and in [catalog provenance](../catalog/README.md). Namespaced catalog additions require an explicit overlay validated with VSS tooling. Always check for a matching standard concept before adding an extension.
 
 A binding must match the underlying quantity, not merely have a similar label. A warning indicator is not interchangeable with buckle state. The current seatbelt warning remains `unmapped` until its exact catalog identity and vehicle encoding are established; this standard invents no replacement seatbelt namespace.
 

@@ -122,7 +122,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
 Reproduce with `python scripts/migrate-versa.py` from the repository root.
 The script declares `--framing isotp-single-frame --steering-side left` for the retained legacy input. It removes validated single-frame PCI and padding from request/response commands and retains the original application response patterns, including wildcards. The request-only ECU_WAKE and WIPERS commands remain byte-exact raw CAN. The original DBC and complete format 1 input remain under `../legacy/nissan-versa-1-6`.
 
-These declarations describe the source framing and left-hand-drive mapping; they are not physical test evidence. DBC comments identify Sentra-derived observations. Do not infer model-year compatibility from the package metadata. TPS has no established canonical mapping and the fractional steering decoder does not preserve the VSS integer datatype; both remain in unmapped with the original data.
+These declarations describe the source framing and left-hand-drive mapping; they are not physical test evidence. DBC comments identify Sentra-derived observations. Do not infer model-year compatibility from the package metadata. TPS has no established canonical mapping and remains in unmapped with the original data. STEERING_ANGLE maps because the pinned catalog declares Vehicle.Chassis.SteeringWheel.Angle as float; upstream VSS 6.1 uses int16, which cannot preserve the 0.1 deg factor.
 
 The 2011 overlay is **synthetic**: it inserts a 10 ms wait in the shared setup sequence to demonstrate late call resolution and narrower applicability. It claims no real 2011 ECU difference. Compare exports with `--vehicle make=Nissan,model=Versa,year=2008` and `year=2011`.
 

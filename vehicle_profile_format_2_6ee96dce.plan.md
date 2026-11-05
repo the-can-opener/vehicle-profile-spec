@@ -181,7 +181,7 @@ Acceptance: the repository contains intended source/reference artifacts, disposa
 
 ### Migration review and scope boundaries
 
-Unknown TPS identity, fractional steering data incompatible with the VSS integer datatype, and unsupported multiplexed/variable-length/custom codecs remain explicit in `unmapped`. Resolving these mappings requires evidence or a separately specified codec; it is not a reason to guess values or silently activate capabilities. Expanding codec support is not required by the remaining tasks above.
+Unknown TPS identity and unsupported multiplexed/variable-length/custom codecs remain explicit in `unmapped`. Resolving these mappings requires evidence or a separately specified codec; it is not a reason to guess values or silently activate capabilities. Expanding codec support is not required by the remaining tasks above. `Vehicle.Chassis.SteeringWheel.Angle` is `float` in the pinned catalog, noted as a departure from upstream VSS 6.1 `int16`, so the Versa 0.1 deg steering signal maps. Fractional values that still target an integer VSS property stay unmapped.
 
 Physical vehicle testing and consuming-runtime behavior remain outside this repository. The synthetic 2011 timing overlay is a composition demonstration, not an OEM compatibility claim. BLE interfaces and firmware behavior remain out of scope.
 

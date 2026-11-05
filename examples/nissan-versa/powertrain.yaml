@@ -23,3 +23,19 @@ properties:
           type: uint
           scale: 3.15
           unit: rpm
+  Vehicle.Chassis.SteeringWheel.Angle:
+    aliases:
+    - STEERING_ANGLE
+    read:
+      signal:
+        channel: vehicle
+        id: '2'
+        id_format: standard
+        length: 5
+        decode:
+          start_bit: 0
+          bits: 16
+          bit_order: lsb0
+          type: int
+          scale: 0.1
+          unit: degrees

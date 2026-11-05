@@ -33,11 +33,5 @@ unmapped:
     monitor:
       message: ENGINE_4
       signal: TPS
-- capability: STEERING_ANGLE
-  reason: fractional decoder cannot preserve the integer VSS datatype
-  original:
-    monitor:
-      message: STEERING
-      signal: STEERING_ANGLE
 fixtures:
 - fixtures/body.yaml
