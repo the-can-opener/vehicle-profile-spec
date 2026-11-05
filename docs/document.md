@@ -104,13 +104,36 @@ One monitor supplies both properties. Unsubscribing one must not stop the other.
 |---|---|---|
 | Shorthand | `endpoint`, `request`, optional `expect` | One request |
 | Steps | `endpoint`, `deadline_ms`, `steps` | Session setup or several requests |
-| Cases | `cases`, mapping each target value to a shorthand or steps body | Discrete targets that use different commands |
+| Repeat | `endpoint`, `repeat`, optional `steps` | One raw CAN frame retransmitted to keep the state |
+| Cases | `cases`, mapping each target value to one of the bodies above | Discrete targets that use different commands |
 
 In the shorthand and steps shapes, an encoded `parts` field with `input: value` carries the requested target. A `cases` key is the canonical string form of a target in the property datatype: `"true"` or `"false"`, an allowed value, or a decimal number. A target with no case is UNSUPPORTED, and nothing is transmitted.
 
 Optional `constraints` has min, max, and step in canonical units. It MUST narrow, never expand, the catalog domain. The step grid is min + n × step, using zero if min is absent. Validate datatype, catalog constraints, binding constraints, grid, and exact encoding before transmission. Decimal grids use decimal/rational semantics.
 
 A write succeeds when every `expect` in its steps matches. That match is the vehicle's acknowledgement, and the result is `acknowledged`. A write with no `expect` reports `sent` once the transport has submitted its last request. There is no separate verification or completion field. A response that fails its pattern fails the write. A timeout after transmission is OUTCOME_UNKNOWN, not proof that nothing happened.
+
+`deadline_ms` bounds that transmission. It is the time allowed for the steps, including nested calls and waits. It is not how long the vehicle keeps the commanded state. Each response still waits at most the endpoint `timeout_ms`.
+
+How long the state lasts is a separate declaration on the shorthand, the steps body, or one case:
+
+| Declaration | Meaning |
+|---|---|
+| `duration` and `repeat` both absent | Hold time is unknown. The vehicle may keep the state, or it may drop it after a few milliseconds |
+| `duration: <milliseconds>` | Information. How long the commanded effect has been observed to last |
+| `duration: latched` | Information. The effect has been observed to stay until another command changes it |
+| `release.action` | Named action that ends the effect early. It may accompany `duration` |
+| `repeat` | The state lasts while one raw CAN frame is retransmitted |
+
+When `duration` and `repeat` are both absent, the profile states no hold time. The vehicle may keep the state, or it may drop it after a few milliseconds. `duration` is information for the caller. A positive number is an observed hold in milliseconds. `latched` means the effect has been observed to stay until another command changes it. The runtime transmits the write and leaves the hold, its ending, and any following state to the vehicle. It does not start a timer, wait out a finite `duration`, or send an off frame when that time elapses. A later `read` reports the observed value. A matched `expect` is still the acknowledgement. For `Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling` and `Vehicle.Body.Lights.Hazard.IsSignaling`, true means the signaling function is active and the vehicle flashes the lamp. A finite `duration` describes how long that function has been observed to stay active, not the flash period. A lamp that stays lit steadily is an `IsOn` actuator, such as `Vehicle.Body.Lights.Beam.High.IsOn`.
+
+`repeat` is one frame on a raw CAN endpoint. It excludes `duration` and a body-level `release`. Optional `steps` run once before repetition starts; they are not repeated. A shorthand `request` is not combined with `repeat`, because the frame is the repeated command. `interval_ms` is the maximum gap between frame starts. `release: silence` means stopping that transmission is the off command. `release.action` names an action the runtime invokes when the repetition stops. `frame.base: last-rx` copies every unowned bit from the newest frame received on that CAN id. `frame.mask` marks the bits this command owns, and `frame.patch` supplies those bits. On each tick:
+
+```text
+outgoing = (last-rx AND NOT mask) OR patch
+```
+
+`mask` and `patch` are the same length, at least one mask bit is set, and patch bits outside the mask are zero. Several repeats may share one CAN id when their masks do not overlap; the runtime applies every active patch to the same received frame and transmits it once per interval. Until one frame has been received, a `last-rx` repeat is unavailable. A repeat with no `expect` reports `sent` when the first merged frame is submitted, then keeps sending until release.
 
 The runtime stores the requested target and the observed actual value separately. Sending or acknowledging a request never changes the observed value; only a `read` observation does. A caller that needs readback reads or subscribes to the property after the write. A command that affects several actuators cannot be advertised as independent control of one of them. Bind it to the catalog actuator that means the whole set, or define it as an [action](document.md#actions) when no such actuator exists.
 
@@ -170,6 +193,59 @@ properties:
 ```
 
 Selecting 22 encodes (22 − 16) / 0.5 = 12, or `0C`, and sends `AA BB 0C`. A `CC DD` response means the climate ECU accepted the setting. The setting readback arrives through the `read` binding. If ambient air is 28, the setting may read 22 while ambient remains 28; the acknowledgement confirms the selected setting, not that the cabin has reached it.
+
+### Timed signal and repeated frame
+
+The signal is the Versa command: one diagnostic sequence, then the vehicle signals for 5 seconds or until `SIGNAL_OFF`. The wiper frame is a **synthetic binding fragment**. Its mask bits are illustrative. The checked-in Versa wiper command sends one fixed frame and does not declare `repeat`.
+
+```yaml
+endpoints:
+  wipers:
+    channel: vehicle
+    protocol: can
+    tx: "35D"
+    id_format: standard
+
+actions:
+  SIGNAL_OFF:
+    description: Turn off both direction indicators.
+    endpoint: body
+    deadline_ms: 1000
+    steps:
+      - call: body-session
+      - request: "30 2F 00 00"
+        expect: {prefix: "70 2F *"}
+
+properties:
+  Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling:
+    write:
+      cases:
+        "true":
+          endpoint: body
+          deadline_ms: 1000
+          steps:
+            - call: body-session
+            - request: "30 2F 00 02"
+              expect: {prefix: "70 2F *"}
+          duration: 5000
+          release:
+            action: SIGNAL_OFF
+
+  Vehicle.Body.Windshield.Front.Wiping.Mode:
+    write:
+      cases:
+        MEDIUM:
+          endpoint: wipers
+          repeat:
+            interval_ms: 100
+            release: silence
+            frame:
+              base: last-rx
+              mask: "00 00 F0 00 00 00 00 00"
+              patch: "00 00 40 00 00 00 00 00"
+```
+
+`deadline_ms: 1000` limits the session and the signal command. `duration: 5000` tells the caller that this command has been observed to keep the indicator signaling for 5 seconds. `duration: latched` is the other informational value, for an effect observed to stay until another command changes it. `SIGNAL_OFF` is a separate command that ends the indicator sooner. The runtime does not turn the indicator off when those 5 seconds elapse. The wiper state lasts while the `wipers` endpoint transmits that one frame every 100 ms. The high nibble of byte 2 becomes `4`; every other bit stays as it was in the latest received frame. Stopping the repetition turns the wiper command off.
 
 ## Endpoints, ECU targets, and steps
 

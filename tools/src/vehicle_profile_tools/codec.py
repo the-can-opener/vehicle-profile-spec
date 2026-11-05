@@ -12,6 +12,39 @@ def hex_bytes(value):
     return bytes.fromhex(value)
 
 
+def _frame_bytes(value):
+    if isinstance(value, str):
+        return hex_bytes(value)
+    if isinstance(value, (bytes, bytearray)):
+        return bytes(value)
+    raise ValueError("expected uppercase spaced hex bytes")
+
+
+def check_repeat_frame(mask, patch):
+    """A repeat frame owns the bits set in mask and writes patch into those bits."""
+    mask_b, patch_b = _frame_bytes(mask), _frame_bytes(patch)
+    if len(mask_b) != len(patch_b):
+        raise ValueError("mask and patch differ in length")
+    if not any(mask_b):
+        raise ValueError("mask owns no bits")
+    if any(bit & ~owned for bit, owned in zip(patch_b, mask_b, strict=True)):
+        raise ValueError("patch sets bits outside the mask")
+    return mask_b, patch_b
+
+
+def merge_repeat_frame(base, mask, patch):
+    """Copy unowned bits from the latest frame and write the owned bits from patch."""
+    mask_b, patch_b = check_repeat_frame(mask, patch)
+    base_b = _frame_bytes(base)
+    if len(base_b) != len(mask_b):
+        raise ValueError("base frame length differs from mask")
+    merged = (
+        (current & ~owned) | bit
+        for current, owned, bit in zip(base_b, mask_b, patch_b, strict=True)
+    )
+    return bytes(merged)
+
+
 def matches(pattern, data):
     if isinstance(data, str):
         data = hex_bytes(data)
@@ -109,7 +142,9 @@ def prepare_write(document, path, target, catalog=None):
     """Validate a target and return expanded, encoded steps without transmitting.
 
     This pure helper checks the static command contract, not runtime availability,
-    authorization, response matching or deadlines.
+    authorization, response matching or deadlines. duration is information:
+    a positive number of milliseconds, or latched when the effect stays.
+    Absent duration and repeat mean the hold time is unknown.
     """
     from .catalog import canonical_target, check_value, load_catalog
     from .errors import fail
@@ -155,5 +190,12 @@ def prepare_write(document, path, target, catalog=None):
             else:
                 result.append(dict(step))
 
-    expand(body.get("steps", [{k: body[k] for k in ("request", "expect") if k in body}]))
-    return {"endpoint": body["endpoint"], "steps": result}
+    if "steps" in body:
+        expand(body["steps"])
+    elif "request" in body:
+        expand([{k: body[k] for k in ("request", "expect") if k in body}])
+    prepared: dict[str, Any] = {"endpoint": body["endpoint"], "steps": result}
+    for key in ("duration", "release", "repeat"):
+        if key in body:
+            prepared[key] = body[key]
+    return prepared

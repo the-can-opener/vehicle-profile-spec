@@ -40,6 +40,21 @@ def test_decoders():
         decode("02", {"byte": 0, "bytes": 1, "type": "uint", "enum": {"0": False, "1": True}})
 
 
+def test_merge_repeat_frame():
+    from vehicle_profile_tools.codec import merge_repeat_frame
+
+    merged = merge_repeat_frame(
+        "11 22 33 44 55 66 77 88",
+        "00 00 F0 00 00 00 00 00",
+        "00 00 40 00 00 00 00 00",
+    )
+    assert merged == bytes.fromhex("11 22 43 44 55 66 77 88")
+    with pytest.raises(ValueError, match="outside the mask"):
+        merge_repeat_frame("00", "0F", "F0")
+    with pytest.raises(ValueError, match="base frame length"):
+        merge_repeat_frame("00 00", "FF", "01")
+
+
 def test_prepare_numeric_write():
     from conftest import ROOT
     from vehicle_profile_tools.codec import prepare_write
@@ -61,6 +76,10 @@ def test_prepare_case_and_nested_sequence():
 
     doc = resolve([ROOT / "examples/nissan-versa"], {"year": 2008})
     assert len(prepare_write(doc, "Vehicle.Body.Horn.IsActive", True)["steps"]) == 3
+    signal = prepare_write(doc, "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling", True)
+    assert signal["duration"] == 5000
+    assert signal["release"] == {"action": "SIGNAL_OFF"}
+    assert signal["steps"][-1]["request"] == "30 2F 00 02"
     with pytest.raises(ValueError, match="UNSUPPORTED"):
         prepare_write(doc, "Vehicle.Body.Horn.IsActive", False)
 

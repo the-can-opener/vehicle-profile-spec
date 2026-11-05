@@ -48,6 +48,213 @@ def test_write_shapes(package, write):
     assert "write" in resolve([package(data)])["properties"]["Vehicle.Body.Horn.IsActive"]
 
 
+def _can_package():
+    data = base()
+    data["endpoints"]["lamps"] = {
+        "channel": "bus",
+        "protocol": "can",
+        "tx": "35D",
+        "id_format": "standard",
+    }
+    data["actions"] = {
+        "SIGNAL_OFF": {
+            "description": "Turn off both direction indicators.",
+            "endpoint": "ecu",
+            "request": "30 2F 00 00",
+            "expect": {"prefix": "70 2F"},
+        }
+    }
+    return data
+
+
+def test_duration_release_and_masked_repeat(package):
+    from vehicle_profile_tools.codec import prepare_write
+
+    data = _can_package()
+    data["properties"] = {
+        "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling": {
+            "write": {
+                "cases": {
+                    "true": {
+                        "endpoint": "ecu",
+                        "deadline_ms": 1000,
+                        "steps": [{"request": "30 2F 00 02", "expect": {"prefix": "70 2F"}}],
+                        "duration": 5000,
+                        "release": {"action": "SIGNAL_OFF"},
+                    }
+                }
+            }
+        },
+        "Vehicle.Body.Lights.Hazard.IsSignaling": {
+            "write": {
+                "endpoint": "lamps",
+                "repeat": {
+                    "interval_ms": 100,
+                    "release": "silence",
+                    "frame": {
+                        "base": "last-rx",
+                        "mask": "00 00 0F 00 00 00 00 00",
+                        "patch": "00 00 01 00 00 00 00 00",
+                    },
+                },
+            }
+        },
+        "Vehicle.Body.Windshield.Front.Wiping.Mode": {
+            "write": {
+                "cases": {
+                    "MEDIUM": {
+                        "endpoint": "lamps",
+                        "repeat": {
+                            "interval_ms": 100,
+                            "release": "silence",
+                            "frame": {
+                                "base": "last-rx",
+                                "mask": "00 00 F0 00 00 00 00 00",
+                                "patch": "00 00 40 00 00 00 00 00",
+                            },
+                        },
+                    }
+                }
+            }
+        },
+    }
+    result = resolve([package(data)])
+    prepared = prepare_write(result, "Vehicle.Body.Windshield.Front.Wiping.Mode", "MEDIUM")
+    assert prepared["steps"] == []
+    assert prepared["repeat"]["interval_ms"] == 100
+    assert prepared["repeat"]["release"] == "silence"
+
+
+@pytest.mark.parametrize(
+    "mutate,code",
+    [
+        (
+            lambda data: data["properties"][
+                "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling"
+            ]["write"]["cases"]["true"].__setitem__("release", {"action": "MISSING"}),
+            "REF_UNKNOWN_ACTION",
+        ),
+        (
+            lambda data: data["properties"].__setitem__(
+                "Vehicle.Body.Horn.IsActive",
+                {
+                    "write": {
+                        "endpoint": "ecu",
+                        "repeat": {
+                            "interval_ms": 100,
+                            "release": "silence",
+                            "frame": {
+                                "base": "last-rx",
+                                "mask": "FF",
+                                "patch": "01",
+                            },
+                        },
+                    }
+                },
+            ),
+            "DOC_INVALID",
+        ),
+        (
+            lambda data: data["properties"].__setitem__(
+                "Vehicle.Body.Lights.Hazard.IsSignaling",
+                {
+                    "write": {
+                        "endpoint": "lamps",
+                        "repeat": {
+                            "interval_ms": 100,
+                            "release": "silence",
+                            "frame": {
+                                "base": "last-rx",
+                                "mask": "00 00 F0 00 00 00 00 00",
+                                "patch": "00 00 10 00 00 00 00 00",
+                            },
+                        },
+                    }
+                },
+            ),
+            "DOC_INVALID",
+        ),
+    ],
+)
+def test_repeat_and_release_rejection(package, mutate, code):
+    data = _can_package()
+    data["properties"] = {
+        "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling": {
+            "write": {
+                "cases": {
+                    "true": {
+                        "endpoint": "ecu",
+                        "request": "30 2F 00 02",
+                        "expect": {"prefix": "70 2F"},
+                        "duration": 5000,
+                        "release": {"action": "SIGNAL_OFF"},
+                    }
+                }
+            }
+        },
+        "Vehicle.Body.Windshield.Front.Wiping.Mode": {
+            "write": {
+                "cases": {
+                    "MEDIUM": {
+                        "endpoint": "lamps",
+                        "repeat": {
+                            "interval_ms": 100,
+                            "release": "silence",
+                            "frame": {
+                                "base": "last-rx",
+                                "mask": "00 00 F0 00 00 00 00 00",
+                                "patch": "00 00 40 00 00 00 00 00",
+                            },
+                        },
+                    }
+                }
+            }
+        },
+    }
+    mutate(data)
+    with pytest.raises(ProfileError, match=code):
+        resolve([package(data, folder=code)])
+
+
+def test_duration_excludes_repeat(package):
+    data = _can_package()
+    data["properties"] = {
+        "Vehicle.Body.Horn.IsActive": {
+            "write": {
+                "endpoint": "lamps",
+                "steps": [{"request": "01"}],
+                "duration": 5000,
+                "repeat": {
+                    "interval_ms": 100,
+                    "release": "silence",
+                    "frame": {"base": "last-rx", "mask": "FF", "patch": "01"},
+                },
+            }
+        }
+    }
+    with pytest.raises(ProfileError, match="DOC_EXCLUSIVE_FORMS"):
+        resolve([package(data)])
+
+
+def test_latched_duration(package):
+    data = base()
+    data["properties"] = {
+        "Vehicle.Cabin.Door.Central.IsLocked": {
+            "write": {
+                "cases": {"true": {"endpoint": "ecu", "request": "01", "duration": "latched"}}
+            }
+        }
+    }
+    result = resolve([package(data)])
+    case = result["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["write"]["cases"]["true"]
+    assert case["duration"] == "latched"
+    data["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["write"]["cases"]["true"][
+        "duration"
+    ] = 0
+    with pytest.raises(ProfileError):
+        resolve([package(data, folder="zero-duration")])
+
+
 @pytest.mark.parametrize(
     "change,code,key",
     [

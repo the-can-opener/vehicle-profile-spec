@@ -16,6 +16,7 @@ class ErrorCode(StrEnum):
     DOC_EXCLUSIVE_FORMS = "DOC_EXCLUSIVE_FORMS"
     REF_UNKNOWN_ENDPOINT = "REF_UNKNOWN_ENDPOINT"
     REF_UNKNOWN_SEQUENCE = "REF_UNKNOWN_SEQUENCE"
+    REF_UNKNOWN_ACTION = "REF_UNKNOWN_ACTION"
     REF_UNKNOWN_SOURCE = "REF_UNKNOWN_SOURCE"
     REF_SOURCE_KIND = "REF_SOURCE_KIND"
     REF_CYCLE = "REF_CYCLE"
@@ -112,6 +113,11 @@ ERROR_DETAILS = {
         "References",
         "Acquisition kind disagrees with source",
         "Use a signal source for signal and query source for query.",
+    ),
+    "REF_UNKNOWN_ACTION": (
+        "References",
+        "Release names a missing action",
+        "Define the action or correct the release name.",
     ),
     "REF_CYCLE": ("References", "Sequence calls form a cycle", "Remove the recursive call chain."),
     "DBC_UNKNOWN_MESSAGE": (

@@ -12,6 +12,11 @@
                     "required": [
                       "steps"
                     ]
+                  },
+                  {
+                    "required": [
+                      "repeat"
+                    ]
                   }
                 ]
               },
@@ -21,16 +26,31 @@
             },
             {
               "not": {
+                "required": [
+                  "request"
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            },
+            {
+              "not": {
                 "anyOf": [
                   {
                     "required": [
                       "request"
                     ]
+                  },
+                  {
+                    "required": [
+                      "steps"
+                    ]
                   }
                 ]
               },
               "required": [
-                "steps"
+                "repeat"
               ]
             }
           ]
@@ -44,6 +64,22 @@
           "then": {
             "required": [
               "request"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "duration",
+              "repeat"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "release",
+              "repeat"
             ]
           }
         }
@@ -62,6 +98,20 @@
         "description": {
           "title": "Description",
           "type": "string"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "const": "latched",
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Duration"
         },
         "endpoint": {
           "title": "Endpoint",
@@ -84,6 +134,22 @@
           ],
           "default": null,
           "title": "Input Schema"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActionRelease"
+            }
+          ],
+          "default": null
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Repeat"
+            }
+          ],
+          "default": null
         },
         "request": {
           "anyOf": [
@@ -136,6 +202,21 @@
         "description"
       ],
       "title": "Action",
+      "type": "object"
+    },
+    "ActionRelease": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "title": "Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "title": "ActionRelease",
       "type": "object"
     },
     "Applicability": {
@@ -281,6 +362,11 @@
                     "required": [
                       "steps"
                     ]
+                  },
+                  {
+                    "required": [
+                      "repeat"
+                    ]
                   }
                 ]
               },
@@ -290,16 +376,31 @@
             },
             {
               "not": {
+                "required": [
+                  "request"
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            },
+            {
+              "not": {
                 "anyOf": [
                   {
                     "required": [
                       "request"
                     ]
+                  },
+                  {
+                    "required": [
+                      "steps"
+                    ]
                   }
                 ]
               },
               "required": [
-                "steps"
+                "repeat"
               ]
             }
           ]
@@ -315,6 +416,22 @@
               "request"
             ]
           }
+        },
+        {
+          "not": {
+            "required": [
+              "duration",
+              "repeat"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "release",
+              "repeat"
+            ]
+          }
         }
       ],
       "properties": {
@@ -328,6 +445,20 @@
           "default": null,
           "title": "Deadline Ms"
         },
+        "duration": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "const": "latched",
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Duration"
+        },
         "endpoint": {
           "title": "Endpoint",
           "type": "string"
@@ -336,6 +467,22 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Pattern"
+            }
+          ],
+          "default": null
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActionRelease"
+            }
+          ],
+          "default": null
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Repeat"
             }
           ],
           "default": null
@@ -949,6 +1096,11 @@
                     "required": [
                       "steps"
                     ]
+                  },
+                  {
+                    "required": [
+                      "repeat"
+                    ]
                   }
                 ]
               },
@@ -958,16 +1110,31 @@
             },
             {
               "not": {
+                "required": [
+                  "request"
+                ]
+              },
+              "required": [
+                "steps"
+              ]
+            },
+            {
+              "not": {
                 "anyOf": [
                   {
                     "required": [
                       "request"
                     ]
+                  },
+                  {
+                    "required": [
+                      "steps"
+                    ]
                   }
                 ]
               },
               "required": [
-                "steps"
+                "repeat"
               ]
             }
           ]
@@ -981,6 +1148,22 @@
           "then": {
             "required": [
               "request"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "duration",
+              "repeat"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "release",
+              "repeat"
             ]
           }
         }
@@ -1004,6 +1187,20 @@
           "default": null,
           "title": "Deadline Ms"
         },
+        "duration": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "const": "latched",
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Duration"
+        },
         "endpoint": {
           "title": "Endpoint",
           "type": "string"
@@ -1012,6 +1209,22 @@
           "anyOf": [
             {
               "$ref": "#/$defs/Pattern"
+            }
+          ],
+          "default": null
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActionRelease"
+            }
+          ],
+          "default": null
+        },
+        "repeat": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Repeat"
             }
           ],
           "default": null
@@ -1743,6 +1956,65 @@
         }
       },
       "title": "Read",
+      "type": "object"
+    },
+    "Repeat": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "$ref": "#/$defs/RepeatFrame"
+        },
+        "interval_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Interval Ms",
+          "type": "integer"
+        },
+        "release": {
+          "anyOf": [
+            {
+              "const": "silence",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/ActionRelease"
+            }
+          ],
+          "title": "Release"
+        }
+      },
+      "required": [
+        "interval_ms",
+        "release",
+        "frame"
+      ],
+      "title": "Repeat",
+      "type": "object"
+    },
+    "RepeatFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "const": "last-rx",
+          "title": "Base",
+          "type": "string"
+        },
+        "mask": {
+          "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+          "title": "Mask",
+          "type": "string"
+        },
+        "patch": {
+          "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+          "title": "Patch",
+          "type": "string"
+        }
+      },
+      "required": [
+        "base",
+        "mask",
+        "patch"
+      ],
+      "title": "RepeatFrame",
       "type": "object"
     },
     "RequestStep": {

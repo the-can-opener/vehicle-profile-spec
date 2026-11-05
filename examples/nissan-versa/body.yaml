@@ -81,6 +81,9 @@ properties:
           - request: 30 2F 00 02
             expect:
               prefix: 70 2F *
+          duration: 5000
+          release:
+            action: SIGNAL_OFF
   Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling:
     aliases:
     - RIGHT_SIGNAL
@@ -101,6 +104,9 @@ properties:
           - request: 30 2F 00 01
             expect:
               prefix: 70 2F *
+          duration: 5000
+          release:
+            action: SIGNAL_OFF
   Vehicle.Cabin.Door.Row1.DriverSide.IsOpen:
     aliases:
     - FRONT_LEFT_DOOR_OPEN

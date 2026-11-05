@@ -83,6 +83,28 @@ def validate_references(doc, dbcs, catalog):
                 if isinstance(part, dict) and part["input"] not in allowed:
                     fail("DOC_INVALID", loc, f"undeclared encoded input {part['input']}")
 
+    repeats: list[tuple[str, str, str, str, str]] = []
+
+    def action_ref(name, loc):
+        if name not in doc.get("actions", {}):
+            fail("REF_UNKNOWN_ACTION", loc, name)
+
+    def note_repeat(value, loc):
+        repeat = value.get("repeat")
+        if repeat is None:
+            return
+        ep = endpoints[value["endpoint"]]
+        if ep["protocol"] != "can":
+            fail("DOC_INVALID", loc, "repeat frame requires a raw CAN endpoint")
+        limit = 64 if doc["channels"][ep["channel"]]["protocol"] == "canfd" else 8
+        mask = repeat["frame"]["mask"]
+        if len(mask.split()) > limit:
+            fail("DOC_INVALID", loc, "repeat frame exceeds the channel payload length")
+        release = repeat["release"]
+        if isinstance(release, dict):
+            action_ref(release["action"], f"{loc}.repeat.release")
+        repeats.append((loc, ep["channel"], ep["tx"], ep["id_format"], mask))
+
     def body(value, loc, allowed=None):
         allowed = {"value"} if allowed is None else allowed
         if "cases" in value:
@@ -100,12 +122,19 @@ def validate_references(doc, dbcs, catalog):
                     ):
                         inputs(sequences[item["call"]]["steps"], (*visited, item["call"]))
 
-            inputs(value.get("steps", [value]))
-            steps(
-                value.get("steps", [{k: value[k] for k in ("request", "expect") if k in value}]),
-                value["endpoint"],
-                loc,
-            )
+            if "steps" in value:
+                inputs(value["steps"])
+                steps(value["steps"], value["endpoint"], loc)
+            elif "request" in value:
+                inputs([value])
+                steps(
+                    [{k: value[k] for k in ("request", "expect") if k in value}],
+                    value["endpoint"],
+                    loc,
+                )
+            if "release" in value:
+                action_ref(value["release"]["action"], f"{loc}.release")
+            note_repeat(value, loc)
 
     def binding(value, kind, loc, output=None):
         if "source" in value:
@@ -185,6 +214,17 @@ def validate_references(doc, dbcs, catalog):
                 fail("VSS_ENUM_VALUE", path, "boolean decoder on nonboolean property")
             for value in decoder.get("enum", {}).values():
                 check_value(value, entry, path)
+
+    owned: dict[tuple[str, str, str], list[int]] = {}
+    for loc, channel, tx, id_format, mask in repeats:
+        key = (channel, tx, id_format)
+        bits = owned.setdefault(key, [])
+        for index, byte in enumerate(bytes.fromhex(mask)):
+            if index == len(bits):
+                bits.append(0)
+            if bits[index] & byte:
+                fail("DOC_INVALID", loc, "repeat mask overlaps another command on the same CAN id")
+            bits[index] |= byte
 
 
 def validate_fixtures(fixture, doc):

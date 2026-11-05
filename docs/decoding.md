@@ -18,6 +18,8 @@ Units and ranges must match VSS. Inline decoder `unit`, if specified, describes 
 
 A `request` is either a hex string or `parts`, a list that mixes literal hex strings with encoded fields. An encoded field declares `input`, `type`, `bytes`, `endian`, `scale`, and `offset`. Encode raw = (input − offset) / scale, requiring an integral result within the wire width. Do not round, clamp, or overflow silently. More complex codecs require a declared versioned extension.
 
+A `repeat` frame is separate from `parts`. Its mask selects the bits that command owns in one CAN frame. The patch supplies those bits, and every other bit is copied from the latest frame received on that CAN id.
+
 ## Related pages
 
 [Read bindings](document.md#passive-signals-and-active-queries) · [Writes](document.md#writes) · [Native DBC decoding](dbc.md)

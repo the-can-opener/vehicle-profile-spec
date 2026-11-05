@@ -21,8 +21,22 @@ def augment(name, schema):
     rules = []
     if name in ("Body", "DirectWrite", "Action"):
         rules += [
-            exclusive(("request",), ("steps",)),
+            {
+                "oneOf": [
+                    {
+                        "required": ["request"],
+                        "not": {"anyOf": [{"required": ["steps"]}, {"required": ["repeat"]}]},
+                    },
+                    {"required": ["steps"], "not": {"required": ["request"]}},
+                    {
+                        "required": ["repeat"],
+                        "not": {"anyOf": [{"required": ["request"]}, {"required": ["steps"]}]},
+                    },
+                ]
+            },
             {"if": {"required": ["expect"]}, "then": {"required": ["request"]}},
+            {"not": {"required": ["duration", "repeat"]}},
+            {"not": {"required": ["release", "repeat"]}},
         ]
     elif name == "Property":
         rules += [

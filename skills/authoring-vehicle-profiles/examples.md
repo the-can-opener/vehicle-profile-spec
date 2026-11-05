@@ -122,3 +122,62 @@ properties:
         length: 1
         decode: {byte: 0, bytes: 1, type: uint}
 ```
+
+A timed indicator command and a masked repeat frame. `duration` is information: milliseconds the effect has been observed to last, or `latched` when it has been observed to stay. The repeat copies unowned bits from the latest frame.
+
+```yaml vprofile-fragment
+channels:
+  vehicle: {protocol: can, configuration: runtime}
+endpoints:
+  body:
+    channel: vehicle
+    protocol: isotp
+    tx: "745"
+    rx: ["765"]
+    id_format: standard
+    timeout_ms: 300
+  wipers:
+    channel: vehicle
+    protocol: can
+    tx: "35D"
+    id_format: standard
+sequences:
+  prep:
+    steps:
+      - request: "10 81"
+        expect: {prefix: "50 81"}
+actions:
+  SIGNAL_OFF:
+    description: Turn off both direction indicators.
+    endpoint: body
+    deadline_ms: 1000
+    steps:
+      - call: prep
+      - request: "30 2F 00 00"
+        expect: {prefix: "70 2F *"}
+properties:
+  Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling:
+    write:
+      cases:
+        "true":
+          endpoint: body
+          deadline_ms: 1000
+          steps:
+            - call: prep
+            - request: "30 2F 00 02"
+              expect: {prefix: "70 2F *"}
+          duration: 5000
+          release: {action: SIGNAL_OFF}
+  Vehicle.Body.Windshield.Front.Wiping.Mode:
+    write:
+      cases:
+        MEDIUM:
+          endpoint: wipers
+          repeat:
+            interval_ms: 100
+            release: silence
+            frame:
+              base: last-rx
+              mask: "00 00 F0 00 00 00 00 00"
+              patch: "00 00 40 00 00 00 00 00"
+```

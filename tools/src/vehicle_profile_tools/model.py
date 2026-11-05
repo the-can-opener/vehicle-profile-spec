@@ -108,19 +108,51 @@ class Constraints(Model):
         return self
 
 
+class ActionRelease(Model):
+    action: str = Field(pattern=r"^[A-Z][A-Z0-9_]*$")
+
+
+class RepeatFrame(Model):
+    base: Literal["last-rx"]
+    mask: Hex
+    patch: Hex
+
+    @model_validator(mode="after")
+    def aligned(self):
+        from .codec import check_repeat_frame
+
+        check_repeat_frame(self.mask, self.patch)
+        return self
+
+
+class Repeat(Model):
+    interval_ms: Positive
+    release: Literal["silence"] | ActionRelease
+    frame: RepeatFrame
+
+
 class Body(Model):
     endpoint: str
     request: Hex | Parts | None = None
     expect: Pattern | None = None
     steps: list[Step] | None = Field(default=None, min_length=1)
     deadline_ms: Positive | None = None
+    duration: Positive | Literal["latched"] | None = None
+    release: ActionRelease | None = None
+    repeat: Repeat | None = None
 
     @model_validator(mode="after")
     def shape(self):
-        if (self.request is None) == (self.steps is None):
-            raise ValueError("DOC_EXCLUSIVE_FORMS: choose request or steps")
-        if self.expect is not None and self.request is None:
+        has_request, has_steps = self.request is not None, self.steps is not None
+        has_repeat = self.repeat is not None
+        if has_request and (has_steps or has_repeat):
+            raise ValueError("DOC_EXCLUSIVE_FORMS: choose request, steps, or repeat")
+        if not has_request and not has_steps and not has_repeat:
+            raise ValueError("DOC_EXCLUSIVE_FORMS: choose request, steps, or repeat")
+        if self.expect is not None and not has_request:
             raise ValueError("expect requires request")
+        if has_repeat and (self.duration is not None or self.release is not None):
+            raise ValueError("DOC_EXCLUSIVE_FORMS: repeat excludes duration and release")
         return self
 
 
@@ -253,7 +285,13 @@ class Property(Model):
     @classmethod
     def write_forms(cls, data):
         if isinstance(data, dict) and isinstance(data.get("write"), dict):
-            if sum(key in data["write"] for key in ("request", "steps", "cases")) != 1:
+            write = data["write"]
+            forms = [key for key in ("request", "steps", "cases", "repeat") if key in write]
+            if (
+                not forms
+                or ("cases" in forms and forms != ["cases"])
+                or ("request" in forms and ("steps" in forms or "repeat" in forms))
+            ):
                 raise ValueError("DOC_EXCLUSIVE_FORMS: choose one write form")
         return data
 

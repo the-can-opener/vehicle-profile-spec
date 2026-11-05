@@ -15,6 +15,7 @@ Generated from errors.py. Each entry gives the layer, meaning and usual fix.
 - `DOC_EXCLUSIVE_FORMS` — Syntax: Mutually exclusive forms overlap. Choose one write/read form; separate static value from read.
 - `REF_UNKNOWN_ENDPOINT` — References: Endpoint is not defined. Define the endpoint in a loaded document.
 - `REF_UNKNOWN_SEQUENCE` — References: Called sequence is missing. Define the sequence or correct the call after composition.
+- `REF_UNKNOWN_ACTION` — References: Release names a missing action. Define the action or correct the release name.
 - `REF_UNKNOWN_SOURCE` — References: Source or output is missing. Define the source and the referenced output.
 - `REF_SOURCE_KIND` — References: Acquisition kind disagrees with source. Use a signal source for signal and query source for query.
 - `REF_CYCLE` — References: Sequence calls form a cycle. Remove the recursive call chain.
