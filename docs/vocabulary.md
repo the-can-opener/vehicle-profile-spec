@@ -4,100 +4,100 @@
 
 Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by hand.
 
-- `ACTUAL_TORQUE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ACTUAL_TORQUE`: Vehicle.Powertrain.CombustionEngine.Torque; Current engine torque. VSS unit is Nm.
 - `ACTUATE_TRUNK_FRONT`: action ACTUATE_TRUNK_FRONT
 - `ACTUATE_TRUNK_REAR`: action ACTUATE_TRUNK_REAR
 - `ADD_CHARGE_SCHEDULE`: action ADD_CHARGE_SCHEDULE
 - `ADD_PRECONDITION_SCHEDULE`: action ADD_PRECONDITION_SCHEDULE
-- `AUTO_CONDITIONING_START`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `AUTO_CONDITIONING_STOP`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `BARO`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `BATTERY_LEVEL`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `BATTERY_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `AUTO_CONDITIONING_START`: action AUTO_CONDITIONING_START
+- `AUTO_CONDITIONING_STOP`: action AUTO_CONDITIONING_STOP
+- `BARO`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.BarometricPressure.
+- `BATTERY_LEVEL`: Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed; Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.
+- `BATTERY_RANGE`: Vehicle.Powertrain.TractionBattery.Range; Battery-only remaining range. VSS unit is meters.
 - `BRAKE_LIGHTS`: Vehicle.Body.Lights.Brake.IsActive
 - `CABIN_TEMP`: Vehicle.Cabin.HVAC.AmbientAirTemperature
 - `CANCEL_SOFTWARE_UPDATE`: action CANCEL_SOFTWARE_UPDATE
-- `CHARGER_CURRENT`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGER_POWER`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGER_VOLTAGE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_ENERGY_ADDED`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_LIMIT_SOC`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_PORT_CLOSE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_PORT_OPEN`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_RATE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_START`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGE_STOP`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CHARGING_STATE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CLIMATE_OFF`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CLIMATE_ON`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CLOSE_FRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `CLOSE_TRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `DEFROST_OFF`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `DEFROST_ON`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `DIST_SINCE_CLEAR`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `CHARGER_CURRENT`: Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC; DC inlet current. AC current is Phase1, Phase2, and Phase3.
+- `CHARGER_POWER`: Vehicle.Powertrain.TractionBattery.Charging.AveragePower; Average power of the current or last charging event.
+- `CHARGER_VOLTAGE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC; DC inlet voltage. AC voltage is Phase1, Phase2, and Phase3.
+- `CHARGE_ENERGY_ADDED`: unmapped: Session energy added has no VSS signal. Vehicle.Powertrain.TractionBattery.AccumulatedChargedEnergy is lifetime charged energy.
+- `CHARGE_LIMIT_SOC`: Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit
+- `CHARGE_PORT_CLOSE`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen (write target false); Single charging port. Use a position instance instead of AnyPosition when the port location is known.
+- `CHARGE_PORT_OPEN`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen (write target true); Single charging port. Use a position instance instead of AnyPosition when the port location is known.
+- `CHARGE_RATE`: Vehicle.Powertrain.TractionBattery.Charging.ChargeRate
+- `CHARGE_START`: Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging (write target "START")
+- `CHARGE_STOP`: Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging (write target "STOP")
+- `CHARGING_STATE`: unmapped: disconnected, stopped, charging, and complete do not match Vehicle.Powertrain.TractionBattery.ChargingState.
+- `CLIMATE_OFF`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
+- `CLIMATE_ON`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
+- `CLOSE_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target false); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
+- `CLOSE_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target false)
+- `DEFROST_OFF`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target false); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
+- `DEFROST_ON`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target true); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
+- `DIST_SINCE_CLEAR`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.DistanceSinceDTCClear.
 - `DRIVER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature
-- `DRIVER_TORQUE_DEMAND`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `DRIVER_TORQUE_DEMAND`: unmapped: OBD driver-demand engine torque (PID 61) is not in the VSS 6.1 catalog or the OBD overlay.
 - `ECT`: Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature
 - `ECU_WAKE`: action ECU_WAKE
-- `ENGINE_LOAD`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `ESTIMATED_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `ENGINE_LOAD`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.EngineLoad.
+- `ESTIMATED_RANGE`: Vehicle.Powertrain.Range; Remaining range from all energy sources. VSS unit is meters.
 - `FRONT_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `FRONT_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
-- `FUEL_LEVEL`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `FUEL_PRESSURE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `FUEL_RATE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `GEAR`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `HAZARD_LIGHTS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `FUEL_LEVEL`: Vehicle.Powertrain.FuelSystem.RelativeLevel
+- `FUEL_PRESSURE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.FuelPressure.
+- `FUEL_RATE`: unmapped: Engine fuel rate in l/h is Vehicle.OBD.FuelRate in the OBD overlay, which is not in the VSS 6.1 catalog. FuelSystem.InstantConsumption is l/100km.
+- `GEAR`: Vehicle.Powertrain.Transmission.SelectedGear; Selected gear. 126 = park, -1 = reverse, 0 = neutral, 127 = drive.
+- `HAZARD_LIGHTS`: Vehicle.Body.Lights.Hazard.IsSignaling (write target true)
 - `HIGH_BEAM`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HIGH_BEAMS`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HORN`: Vehicle.Body.Horn.IsActive (write target true)
-- `IAT`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `IDEAL_RANGE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `LAMBDA`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `IAT`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.IntakeTemp.
+- `IDEAL_RANGE`: unmapped: VSS has no ideal or rated range separate from remaining range.
+- `LAMBDA`: unmapped: Wideband lambda is per sensor at Vehicle.OBD.O2WR.Sensor*.Lambda in the OBD overlay, which is not in the VSS 6.1 catalog.
 - `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
 - `LOCK`: Vehicle.Cabin.Door.IsLocked (write target true)
-- `LOCKED`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LOCKED`: Vehicle.Cabin.Door.IsLocked
 - `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
-- `LTFT_B1`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `LTFT_B2`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `MAF`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `MAP`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `MIL_STATUS`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `MODULE_VOLTAGE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `O2_DATA`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `ODOMETER`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `LTFT_B1`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim1.
+- `LTFT_B2`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim2.
+- `MAF`: Vehicle.Powertrain.CombustionEngine.MAF
+- `MAP`: Vehicle.Powertrain.CombustionEngine.MAP
+- `MIL_STATUS`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.Status.IsMILOn.
+- `MODULE_VOLTAGE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ControlModuleVoltage.
+- `O2_DATA`: unmapped: Oxygen sensors are Vehicle.OBD.O2.Sensor1 through Sensor8 in the OBD overlay, which is not in the VSS 6.1 catalog.
+- `ODOMETER`: Vehicle.TraveledDistance; Lifetime distance. VSS unit is meters.
 - `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature
-- `OPEN_FRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `OPEN_TRUNK`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `OPEN_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target true); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
+- `OPEN_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target true)
 - `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature
 - `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature
-- `PLUGGED_IN`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `READINESS_STATUS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `PLUGGED_IN`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected; Single charging port. Use a position instance instead of AnyPosition when the port location is known.
+- `READINESS_STATUS`: unmapped: OBD readiness monitors are not a single signal. The OBD overlay is not in the VSS 6.1 catalog.
 - `REAR_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `REAR_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `REMOTE_START`: action REMOTE_START
 - `REMOVE_CHARGE_SCHEDULE`: action REMOVE_CHARGE_SCHEDULE
 - `REMOVE_PRECONDITION_SCHEDULE`: action REMOVE_PRECONDITION_SCHEDULE
-- `REVERSE_LIGHTS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `REVERSE_LIGHTS`: Vehicle.Body.Lights.Backup.IsOn
 - `RIGHT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling (write target true)
 - `RPM`: Vehicle.Powertrain.CombustionEngine.Speed
 - `RUNNING_LIGHTS`: Vehicle.Body.Lights.Running.IsOn (write target true)
-- `RUNTIME`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `RUNTIME`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.RunTime.
 - `SCHEDULE_SOFTWARE_UPDATE`: action SCHEDULE_SOFTWARE_UPDATE
-- `SEATBELT_WARNING`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `SET_CHARGE_LIMIT`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `SET_CHARGING_AMPS`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `SET_TEMPERATURE`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `SEATBELT_WARNING`: unmapped: VSS has per-seat IsBelted and no seatbelt warning lamp.
+- `SET_CHARGE_LIMIT`: unmapped: The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit.
+- `SET_CHARGING_AMPS`: unmapped: No commanded charging-current actuator. MaximumChargingCurrent is inlet capability, not a setpoint.
+- `SET_TEMPERATURE`: unmapped: The station is not fixed. Use DRIVER_TEMP_SETTING or PASSENGER_TEMP_SETTING.
 - `SIGNAL_OFF`: action SIGNAL_OFF
 - `SPEED`: Vehicle.Speed
 - `STEERING_ANGLE`: Vehicle.Chassis.SteeringWheel.Angle
-- `STFT_B1`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `STFT_B2`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `STFT_B1`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim1.
+- `STFT_B2`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim2.
 - `SUPPORTED_PIDS_01_20`: query SUPPORTED_PIDS_01_20
-- `TIME_TO_FULL_CHARGE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `TIMING_ADVANCE`: unmapped: Exact VSS identity, semantics or command target requires review.
-- `TPS`: unmapped: Exact VSS identity, semantics or command target requires review.
+- `TIME_TO_FULL_CHARGE`: Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete; Includes a scheduled delay before charging starts. VSS unit is seconds.
+- `TIMING_ADVANCE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.TimingAdvance.
+- `TPS`: Vehicle.Powertrain.CombustionEngine.TPS
 - `UNLOCK`: Vehicle.Cabin.Door.IsLocked (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN
 - `WAKE_UP`: action WAKE_UP

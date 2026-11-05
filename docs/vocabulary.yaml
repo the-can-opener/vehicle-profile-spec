@@ -1,6 +1,7 @@
 {
   "ACTUAL_TORQUE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Current engine torque. VSS unit is Nm.",
+    "path": "Vehicle.Powertrain.CombustionEngine.Torque"
   },
   "ACTUATE_TRUNK_FRONT": {
     "action": "ACTUATE_TRUNK_FRONT"
@@ -15,19 +16,21 @@
     "action": "ADD_PRECONDITION_SCHEDULE"
   },
   "AUTO_CONDITIONING_START": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "action": "AUTO_CONDITIONING_START"
   },
   "AUTO_CONDITIONING_STOP": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "action": "AUTO_CONDITIONING_STOP"
   },
   "BARO": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.BarometricPressure."
   },
   "BATTERY_LEVEL": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.",
+    "path": "Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed"
   },
   "BATTERY_RANGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Battery-only remaining range. VSS unit is meters.",
+    "path": "Vehicle.Powertrain.TractionBattery.Range"
   },
   "BRAKE_LIGHTS": {
     "enum": {
@@ -43,64 +46,80 @@
     "action": "CANCEL_SOFTWARE_UPDATE"
   },
   "CHARGER_CURRENT": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "DC inlet current. AC current is Phase1, Phase2, and Phase3.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeCurrent.DC"
   },
   "CHARGER_POWER": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Average power of the current or last charging event.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.AveragePower"
   },
   "CHARGER_VOLTAGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "DC inlet voltage. AC voltage is Phase1, Phase2, and Phase3.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeVoltage.DC"
   },
   "CHARGE_ENERGY_ADDED": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Session energy added has no VSS signal. Vehicle.Powertrain.TractionBattery.AccumulatedChargedEnergy is lifetime charged energy."
   },
   "CHARGE_LIMIT_SOC": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit"
   },
   "CHARGE_PORT_CLOSE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Single charging port. Use a position instance instead of AnyPosition when the port location is known.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen",
+    "target": false
   },
   "CHARGE_PORT_OPEN": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Single charging port. Use a position instance instead of AnyPosition when the port location is known.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsFlapOpen",
+    "target": true
   },
   "CHARGE_RATE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargeRate"
   },
   "CHARGE_START": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging",
+    "target": "START"
   },
   "CHARGE_STOP": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.StartStopCharging",
+    "target": "STOP"
   },
   "CHARGING_STATE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "disconnected, stopped, charging, and complete do not match Vehicle.Powertrain.TractionBattery.ChargingState."
   },
   "CLIMATE_OFF": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive."
   },
   "CLIMATE_ON": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive."
   },
   "CLOSE_FRUNK": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Front luggage compartment. Vehicle.Body.Hood is the engine cover.",
+    "path": "Vehicle.Body.Trunk.Front.IsOpen",
+    "target": false
   },
   "CLOSE_TRUNK": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Body.Trunk.Rear.IsOpen",
+    "target": false
   },
   "DEFROST_OFF": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.",
+    "path": "Vehicle.Cabin.HVAC.IsFrontDefrosterActive",
+    "target": false
   },
   "DEFROST_ON": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.",
+    "path": "Vehicle.Cabin.HVAC.IsFrontDefrosterActive",
+    "target": true
   },
   "DIST_SINCE_CLEAR": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.DistanceSinceDTCClear."
   },
   "DRIVER_TEMP_SETTING": {
     "path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
   },
   "DRIVER_TORQUE_DEMAND": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "OBD driver-demand engine torque (PID 61) is not in the VSS 6.1 catalog or the OBD overlay."
   },
   "ECT": {
     "path": "Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature"
@@ -109,10 +128,11 @@
     "action": "ECU_WAKE"
   },
   "ENGINE_LOAD": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.EngineLoad."
   },
   "ESTIMATED_RANGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Remaining range from all energy sources. VSS unit is meters.",
+    "path": "Vehicle.Powertrain.Range"
   },
   "FRONT_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
@@ -125,19 +145,27 @@
     "target": true
   },
   "FUEL_LEVEL": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.FuelSystem.RelativeLevel"
   },
   "FUEL_PRESSURE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.FuelPressure."
   },
   "FUEL_RATE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Engine fuel rate in l/h is Vehicle.OBD.FuelRate in the OBD overlay, which is not in the VSS 6.1 catalog. FuelSystem.InstantConsumption is l/100km."
   },
   "GEAR": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "enum": {
+      "drive": 127,
+      "neutral": 0,
+      "park": 126,
+      "reverse": -1
+    },
+    "note": "Selected gear. 126 = park, -1 = reverse, 0 = neutral, 127 = drive.",
+    "path": "Vehicle.Powertrain.Transmission.SelectedGear"
   },
   "HAZARD_LIGHTS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Body.Lights.Hazard.IsSignaling",
+    "target": true
   },
   "HIGH_BEAM": {
     "path": "Vehicle.Body.Lights.Beam.High.IsOn",
@@ -152,13 +180,13 @@
     "target": true
   },
   "IAT": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.IntakeTemp."
   },
   "IDEAL_RANGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "VSS has no ideal or rated range separate from remaining range."
   },
   "LAMBDA": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Wideband lambda is per sensor at Vehicle.OBD.O2WR.Sensor*.Lambda in the OBD overlay, which is not in the VSS 6.1 catalog."
   },
   "LEFT_SIGNAL": {
     "path": "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling",
@@ -169,7 +197,7 @@
     "target": true
   },
   "LOCKED": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Cabin.Door.IsLocked"
   },
   "LOW_BEAM": {
     "path": "Vehicle.Body.Lights.Beam.Low.IsOn",
@@ -180,37 +208,41 @@
     "target": true
   },
   "LTFT_B1": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim1."
   },
   "LTFT_B2": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim2."
   },
   "MAF": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.CombustionEngine.MAF"
   },
   "MAP": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.CombustionEngine.MAP"
   },
   "MIL_STATUS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.Status.IsMILOn."
   },
   "MODULE_VOLTAGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ControlModuleVoltage."
   },
   "O2_DATA": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Oxygen sensors are Vehicle.OBD.O2.Sensor1 through Sensor8 in the OBD overlay, which is not in the VSS 6.1 catalog."
   },
   "ODOMETER": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Lifetime distance. VSS unit is meters.",
+    "path": "Vehicle.TraveledDistance"
   },
   "OIL_TEMP": {
     "path": "Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature"
   },
   "OPEN_FRUNK": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Front luggage compartment. Vehicle.Body.Hood is the engine cover.",
+    "path": "Vehicle.Body.Trunk.Front.IsOpen",
+    "target": true
   },
   "OPEN_TRUNK": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Body.Trunk.Rear.IsOpen",
+    "target": true
   },
   "OUTSIDE_TEMP": {
     "path": "Vehicle.Exterior.AirTemperature"
@@ -219,10 +251,11 @@
     "path": "Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature"
   },
   "PLUGGED_IN": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Single charging port. Use a position instance instead of AnyPosition when the port location is known.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected"
   },
   "READINESS_STATUS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "OBD readiness monitors are not a single signal. The OBD overlay is not in the VSS 6.1 catalog."
   },
   "REAR_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
@@ -244,7 +277,7 @@
     "action": "REMOVE_PRECONDITION_SCHEDULE"
   },
   "REVERSE_LIGHTS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Body.Lights.Backup.IsOn"
   },
   "RIGHT_SIGNAL": {
     "path": "Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling",
@@ -258,22 +291,22 @@
     "target": true
   },
   "RUNTIME": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.RunTime."
   },
   "SCHEDULE_SOFTWARE_UPDATE": {
     "action": "SCHEDULE_SOFTWARE_UPDATE"
   },
   "SEATBELT_WARNING": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "VSS has per-seat IsBelted and no seatbelt warning lamp."
   },
   "SET_CHARGE_LIMIT": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit."
   },
   "SET_CHARGING_AMPS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "No commanded charging-current actuator. MaximumChargingCurrent is inlet capability, not a setpoint."
   },
   "SET_TEMPERATURE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "The station is not fixed. Use DRIVER_TEMP_SETTING or PASSENGER_TEMP_SETTING."
   },
   "SIGNAL_OFF": {
     "action": "SIGNAL_OFF"
@@ -285,22 +318,23 @@
     "path": "Vehicle.Chassis.SteeringWheel.Angle"
   },
   "STFT_B1": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim1."
   },
   "STFT_B2": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim2."
   },
   "SUPPORTED_PIDS_01_20": {
     "query": "SUPPORTED_PIDS_01_20"
   },
   "TIME_TO_FULL_CHARGE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "note": "Includes a scheduled delay before charging starts. VSS unit is seconds.",
+    "path": "Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete"
   },
   "TIMING_ADVANCE": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.TimingAdvance."
   },
   "TPS": {
-    "reason": "Exact VSS identity, semantics or command target requires review."
+    "path": "Vehicle.Powertrain.CombustionEngine.TPS"
   },
   "UNLOCK": {
     "path": "Vehicle.Cabin.Door.IsLocked",

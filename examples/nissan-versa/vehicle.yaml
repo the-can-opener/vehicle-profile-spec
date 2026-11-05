@@ -24,7 +24,7 @@ documents:
 - path: actions.yaml
 unmapped:
 - capability: TPS
-  reason: Exact VSS identity, semantics or command target requires review.
+  reason: fractional decoder cannot preserve the integer VSS datatype
   original:
     monitor:
       message: ENGINE_4
