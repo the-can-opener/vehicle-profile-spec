@@ -176,10 +176,18 @@
     "path": "Vehicle.Powertrain.Range",
     "unit": "m"
   },
+  "FRONT_LEFT_DOOR": {
+    "note": "Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen"
+  },
   "FRONT_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
     "path": "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen",
     "target": true
+  },
+  "FRONT_RIGHT_DOOR": {
+    "note": "Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen"
   },
   "FRONT_RIGHT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
@@ -346,15 +354,33 @@
   "READINESS_STATUS": {
     "reason": "OBD readiness monitors are a bitmap in PID 01 and are not a single signal. MIL state is Vehicle.OBD.Status.IsMILOn."
   },
+  "REAR_LEFT_DOOR": {
+    "note": "Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row2.DriverSide.IsOpen"
+  },
   "REAR_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
     "path": "Vehicle.Cabin.Door.Row2.DriverSide.IsOpen",
     "target": true
   },
+  "REAR_RIGHT_DOOR": {
+    "note": "Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability.",
+    "path": "Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen"
+  },
   "REAR_RIGHT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
     "path": "Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen",
     "target": true
+  },
+  "REAR_WIPER": {
+    "note": "Rear windshield. Use MEDIUM when the command does not select a speed.",
+    "path": "Vehicle.Body.Windshield.Rear.Wiping.Mode",
+    "target": "MEDIUM"
+  },
+  "REAR_WIPER_OFF": {
+    "note": "Rear windshield.",
+    "path": "Vehicle.Body.Windshield.Rear.Wiping.Mode",
+    "target": "OFF"
   },
   "REMOTE_START": {
     "action": "REMOTE_START"
@@ -458,6 +484,11 @@
   "TPS": {
     "path": "Vehicle.Powertrain.CombustionEngine.TPS",
     "unit": "percent"
+  },
+  "TRUNK": {
+    "note": "Rear luggage compartment. False is closed and true is open. The action opens the trunk.",
+    "path": "Vehicle.Body.Trunk.Rear.IsOpen",
+    "target": true
   },
   "UNLOCK": {
     "path": "Vehicle.Cabin.IsCentralLockEngaged",

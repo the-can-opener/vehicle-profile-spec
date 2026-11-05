@@ -137,7 +137,7 @@ class Migrator:
 
     def mapping(self, name):
         result = deepcopy(self.vocabulary.get(name, {}))
-        if result.get("note") and name.endswith("DOOR_OPEN"):
+        if result.get("note") and (name.endswith("DOOR_OPEN") or name.endswith("_DOOR")):
             if self.steering_side is None:
                 raise ValueError("left/right door identity needs --steering-side left|right")
             if self.steering_side == "right":

@@ -47,7 +47,9 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 | `ECU_WAKE` | action `ECU_WAKE` |  |  |  |
 | `ENGINE_LOAD` | `Vehicle.OBD.EngineLoad` | percent |  | COVESA OBD overlay, PID 04. |
 | `ESTIMATED_RANGE` | `Vehicle.Powertrain.Range` | m |  | Remaining range from all energy sources. |
+| `FRONT_LEFT_DOOR` | `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` |  |  | Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability. |
 | `FRONT_LEFT_DOOR_OPEN` | `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` |  | `true` | Left/right mapping assumes left-hand-drive; review vehicle applicability. |
+| `FRONT_RIGHT_DOOR` | `Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen` |  |  | Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability. |
 | `FRONT_RIGHT_DOOR_OPEN` | `Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen` |  | `true` | Left/right mapping assumes left-hand-drive; review vehicle applicability. |
 | `FUEL_LEVEL` | `Vehicle.Powertrain.FuelSystem.RelativeLevel` | percent |  |  |
 | `FUEL_PRESSURE` | `Vehicle.OBD.FuelPressure` | kPa |  | COVESA OBD overlay, PID 0A. |
@@ -84,8 +86,12 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 | `PASSENGER_TEMP_SETTING` | `Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature` | Celsius |  |  |
 | `PLUGGED_IN` | `Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected` |  |  | Single charging port. Use a position instance instead of AnyPosition when the port location is known. |
 | `READINESS_STATUS` | unmapped |  |  | OBD readiness monitors are a bitmap in PID 01 and are not a single signal. MIL state is Vehicle.OBD.Status.IsMILOn. |
+| `REAR_LEFT_DOOR` | `Vehicle.Cabin.Door.Row2.DriverSide.IsOpen` |  |  | Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability. |
 | `REAR_LEFT_DOOR_OPEN` | `Vehicle.Cabin.Door.Row2.DriverSide.IsOpen` |  | `true` | Left/right mapping assumes left-hand-drive; review vehicle applicability. |
+| `REAR_RIGHT_DOOR` | `Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen` |  |  | Closed and open. Left/right mapping assumes left-hand-drive; review vehicle applicability. |
 | `REAR_RIGHT_DOOR_OPEN` | `Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen` |  | `true` | Left/right mapping assumes left-hand-drive; review vehicle applicability. |
+| `REAR_WIPER` | `Vehicle.Body.Windshield.Rear.Wiping.Mode` |  | `"MEDIUM"` | Rear windshield. Use MEDIUM when the command does not select a speed. |
+| `REAR_WIPER_OFF` | `Vehicle.Body.Windshield.Rear.Wiping.Mode` |  | `"OFF"` | Rear windshield. |
 | `REMOTE_START` | action `REMOTE_START` |  |  |  |
 | `REMOVE_CHARGE_SCHEDULE` | action `REMOVE_CHARGE_SCHEDULE` |  |  |  |
 | `REMOVE_PRECONDITION_SCHEDULE` | action `REMOVE_PRECONDITION_SCHEDULE` |  |  |  |
@@ -112,6 +118,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 | `TPMS_REAR_LEFT` | `Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure` | kPa |  | Rear-axle left tire pressure. |
 | `TPMS_REAR_RIGHT` | `Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure` | kPa |  | Rear-axle right tire pressure. |
 | `TPS` | `Vehicle.Powertrain.CombustionEngine.TPS` | percent |  |  |
+| `TRUNK` | `Vehicle.Body.Trunk.Rear.IsOpen` |  | `true` | Rear luggage compartment. False is closed and true is open. The action opens the trunk. |
 | `UNLOCK` | `Vehicle.Cabin.IsCentralLockEngaged` |  | `false` |  |
 | `VIN` | `Vehicle.VehicleIdentification.VIN` |  |  |  |
 | `WAKE_UP` | action `WAKE_UP` |  |  |  |
