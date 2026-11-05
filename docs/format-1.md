@@ -53,6 +53,25 @@ export naming.
 `ACTUATE_TRUNK_REAR` are toggle-style commands for vehicles that do not
 distinguish open from close in a single request.
 
+**Windows**
+
+- `OPEN_FRONT_LEFT_WINDOW`
+- `CLOSE_FRONT_LEFT_WINDOW`
+- `OPEN_FRONT_RIGHT_WINDOW`
+- `CLOSE_FRONT_RIGHT_WINDOW`
+- `OPEN_REAR_LEFT_WINDOW`
+- `CLOSE_REAR_LEFT_WINDOW`
+- `OPEN_REAR_RIGHT_WINDOW`
+- `CLOSE_REAR_RIGHT_WINDOW`
+- `WINDOW_CHILD_LOCK`
+- `WINDOW_CHILD_UNLOCK`
+
+Each `OPEN_*_WINDOW` command opens that window fully, and each `CLOSE_*_WINDOW`
+command closes it fully. These commands take no opening percentage. Left and
+right assume left-hand drive; review that mapping for a right-hand-drive
+vehicle. `WINDOW_CHILD_LOCK` / `WINDOW_CHILD_UNLOCK` engage and release the
+lock that disables the rear window switches.
+
 **Vehicle control**
 
 - `WAKE_UP`

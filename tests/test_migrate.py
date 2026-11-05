@@ -35,7 +35,10 @@ def test_versa_request_response_migration(tmp_path):
     assert matches(lock["steps"][-1]["expect"], "70 38 FF")
     unlock = prepare_write(result, "Vehicle.Cabin.Door.Central.IsLocked", False)
     assert unlock["steps"][-1]["request"] == "30 38 00 02"
-    assert result["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["aliases"] == ["LOCK", "UNLOCK"]
+    assert result["properties"]["Vehicle.Cabin.Door.Central.IsLocked"]["aliases"] == [
+        "LOCK",
+        "UNLOCK",
+    ]
     assert "Vehicle.Cabin.Door.Row1.DriverSide.IsLocked" not in result["properties"]
     assert "LOCK" not in result["actions"] and "UNLOCK" not in result["actions"]
     assert "HORN" not in result["actions"]

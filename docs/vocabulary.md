@@ -30,7 +30,11 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `CHARGING_STATE`: unmapped: disconnected, stopped, charging, and complete do not match Vehicle.Powertrain.TractionBattery.ChargingState.
 - `CLIMATE_OFF`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
 - `CLIMATE_ON`: unmapped: No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive.
+- `CLOSE_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
 - `CLOSE_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target false); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
+- `CLOSE_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
+- `CLOSE_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 0); Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.
 - `CLOSE_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target false)
 - `DEFROST_OFF`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target false); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
 - `DEFROST_ON`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target true); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
@@ -68,7 +72,11 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `O2_DATA`: Vehicle.OBD.O2.Sensor1.Voltage; First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.
 - `ODOMETER`: Vehicle.TraveledDistance; Lifetime distance. VSS unit is meters.
 - `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature
+- `OPEN_FRONT_LEFT_WINDOW`: Vehicle.Cabin.Door.Row1.DriverSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `OPEN_FRONT_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
 - `OPEN_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target true); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
+- `OPEN_REAR_LEFT_WINDOW`: Vehicle.Cabin.Door.Row2.DriverSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
+- `OPEN_REAR_RIGHT_WINDOW`: Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position (write target 100); Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.
 - `OPEN_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target true)
 - `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature
 - `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature
@@ -105,6 +113,8 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `UNLOCK`: Vehicle.Cabin.Door.Central.IsLocked (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN
 - `WAKE_UP`: action WAKE_UP
+- `WINDOW_CHILD_LOCK`: Vehicle.Cabin.IsWindowChildLockEngaged (write target true); Disables the rear window switches so only the driver can operate them.
+- `WINDOW_CHILD_UNLOCK`: Vehicle.Cabin.IsWindowChildLockEngaged (write target false)
 - `WIPERS`: Vehicle.Body.Windshield.Front.Wiping.Mode (write target "MEDIUM"); Front windshield. Use MEDIUM when the command does not select a speed.
 
 ## Related pages

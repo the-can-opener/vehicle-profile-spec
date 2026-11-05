@@ -94,10 +94,30 @@
   "CLIMATE_ON": {
     "reason": "No single climate power actuator. Air conditioning is Vehicle.Cabin.HVAC.IsAirConditioningActive."
   },
+  "CLOSE_FRONT_LEFT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
+    "path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+    "target": 0
+  },
+  "CLOSE_FRONT_RIGHT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
+    "path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+    "target": 0
+  },
   "CLOSE_FRUNK": {
     "note": "Front luggage compartment. Vehicle.Body.Hood is the engine cover.",
     "path": "Vehicle.Body.Trunk.Front.IsOpen",
     "target": false
+  },
+  "CLOSE_REAR_LEFT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
+    "path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+    "target": 0
+  },
+  "CLOSE_REAR_RIGHT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 0 is fully closed.",
+    "path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+    "target": 0
   },
   "CLOSE_TRUNK": {
     "path": "Vehicle.Body.Trunk.Rear.IsOpen",
@@ -247,10 +267,30 @@
   "OIL_TEMP": {
     "path": "Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature"
   },
+  "OPEN_FRONT_LEFT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
+    "path": "Vehicle.Cabin.Door.Row1.DriverSide.Window.Position",
+    "target": 100
+  },
+  "OPEN_FRONT_RIGHT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
+    "path": "Vehicle.Cabin.Door.Row1.PassengerSide.Window.Position",
+    "target": 100
+  },
   "OPEN_FRUNK": {
     "note": "Front luggage compartment. Vehicle.Body.Hood is the engine cover.",
     "path": "Vehicle.Body.Trunk.Front.IsOpen",
     "target": true
+  },
+  "OPEN_REAR_LEFT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
+    "path": "Vehicle.Cabin.Door.Row2.DriverSide.Window.Position",
+    "target": 100
+  },
+  "OPEN_REAR_RIGHT_WINDOW": {
+    "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability. 100 is fully open when the command does not select a percent.",
+    "path": "Vehicle.Cabin.Door.Row2.PassengerSide.Window.Position",
+    "target": 100
   },
   "OPEN_TRUNK": {
     "path": "Vehicle.Body.Trunk.Rear.IsOpen",
@@ -377,6 +417,15 @@
   },
   "WAKE_UP": {
     "action": "WAKE_UP"
+  },
+  "WINDOW_CHILD_LOCK": {
+    "note": "Disables the rear window switches so only the driver can operate them.",
+    "path": "Vehicle.Cabin.IsWindowChildLockEngaged",
+    "target": true
+  },
+  "WINDOW_CHILD_UNLOCK": {
+    "path": "Vehicle.Cabin.IsWindowChildLockEngaged",
+    "target": false
   },
   "WIPERS": {
     "note": "Front windshield. Use MEDIUM when the command does not select a speed.",

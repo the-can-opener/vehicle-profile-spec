@@ -1,7 +1,7 @@
 # Mapping rules
 
 - signals.X.monitor becomes a DBC read.signal on the vocabulary's canonical path.
-- A single-actuator action becomes a quoted write case. LOCK and UNLOCK become the true and false cases of Vehicle.Cabin.Door.Central.IsLocked. WIPERS becomes the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode when the command does not select a speed. Any other multi-actuator or non-VSS command becomes a named action.
+- A single-actuator action becomes a quoted write case. LOCK and UNLOCK become the true and false cases of Vehicle.Cabin.Door.Central.IsLocked. WIPERS becomes the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode when the command does not select a speed. OPEN_*_WINDOW writes 100 on that door's Window.Position and CLOSE_*_WINDOW writes 0. WINDOW_CHILD_LOCK and WINDOW_CHILD_UNLOCK are the true and false cases of Vehicle.Cabin.IsWindowChildLockEngaged. Left and right assume left-hand drive. Any other multi-actuator or non-VSS command becomes a named action.
 - Byte arrays become uppercase spaced hex. A wildcard remains `*`.
 - ref: sequences.x becomes call: x, with the endpoint owned by the caller.
 - request_id/response_id become tx/rx on a raw CAN endpoint; request-only endpoints omit rx/timeout.
