@@ -1,0 +1,20 @@
+{
+  "manifest": 1,
+  "format": 2,
+  "id": "org.test.overlay",
+  "version": "1.0.0",
+  "name": "Overlay",
+  "vss": "6.1",
+  "depends": [
+    {
+      "id": "org.test.base",
+      "version": "^1.0.0"
+    }
+  ],
+  "documents": [
+    {
+      "path": "bindings.json",
+      "override": true
+    }
+  ]
+}

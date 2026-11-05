@@ -1,0 +1,37 @@
+{
+  "manifest": 1,
+  "format": 2,
+  "id": "org.test.base",
+  "version": "1.0.0",
+  "name": "Test",
+  "vss": "6.1",
+  "channels": {
+    "bus": {
+      "protocol": "can",
+      "configuration": "runtime"
+    }
+  },
+  "endpoints": {
+    "ecu": {
+      "channel": "bus",
+      "protocol": "isotp",
+      "tx": "700",
+      "rx": [
+        "708"
+      ],
+      "id_format": "standard",
+      "timeout_ms": 300
+    }
+  },
+  "properties": {
+    "Vehicle.Body.Horn.IsActive": {
+      "write": {
+        "endpoint": "ecu",
+        "request": "01",
+        "expect": {
+          "prefix": "02"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,332 @@
+{
+  "$defs": {
+    "FixtureCase": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "name"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "path"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "path"
+                    ]
+                  }
+                ]
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "signal",
+                  "write"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "path"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "action"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "name"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "write"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "target"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "expect": {
+          "$ref": "#/$defs/FixtureExpectation"
+        },
+        "frame": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Frame"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "input": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input"
+        },
+        "kind": {
+          "enum": [
+            "signal",
+            "query",
+            "write",
+            "action"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "responses": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/$defs/Frame"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Responses"
+        },
+        "target": {
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "required": [
+        "kind",
+        "expect"
+      ],
+      "title": "FixtureCase",
+      "type": "object"
+    },
+    "FixtureExpectation": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "enum": [
+                "valid",
+                "stale",
+                "invalid",
+                "unavailable"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quality"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "enum": [
+                "sent",
+                "acknowledged",
+                "accepted",
+                "running",
+                "succeeded",
+                "failed",
+                "cancelled",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        },
+        "sent": {
+          "anyOf": [
+            {
+              "items": {
+                "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sent"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "FixtureExpectation",
+      "type": "object"
+    },
+    "Frame": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "pattern": "^[0-9A-F]{2}( [0-9A-F]{2})*$",
+          "title": "Data",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[0-9A-F]{1,8}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "id_format": {
+          "anyOf": [
+            {
+              "enum": [
+                "standard",
+                "extended"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id Format"
+        }
+      },
+      "required": [
+        "id",
+        "data"
+      ],
+      "title": "Frame",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/FixtureCase"
+      },
+      "title": "Cases",
+      "type": "array"
+    },
+    "fixture": {
+      "const": 1,
+      "title": "Fixture",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "fixture",
+    "cases"
+  ],
+  "title": "Fixture",
+  "type": "object"
+}

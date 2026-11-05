@@ -1,866 +1,159 @@
-# Vehicle Profile, DBC, and BLE Interface Specification
+# Vehicle Profile Standard — format 2
 
-This document defines the stable vehicle capability vocabulary, the YAML profile
-format, the DBC responsibilities, and the BLE firmware packet interface used by
-`can-opener-js`.
+[Overview](#overview) · [Vehicle Signal Specification](#vehicle-signal-specification) · [Specification reference](#specification-reference) · [Documentation](#documentation) · [Quick start](#quick-start) · [Example](#example) · [Development](#development)
 
-## Core Architecture
+## Overview
 
-`can-opener-js` keeps three layers separate:
+This standard describes how a vehicle exposes data and accepts commands through a portable YAML or JSON package. It binds canonical VSS paths, such as `Vehicle.Speed`, to vehicle-specific signals, requests and actuator writes.
 
-- DBC files decode received CAN frames into named signals.
-- YAML profiles define requests, command flows, monitor subscriptions,
-  applicability, and references to DBC mappings.
-- BLE firmware exposes three primitives: configure monitor, request with
-  response, and request only.
+A package contains a manifest and explicitly listed documents, DBC assets and fixtures. The main concepts are:
 
-DBC never defines workflow. YAML never defines bit math.
+- **Properties:** canonical VSS paths with passive signals, active queries, static attributes or actuator writes.
+- **Endpoints and sources:** reusable addressing and acquisition definitions.
+- **Steps and sequences:** requests, expected responses, waits and shared command steps.
+- **Named queries and actions:** capabilities that do not map to a single VSS property.
+- **Composition:** ordered documents and overlays with explicit replacement and applicability rules.
 
-DBC also owns physical decode metadata such as units, scaling, offsets, byte
-order, signedness, ranges, and enum tables. YAML only points standardized
-capability names at the DBC messages and signals that decode them.
+A matched response acknowledges a write; it does not update the observed property value. Only a read does. Polling is explicit, and package metadata does not grant runtime permissions.
 
-## Standard Capability Keywords
+This repository includes the standard, JSON schemas, a pinned VSS 6.1 catalog, the `vprofile` Python tooling, examples and agent skills. Format 1 is retired; the [migration guide](docs/migration.md) explains conversion and unmapped records.
 
-These names are the stable app-facing vocabulary. Vehicle profiles map them to
-vehicle-specific CAN IDs, request bytes, response IDs, and DBC mappings.
+## Vehicle Signal Specification
 
-YAML profile keys must use the standardized names when a capability is listed in
-this document. For capabilities not listed here, profiles may define additional
-vehicle-specific names. DBC message and signal names should match the
-standardized names when practical, but this is a recommendation rather than a
-requirement because DBC files often reflect OEM, reverse-engineering, or tool
-export naming.
+Property identity comes from the [COVESA Vehicle Signal Specification (VSS)](https://github.com/COVESA/vehicle_signal_specification). This repository pins VSS 6.1. [Path semantics](docs/vss.md) describe how a binding uses that catalog, and [catalog provenance](catalog/README.md) records the export and the local departures from upstream.
 
-### Actions
+## Specification reference
 
-**Security and access**
+The [documentation index](docs/README.md) is the maintained standard. These pages define the format:
 
-- `UNLOCK`
-- `LOCK`
-- `OPEN_TRUNK`
-- `CLOSE_TRUNK`
-- `OPEN_FRUNK`
-- `CLOSE_FRUNK`
-- `ACTUATE_TRUNK_FRONT`
-- `ACTUATE_TRUNK_REAR`
+- [Package and file format](docs/package.md) — directory and ZIP layout, safe paths, and asset limits.
+- [Manifest and applicability](docs/manifest.md) — package identity, versions, document order, DBC assets, and vehicle selectors.
+- [Properties and bindings](docs/document.md) — reads, shared sources, writes, endpoints, steps, queries, and actions.
+- [VSS paths and semantics](docs/vss.md) — canonical identities, roles, aliases, and catalog resolution.
+- [Decoding and encoding](docs/decoding.md) — byte and bit extraction, scaling, enums, and request encoding.
+- [DBC assets](docs/dbc.md) — signal layout and the boundary between DBC data and binding behavior.
+- [Composition and overlays](docs/composition.md) — ordered replacement, deletion, applicability, and conflicts.
+- [Extensions and configuration](docs/extensions.md) — versioned requirements and non-VSS configuration.
+- [Fixtures](docs/fixtures.md) — positive and negative inputs and expected outcomes.
 
-`OPEN_TRUNK` / `CLOSE_TRUNK` target the rear trunk explicitly. `OPEN_FRUNK` /
-`CLOSE_FRUNK` target the front trunk (frunk). `ACTUATE_TRUNK_FRONT` /
-`ACTUATE_TRUNK_REAR` are toggle-style commands for vehicles that do not
-distinguish open from close in a single request.
+Machine-readable contracts: [manifest schema](schemas/manifest.schema.json), [document schema](schemas/document.schema.json), and [fixture schema](schemas/fixture.schema.json).
 
-**Vehicle control**
+## Documentation
 
-- `WAKE_UP`
-- `ECU_WAKE`
-- `REMOTE_START`
+- **Get started:** [authoring guide](docs/authoring-guide.md), [validation and CLI](docs/validation.md), [migration](docs/migration.md).
+- **Resources:** [catalog provenance](catalog/README.md), [keyword vocabulary](docs/vocabulary.md), [error codes](skills/validating-vehicle-profiles/error-codes.md), [agent skills](skills/README.md).
 
-**Horn and lights**
+## Quick start
 
-- `HORN`
-- `HIGH_BEAMS`
-- `LOW_BEAMS`
-- `RUNNING_LIGHTS`
-- `LEFT_SIGNAL`
-- `RIGHT_SIGNAL`
-- `HAZARD_LIGHTS`
+Install the tooling and validate an example:
 
-**Climate**
-
-- `CLIMATE_ON`
-- `CLIMATE_OFF`
-- `SET_TEMPERATURE`
-- `AUTO_CONDITIONING_START`
-- `AUTO_CONDITIONING_STOP`
-- `DEFROST_ON`
-- `DEFROST_OFF`
-
-**Charging**
-
-- `CHARGE_START`
-- `CHARGE_STOP`
-- `CHARGE_PORT_OPEN`
-- `CHARGE_PORT_CLOSE`
-- `SET_CHARGE_LIMIT`
-- `SET_CHARGING_AMPS`
-- `ADD_CHARGE_SCHEDULE`
-- `REMOVE_CHARGE_SCHEDULE`
-- `ADD_PRECONDITION_SCHEDULE`
-- `REMOVE_PRECONDITION_SCHEDULE`
-
-**Software**
-
-- `SCHEDULE_SOFTWARE_UPDATE`
-- `CANCEL_SOFTWARE_UPDATE`
-
-### Queries
-
-Queries expose supported PIDs and structured diagnostic reads. The common query
-namespace is the PID list below.
-
-### Signals
-
-**Drivetrain**
-
-- `SPEED`
-- `RPM`
-- `TPS`
-- `STEERING_ANGLE`
-- `GEAR`
-- `ODOMETER`
-
-**Body and lights**
-
-- `LEFT_SIGNAL`
-- `RIGHT_SIGNAL`
-- `BRAKE_LIGHTS`
-- `RUNNING_LIGHTS`
-- `LOW_BEAMS`
-- `HIGH_BEAMS`
-- `REVERSE_LIGHTS`
-
-**Doors and security**
-
-- `FRONT_LEFT_DOOR_OPEN`
-- `FRONT_RIGHT_DOOR_OPEN`
-- `REAR_LEFT_DOOR_OPEN`
-- `REAR_RIGHT_DOOR_OPEN`
-- `LOCKED`
-
-**Fuel**
-
-- `FUEL_LEVEL`
-
-**Charging**
-
-- `BATTERY_LEVEL`
-- `BATTERY_RANGE`
-- `ESTIMATED_RANGE`
-- `IDEAL_RANGE`
-- `CHARGING_STATE`
-- `CHARGE_PORT_OPEN`
-- `CHARGE_LIMIT_SOC`
-- `CHARGER_VOLTAGE`
-- `CHARGER_CURRENT`
-- `CHARGER_POWER`
-- `CHARGE_RATE`
-- `TIME_TO_FULL_CHARGE`
-- `CHARGE_ENERGY_ADDED`
-- `PLUGGED_IN`
-
-**Climate**
-
-- `CLIMATE_ON`
-- `CABIN_TEMP`
-- `OUTSIDE_TEMP`
-- `DRIVER_TEMP_SETTING`
-- `PASSENGER_TEMP_SETTING`
-
-`TPS` means throttle position.
-
-Standard signal values should use these script-facing domains. Numeric units
-come from the DBC. Enum labels come from DBC `VAL_` entries unless a profile
-uses `normalize.enum` to translate car-specific labels:
-
-- `SPEED`: number, typically `km/h`
-- `RPM`: number, typically `rpm`
-- `TPS`: number, typically `%`
-- `STEERING_ANGLE`: number, typically `deg`
-- `FUEL_LEVEL`: number, typically `%`
-- `ODOMETER`: number, typically `km`
-- `LEFT_SIGNAL`, `RIGHT_SIGNAL`, `BRAKE_LIGHTS`, `LOW_BEAMS`, `HIGH_BEAMS`,
-  `PLUGGED_IN`, `CLIMATE_ON`: `"off"` or `"on"`
-- `LOCKED`: `"off"` (unlocked) or `"on"` (locked)
-- `FRONT_LEFT_DOOR_OPEN`, `FRONT_RIGHT_DOOR_OPEN`, `REAR_LEFT_DOOR_OPEN`,
-  `REAR_RIGHT_DOOR_OPEN`, `CHARGE_PORT_OPEN`: `"closed"` or `"open"`
-- `GEAR`: `"park"`, `"reverse"`, `"neutral"`, or `"drive"`
-- `CHARGING_STATE`: `"disconnected"`, `"stopped"`, `"charging"`, or
-  `"complete"`
-- `BATTERY_LEVEL`, `CHARGE_LIMIT_SOC`: number, typically `%`
-- `BATTERY_RANGE`, `ESTIMATED_RANGE`, `IDEAL_RANGE`: number, typically `km`
-- `CHARGER_VOLTAGE`: number, typically `V`
-- `CHARGER_CURRENT`: number, typically `A`
-- `CHARGER_POWER`: number, typically `kW`
-- `CHARGE_RATE`: number, typically `km/h`
-- `TIME_TO_FULL_CHARGE`: number, typically `h`
-- `CHARGE_ENERGY_ADDED`: number, typically `kWh`
-- `CABIN_TEMP`, `OUTSIDE_TEMP`, `DRIVER_TEMP_SETTING`,
-  `PASSENGER_TEMP_SETTING`: number, typically `°C`
-
-If no `normalize` block is declared, the script-facing value is the DBC-decoded
-value. Signals with a matching DBC `VAL_` entry return the enum label; other
-numeric signals return the DBC-scaled physical number.
-
-## Standard PID Keywords
-
-Profiles may support any subset of these basic PIDs:
-
-- `RPM`
-- `SPEED`
-- `ECT`
-- `IAT`
-- `MAP`
-- `MAF`
-- `TPS`
-- `STFT_B1`
-- `LTFT_B1`
-- `STFT_B2`
-- `LTFT_B2`
-- `FUEL_PRESSURE`
-- `TIMING_ADVANCE`
-- `ENGINE_LOAD`
-- `RUNTIME`
-- `FUEL_LEVEL`
-- `DIST_SINCE_CLEAR`
-- `BARO`
-- `LAMBDA`
-- `O2_DATA`
-- `MODULE_VOLTAGE`
-- `OIL_TEMP`
-- `DRIVER_TORQUE_DEMAND`
-- `ACTUAL_TORQUE`
-- `FUEL_RATE`
-- `ODOMETER`
-- `VIN`
-- `MIL_STATUS`
-- `READINESS_STATUS`
-
-## File Structure
-
-Vehicle definitions are grouped by folder. Each folder may contribute partial
-definitions:
-
-```text
-vehicles/
-  universal/
-    profile.yaml
-    signals.dbc
-
-  nissan/sentra/
-    profile.yaml
-    signals.dbc
+```sh
+uv sync --project tools
+uv run --project tools vprofile export json --strict --package examples/universal-obd
+uv run --project tools vprofile vss search temperature --role actuator
 ```
 
-Profiles merge by applicability, with the most-specific match winning.
+Package a validated profile and verify the archive:
 
-## YAML Root Structure
+```sh
+uv run --project tools vprofile compose --package examples/universal-obd -o /tmp/obd.zip
+uv run --project tools vprofile compose --verify /tmp/obd.zip
+```
 
-Only `version` is required.
+To write your own profile, follow the [authoring guide](docs/authoring-guide.md).
+
+## Example
+
+This single-file package is illustrative. The frame and request bytes are not a vehicle mapping. `documents` is omitted, so the file is both the manifest and the only binding document.
+
+`Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` is a read-only state. Bit 0 of CAN `60D` is the observed door: `0` is closed and `1` is open. `Vehicle.Cabin.IsCentralLockEngaged` has both a read and a write. Bit 1 is the observed lock state (`LOCKED`). The `"true"` case is `LOCK` and the `"false"` case is `UNLOCK`. A matching `70 38` response acknowledges the command. It does not change the observed value; only the read does. `DriverSide` assumes left-hand drive.
 
 ```yaml
-version: 1
-
-applies_to: {}
-
-dbc:
-  files: []
-
-endpoints: {}
-
-sequences: {}
-
-signals: {}
-
-queries: {}
-
-actions: {}
-```
-
-## Applicability Rules
-
-`applies_to` describes which vehicles a YAML profile and its DBC files support.
-If `applies_to` is omitted, the profile is universal and applies to all makes and
-models. Standard OBD-II PID profiles are a typical universal profile.
-
-Supported keys:
-
-- `manufacturers`
-- `models`
-- `years`
-- `trims`
-- `engines`
-- `markets`
-
-Missing fields act as wildcards.
-
-```yaml
-applies_to:
-  manufacturers: [Nissan]
-  models: [Sentra, Versa]
-  years:
-    - 2010
-    - 2011
-    - range: [2012, 2015]
-  trims: [S, SV]
-  engines: [2.0L]
-  markets: [NA]
-```
-
-Year ranges are inclusive:
-
-```yaml
-years:
-  - range: [2010, 2015]
-```
-
-This matches model years 2010 through 2015.
-
-## DBC Rules
-
-DBC files decode received CAN payloads only.
-
-Use DBC for:
-
-- passive broadcast frames
-- request/response diagnostic replies
-- UDS positive responses
-- ECU status messages
-- sensor values
-
-Do not use DBC for:
-
-- command flows
-- multi-step transactions
-- security or session setup
-- tester-present keepalive
-- applicability logic
-
-DBC message IDs must be real CAN response IDs, not invented logical IDs.
-
-```dbc
-VERSION ""
-
-BU_: Tester ECU
-
-BO_ 2024 OBD_Response: 8 ECU
- SG_ vehicle_speed : 24|8@1+ (1,0) [0|255] "km/h" Vector__XXX
-
-BO_ 1893 Body_Response: 8 ECU
- SG_ response_service : 8|8@1+ (1,0) [0|255] "" Vector__XXX
- SG_ routine_high     : 16|8@1+ (1,0) [0|255] "" Vector__XXX
- SG_ routine_low      : 24|8@1+ (1,0) [0|255] "" Vector__XXX
- SG_ routine_status   : 32|8@1+ (1,0) [0|255] "" Vector__XXX
-```
-
-In this example, `0x7E8` is decimal `2024` and `0x765` is decimal `1893`.
-
-## DBC File References
-
-Profiles reference DBC files by relative path:
-
-```yaml
-dbc:
-  files:
-    - path: signals.dbc
-```
-
-## Endpoint Rules
-
-An endpoint defines a reusable request/response transport target.
-
-```yaml
+manifest: 1
+format: 2
+id: org.example.locks
+version: 2.0.0
+name: Illustrative lock state, read, and write
+vss: "6.1"
+channels:
+  vehicle:
+    protocol: can
+    configuration: runtime
 endpoints:
-  obd:
-    request_id: 0x7DF
-    response_ids:
-      - range: [0x7E8, 0x7EF]
-    timeout_ms: 500
-
   body:
-    request_id: 0x745
-    response_id: 0x765
+    channel: vehicle
+    protocol: isotp
+    tx: "745"
+    rx:
+      - "765"
+    id_format: standard
     timeout_ms: 500
+properties:
+  Vehicle.Cabin.Door.Row1.DriverSide.IsOpen:
+    aliases:
+      - FRONT_LEFT_DOOR_OPEN
+    read:
+      signal:
+        channel: vehicle
+        id: "60D"
+        id_format: standard
+        length: 1
+        decode:
+          start_bit: 0
+          bits: 1
+          bit_order: lsb0
+          type: uint
+          enum:
+            "0": false
+            "1": true
+  Vehicle.Cabin.IsCentralLockEngaged:
+    aliases:
+      - LOCKED
+      - LOCK
+      - UNLOCK
+    read:
+      signal:
+        channel: vehicle
+        id: "60D"
+        id_format: standard
+        length: 1
+        decode:
+          start_bit: 1
+          bits: 1
+          bit_order: lsb0
+          type: uint
+          enum:
+            "0": false
+            "1": true
+    write:
+      cases:
+        "true":
+          endpoint: body
+          request: "30 38 00 01"
+          expect:
+            prefix: "70 38"
+        "false":
+          endpoint: body
+          request: "30 38 00 02"
+          expect:
+            prefix: "70 38"
 ```
 
-Rules:
+Checked-in packages:
 
-- `request_id` is one transmit CAN ID.
-- `response_id` is one accepted response CAN ID.
-- `response_ids` is a list of accepted response IDs and ranges.
-- Endpoints are reused by queries, actions, and sequences.
+- [Universal OBD](examples/universal-obd/vehicle.yaml) — property queries, VIN, and a named PID query; [fixtures](examples/universal-obd/fixtures.yaml).
+- [Synthetic HVAC](examples/hvac-synthetic/README.md) — shared reads, passive acquisition, and a numeric write; [package](examples/hvac-synthetic/vehicle.yaml).
+- [Nissan Versa migration](examples/nissan-versa/README.md) — split documents, horn cases, and an all-door lock write.
 
-## Transaction Step Rules
+Examples and fixtures illustrate the format. Validation performs no vehicle I/O and does not prove physical compatibility.
 
-A step is one BLE firmware request transaction.
+## Development
 
-```yaml
-- send: [0x10, 0x81]
-  expect: [0x50, 0x81]
+```sh
+make mandatory_targets
+make clean
 ```
 
-This sends bytes, waits for a response, and validates the response prefix. If
-`expect` is omitted, the step sends bytes only and does not wait for a response.
-`send` and `expect` always belong to the same step.
+The acceptance target checks tests, lint, types, generated files, example packages and wheel resources. Cleanup retains the development environment and maintained artifacts.
 
-## Expect Matching Rules
-
-`expect` is a response pattern. By default, an `expect` array is a prefix match
-and extra response bytes are ignored.
-
-```yaml
-expect: [0x41, 0x0D]
-```
-
-This matches `41 0D 00`, `41 0D 7F`, and any other response starting with
-`41 0D`.
-
-Use `"*"` as a wildcard byte:
-
-```yaml
-expect: [0x70, 0x30, "*"]
-```
-
-This matches `70 30 00`, `70 30 01`, and `70 30 FF`.
-
-Use exact matching when extra response bytes should fail validation:
-
-```yaml
-expect:
-  pattern: [0x70, 0x30, 0x01]
-  exact: true
-```
-
-Omitted `expect` means no response wait.
-
-## Sequences
-
-Sequences are reusable step groups intended for shared setup logic.
-
-```yaml
-sequences:
-  body_session_prep:
-    steps:
-      - send: [0x10, 0x81]
-        expect: [0x50, 0x81]
-
-      - send: [0x10, 0xC0]
-        expect: [0x50, 0xC0]
-```
-
-Rules:
-
-- Sequences are expanded inline.
-- Sequences may be nested.
-- Circular references are invalid.
-
-## Sequence References
-
-A step may reference another sequence:
-
-```yaml
-- ref: sequences.body_session_prep
-```
-
-Example:
-
-```yaml
-actions:
-  HORN:
-    endpoint: body
-    steps:
-      - ref: sequences.body_session_prep
-      - send: [0x30, 0x30, 0x00, 0x01]
-        expect: [0x70, 0x30, 0x01]
-```
-
-Rules:
-
-- References expand in place.
-- Circular references are invalid.
-- A referenced sequence inherits the command endpoint unless it declares its own
-  endpoint.
-
-## Signals
-
-Signals represent passively collected values. They are usually broadcast at a
-regular cadence on the CAN bus and decoded with a DBC file.
-
-```yaml
-signals:
-  STEERING_ANGLE:
-    monitor:
-      message: STEERING
-      signal: STEERING_ANGLE
-```
-
-Default value behavior:
-
-- If the DBC signal has a matching `VAL_` entry, state is updated with that enum
-  label.
-- Otherwise, state is updated with the DBC-scaled physical value.
-- Profile `normalize.enum` is optional and runs after DBC decode.
-
-Use `normalize.enum` only when the DBC labels need to be translated into the
-portable profile vocabulary:
-
-```yaml
-signals:
-  LOW_BEAMS:
-    monitor:
-      message: BODY_STATUS
-      signal: HEADLAMP_STATE
-    normalize:
-      enum:
-        inactive: off
-        active: on
-```
-
-Firmware mapping:
-
-- Configure monitor CAN IDs from DBC message references.
-- Receive monitor data notifications.
-- Decode signals continuously from the latest frame data.
-
-## Queries
-
-Queries are request/response reads from the CAN bus, typically to an ECU that
-responds with a CAN frame. They are used for PIDs, UDS reads, VIN, serial
-numbers, ASCII strings, multi-frame identifiers, and status blobs.
-
-DBC-backed queries use `dbc_mapping` to point a standard YAML query name to the
-DBC message and signal that decode the response payload. The DBC owns units,
-scaling, offsets, byte order, signedness, and enum tables.
-
-```yaml
-queries:
-  SPEED:
-    endpoint: obd
-    send: [0x01, 0x0D]
-    expect: [0x41, 0x0D]
-    dbc_mapping:
-      message: OBD_Response_7E8
-      signal: SPEED
-```
-
-Queries follow the same value rules as monitored signals. DBC enum labels are
-returned by default, numeric DBC signals return physical values by default, and
-optional `normalize.enum` remaps labels after decode:
-
-```yaml
-queries:
-  GEAR:
-    endpoint: obd
-    send: [0x22, 0x12, 0x34]
-    expect: [0x62, 0x12, 0x34]
-    dbc_mapping:
-      message: Body_Response
-      signal: TRANSMISSION_STATE
-    normalize:
-      enum:
-        P: park
-        R: reverse
-        D: drive
-```
-
-Use `decoder` only for built-in non-DBC decoders:
-
-```yaml
-queries:
-  VIN:
-    endpoint: obd
-    send: [0x09, 0x02]
-    expect: [0x49, 0x02]
-    decoder: ascii
-    length: 17
-```
-
-Supported built-in decoder forms:
-
-```yaml
-decoder: ascii
-length: 17
-```
-
-```yaml
-decoder: bytes
-```
-
-```yaml
-decoder:
-  type: ascii
-  length: 17
-```
-
-```yaml
-decoder:
-  type: bytes
-  length: 8
-```
-
-Built-in decoders operate on the response payload after the `expect` prefix is
-removed. `ascii` returns a string and trims trailing null bytes. `bytes` returns
-raw bytes. `length` limits the number of bytes consumed by the decoder.
-
-Queries always use BLE request/response.
-
-## Actions
-
-Actions change vehicle state. They may be request-only, verified
-request/response, or multi-step flows.
-
-### send forms
-
-The `send` field accepts two forms:
-
-- **Array form** `send: [0x30, 0x38, ...]`: requires `endpoint` to supply the
-  transmit CAN ID and optional response bounds.
-- **Object form** `send: {request_id: 0x123, request: [...]}`: embeds the
-  transmit CAN ID inline. No `endpoint` is needed. This form is always
-  request-only; response bounds and timeouts are not inherited from any
-  endpoint.
-
-Actions with no `send` and no `steps` are silently skipped during profile
-loading.
-
-Single request (inline `request_id`, no endpoint required):
-
-```yaml
-actions:
-  LEFT_SIGNAL:
-    send:
-      request_id: 0x123
-      request: [0x01, 0x00, 0x00, 0x00]
-```
-
-Verified request/response (array `send`, endpoint required):
-
-```yaml
-actions:
-  LOCK:
-    endpoint: body
-    send: [0x30, 0x38, 0x00, 0x01]
-    expect: [0x70, 0x38, 0x01]
-```
-
-Multi-step flow:
-
-```yaml
-actions:
-  HORN:
-    endpoint: body
-    steps:
-      - ref: sequences.body_session_prep
-      - send: [0x30, 0x30, 0x00, 0x01]
-        expect: [0x70, 0x30, 0x01]
-```
-
-Actions may return nothing. If `expect` validation is used, actions return
-boolean success or failure.
-
-## Firmware Execution Mapping
-
-- Signals with `monitor` use configure monitor plus the monitor notification
-  stream.
-- Signals with `send` and `expect` use request/response and return a decoded
-  value.
-- Queries use request/response and return a decoded value.
-- Actions with `expect` use request/response and return a boolean.
-- Actions without `expect` use request-only.
-- Actions using the `{request_id, request}` inline form use request-only
-  without response bounds, regardless of whether an endpoint is also present.
-- Sequences expand into multiple BLE request transactions.
-
-## Runtime Profile Reloading
-
-`VirtualVehicle.reloadProfiles(sources)` replaces the loaded capability set
-at runtime without reconnecting. This is useful for staged loading: connect
-with a minimal profile (for example, OBD-II PIDs only) to read the VIN, then
-call `reloadProfiles` with the full vehicle-specific profile set after
-discovery.
-
-Profile reload rebuilds capabilities and DBC bindings from scratch. Active
-monitors are not automatically restarted; the caller should re-subscribe after
-reloading.
-
-Batch `subscribe([...])` calls skip signals that cannot be resolved against the
-currently loaded DBC. This makes it safe to call subscribe with a superset of
-signal names before or after a reload.
-
-## BLE Interface
-
-The BLE interface has three characteristics on primary service `0x0180`. The
-device advertises as `CanOpener`. Multi-byte integers are little-endian. The
-preferred ATT MTU is 247 (244-byte characteristic payload).
-
-| Characteristic | UUID | Properties |
-| --- | --- | --- |
-| Request | `0xFEF4` | Write + Notify |
-| Monitor control | `0xA003` | Write + Notify |
-| Monitor data | `0xA004` | Notify |
-
-The transport layer supports two additional options not expressed in YAML
-profiles:
-
-- `cancelConnection` (disconnect option): signals the transport to abort an
-  in-progress BLE connection attempt rather than waiting for it to complete
-  before disconnecting.
-- `tx_can_id_extended` / `responseIdExtended` (request options): set
-  `bit1` and `bit2` in the BLE request flags for 29-bit extended CAN IDs.
-  When unset, standard 11-bit IDs are assumed.
-
-### Request Characteristic
-
-Properties: Write + Notify.
-
-The phone writes request packets to the ESP or CAN board. If the request expects
-a CAN response, firmware places the returned ISO-TP payload in the notify
-buffer. A request can be no-response; in that case firmware does not send a
-notification.
-
-### Monitor Control Characteristic
-
-Properties: Write + Notify.
-
-This characteristic configures the monitor data characteristic. The phone writes
-ADD, REMOVE, or CLEAR packets, and firmware notifies a monitor config response.
-
-### Monitor Data Characteristic
-
-Properties: Notify.
-
-Firmware publishes subscribed CAN IDs as frames arrive. If an ID already exists
-in the current monitor snapshot, the newest frame replaces the previous value.
-
-## BLE Monitor Control Packets
-
-ADD:
-
-```text
-[0]    opcode = 0x01
-[1]    seq
-[2]    count
-[3..]  count * u32 CAN IDs
-```
-
-REMOVE:
-
-```text
-[0]    opcode = 0x02
-[1]    seq
-[2]    count
-[3..]  count * u32 CAN IDs
-```
-
-CLEAR:
-
-```text
-[0]  opcode = 0x03
-[1]  seq
-```
-
-## BLE Monitor Config Response
-
-```text
-[0]  opcode = 0x80
-[1]  seq
-[2]  status
-[3]  current_monitor_count
-```
-
-Status codes:
-
-- `0x00` OK
-- `0x01` invalid_opcode
-- `0x02` invalid_length
-- `0x03` monitor_full
-- `0x04` duplicate_id
-- `0x05` invalid_can_id
-- `0x06` internal_error
-
-## BLE Monitor Data Notify Packet
-
-```text
-[0]     opcode = 0x81
-[1]     frame_count
-[2..]   repeated frames, 13 bytes each:
-          u32 can_id
-          u8  dlc
-          u8[8] data
-```
-
-Each frame uses a fixed 13-byte layout so receivers can parse monitor data
-without schema negotiation.
-
-## BLE Request Packets
-
-### Request Only
-
-Exact length: 15 bytes.
-
-```text
-[0]      seq
-[1]      flags
-           bit0 = expect_can_response
-           bit1 = tx_can_id_extended
-           bit2 = response_id_extended
-           bit3..7 reserved = 0
-[2..5]   tx_can_id
-[6]      dlc 0-8
-[7..14]  payload[8]
-```
-
-For request-only commands, `expect_can_response` is clear. Firmware transmits
-the CAN frame and does not send a BLE notification.
-
-### Request With Response
-
-Exact length: 25 bytes.
-
-```text
-[0]       seq
-[1]       flags
-          bit0 = expect_can_response
-          bit1 = tx_can_id_extended
-          bit2 = response_id_extended
-          bit3..7 reserved = 0
-[2..5]    tx_can_id
-[6..9]    response_id_start
-[10..13]  response_id_end
-[14..15]  timeout_ms (0-65535 ms)
-[16]      dlc 0-8
-[17..24]  payload[8]
-```
-
-For request/response reads, `expect_can_response` is set. The response ID range
-is inclusive. Firmware always sends one BLE notification for the request.
-Request/response receive is ISO-TP: single-frame or first-frame plus
-consecutive frames, with flow control generated by firmware. A successful CAN
-response also confirms that the transmit path succeeded well enough for the ECU
-to answer; failures are reported through the response `status`.
-
-### Request Notify Response
-
-```text
-[0]      seq
-[1]      status
-[2]      flags
-           bit0 = response_can_id_extended
-[3..6]   response_can_id
-[7]      payload_len
-[8..]    payload
-```
-
-The response is always one BLE notification. `payload` is the reassembled
-ISO-TP message, not a raw CAN frame. `payload_len` is the number of valid
-payload bytes in this notification. The maximum payload is 234 bytes.
-
-Request status codes:
-
-- `0x00` OK
-- `0xE1` bad_len
-- `0xE2` bad_dlc
-- `0xE3` can_tx_fail
-- `0xE4` can_rx_timeout
-- `0xE5` isotp_invalid
-- `0xE6` isotp_overflow
-- `0xE7` invalid_can_id
-- `0xE8` busy
-
-## Final Rule
-
-DBC is the physical CAN payload decoder. YAML is the source of transport,
-workflow, request bytes, expected replies, monitor definitions, and
-applicability. Capabilities are the stable universal API. Firmware BLE stays
-limited to the three primitives: configure monitor, request/response, and
-request-only.
+See the [changelog](CHANGELOG.md), [validation limits](docs/validation.md#remaining-validation-work) and [remaining implementation plan](vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up). Runtime implementations and BLE interfaces are outside this repository's standard/tooling scope.
