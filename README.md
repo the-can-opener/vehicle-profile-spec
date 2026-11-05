@@ -1,4 +1,4 @@
-# Vehicle Profile Standard — format 2
+# Vehicle Profile Standard 2.0
 
 [Overview](#overview) · [Vehicle Signal Specification](#vehicle-signal-specification) · [Quick start](#quick-start) · [Example](#example) · [Specification reference](#specification-reference) · [Guides and resources](#guides-and-resources) · [Development](#development)
 
@@ -8,14 +8,14 @@ The Vehicle Profile Standard (format 2) defines how a vehicle exposes data and a
 
 ### Core concepts
 
-| Concept | Role in a package |
-|---|---|
-| **Manifest** | Declares package identity, version, VSS release, channels, DBC assets, fixtures, and ordered documents. |
-| **Properties** | Binds canonical VSS paths to passive signals (`read.signal`), active requests (`read.query`), static values (`value`), or commands (`write`). |
-| **Endpoints and sources** | Defines reusable ECU addressing/framing (`endpoints`) and shared signal or query acquisition (`sources`). |
-| **Steps and sequences** | Expresses request bytes, expected response prefixes, waits, and reusable command sequences (`sequences`). |
-| **Named queries and actions** | Defines diagnostic reads (`queries`) and state-changing commands (`actions`) that do not map to a single VSS property. |
-| **Composition** | Merges ordered documents and overlays with explicit replacement, deletion, and vehicle applicability rules. |
+| Concept                       | Role in a package                                                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Manifest**                  | Declares package identity, version, VSS release, channels, DBC assets, fixtures, and ordered documents.                                       |
+| **Properties**                | Binds canonical VSS paths to passive signals (`read.signal`), active requests (`read.query`), static values (`value`), or commands (`write`). |
+| **Endpoints and sources**     | Defines reusable ECU addressing/framing (`endpoints`) and shared signal or query acquisition (`sources`).                                     |
+| **Steps and sequences**       | Expresses request bytes, expected response prefixes, waits, and reusable command sequences (`sequences`).                                     |
+| **Named queries and actions** | Defines diagnostic reads (`queries`) and state-changing commands (`actions`) that do not map to a single VSS property.                        |
+| **Composition**               | Merges ordered documents and overlays with explicit replacement, deletion, and vehicle applicability rules.                                   |
 
 ### Runtime model
 
@@ -60,8 +60,8 @@ To build a new package from scratch, follow the [authoring guide](docs/authoring
 
 This illustrative single-file package omits `documents`, so `vehicle.yaml` serves as both the manifest and the binding document (`DriverSide` assumes left-hand drive):
 
-- **`Vehicle.Cabin.Door.Row1.DriverSide.IsOpen`** (`FRONT_LEFT_DOOR_OPEN`) — read-only sensor decoded from bit 0 of CAN frame `60D` (`0` = `false`, `1` = `true`).
-- **`Vehicle.Cabin.IsCentralLockEngaged`** (`LOCKED`, `LOCK`, `UNLOCK`) — actuator with a passive state `read` on bit 1 of CAN frame `60D` and a `write` that sends lock (`"true"`) and unlock (`"false"`) commands to the `body` ISO-TP endpoint. A `70 38` response acknowledges the command without mutating the observed state.
+- `Vehicle.Cabin.Door.Row1.DriverSide.IsOpen` (`FRONT_LEFT_DOOR_OPEN`) — read-only sensor decoded from bit 0 of CAN frame `60D` (`0` = `false`, `1` = `true`).
+- `Vehicle.Cabin.IsCentralLockEngaged` (`LOCKED`, `LOCK`, `UNLOCK`) — actuator with a passive state `read` on bit 1 of CAN frame `60D` and a `write` that sends lock (`"true"`) and unlock (`"false"`) commands to the `body` ISO-TP endpoint. A `70 38` response acknowledges the command without mutating the observed state.
 
 ```yaml
 manifest: 1
@@ -136,11 +136,11 @@ properties:
 
 ### Checked-in example packages
 
-| Package | Highlights | Files |
-|---|---|---|
-| **Universal OBD** | Mode `01`/`09` queries (`Vehicle.Speed`, `RPM`, `VIN`) and a named PID bitmap query | [vehicle.yaml](examples/universal-obd/vehicle.yaml) · [fixtures.yaml](examples/universal-obd/fixtures.yaml) |
-| **Synthetic HVAC** | Shared signal sources, passive acquisition, and a scaled numeric actuator write | [README](examples/hvac-synthetic/README.md) · [vehicle.yaml](examples/hvac-synthetic/vehicle.yaml) · [fixtures.yaml](examples/hvac-synthetic/fixtures.yaml) |
-| **Nissan Versa** | Split documents, DBC signals, shared diagnostic sequences, horn cases, and central lock writes | [README](examples/nissan-versa/README.md) · [vehicle.yaml](examples/nissan-versa/vehicle.yaml) |
+| Package            | Highlights                                                                                     | Files                                                                                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Universal OBD**  | Mode `01`/`09` queries (`Vehicle.Speed`, `RPM`, `VIN`) and a named PID bitmap query            | [vehicle.yaml](examples/universal-obd/vehicle.yaml) · [fixtures.yaml](examples/universal-obd/fixtures.yaml)                                                 |
+| **Synthetic HVAC** | Shared signal sources, passive acquisition, and a scaled numeric actuator write                | [README](examples/hvac-synthetic/README.md) · [vehicle.yaml](examples/hvac-synthetic/vehicle.yaml) · [fixtures.yaml](examples/hvac-synthetic/fixtures.yaml) |
+| **Nissan Versa**   | Split documents, DBC signals, shared diagnostic sequences, horn cases, and central lock writes | [README](examples/nissan-versa/README.md) · [vehicle.yaml](examples/nissan-versa/vehicle.yaml)                                                              |
 
 Examples and fixtures illustrate the format. Validation performs no vehicle I/O and does not prove physical compatibility.
 
@@ -148,17 +148,17 @@ Examples and fixtures illustrate the format. Validation performs no vehicle I/O 
 
 The [documentation index](docs/README.md) is the maintained standard:
 
-| Document | Scope |
-|---|---|
-| [Package and file format](docs/package.md) | Directory and ZIP layout, safe paths, JSON-compatible YAML, and asset limits |
-| [Manifest and applicability](docs/manifest.md) | Package identity, versions, document order, DBC assets, and vehicle selectors |
-| [Properties and bindings](docs/document.md) | Reads, shared sources, writes, endpoints, steps, sequences, queries, and actions |
-| [VSS paths and semantics](docs/vss.md) | Canonical identities, roles, units, aliases, and catalog resolution |
-| [Decoding and encoding](docs/decoding.md) | Byte and bit extraction, scaling, enums, and request encoding |
-| [DBC assets](docs/dbc.md) | Signal layout and the boundary between DBC data and binding behavior |
-| [Composition and overlays](docs/composition.md) | Ordered replacement, deletion, applicability, and conflict rules |
-| [Extensions and configuration](docs/extensions.md) | Versioned requirements and non-VSS configuration |
-| [Fixtures](docs/fixtures.md) | Positive and negative test cases and expected outcomes |
+| Document                                           | Scope                                                                            |
+| -------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Package and file format](docs/package.md)         | Directory and ZIP layout, safe paths, JSON-compatible YAML, and asset limits     |
+| [Manifest and applicability](docs/manifest.md)     | Package identity, versions, document order, DBC assets, and vehicle selectors    |
+| [Properties and bindings](docs/document.md)        | Reads, shared sources, writes, endpoints, steps, sequences, queries, and actions |
+| [VSS paths and semantics](docs/vss.md)             | Canonical identities, roles, units, aliases, and catalog resolution              |
+| [Decoding and encoding](docs/decoding.md)          | Byte and bit extraction, scaling, enums, and request encoding                    |
+| [DBC assets](docs/dbc.md)                          | Signal layout and the boundary between DBC data and binding behavior             |
+| [Composition and overlays](docs/composition.md)    | Ordered replacement, deletion, applicability, and conflict rules                 |
+| [Extensions and configuration](docs/extensions.md) | Versioned requirements and non-VSS configuration                                 |
+| [Fixtures](docs/fixtures.md)                       | Positive and negative test cases and expected outcomes                           |
 
 ## Guides and resources
 
