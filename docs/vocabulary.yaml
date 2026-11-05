@@ -22,7 +22,8 @@
     "action": "AUTO_CONDITIONING_STOP"
   },
   "BARO": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.BarometricPressure."
+    "note": "COVESA OBD overlay, PID 33. Unit is kPa.",
+    "path": "Vehicle.OBD.BarometricPressure"
   },
   "BATTERY_LEVEL": {
     "note": "Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.",
@@ -113,7 +114,8 @@
     "target": true
   },
   "DIST_SINCE_CLEAR": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.DistanceSinceDTCClear."
+    "note": "COVESA OBD overlay, PID 31. Unit is km.",
+    "path": "Vehicle.OBD.DistanceSinceDTCClear"
   },
   "DRIVER_TEMP_SETTING": {
     "path": "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
@@ -128,7 +130,8 @@
     "action": "ECU_WAKE"
   },
   "ENGINE_LOAD": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.EngineLoad."
+    "note": "COVESA OBD overlay, PID 04. Unit is percent.",
+    "path": "Vehicle.OBD.EngineLoad"
   },
   "ESTIMATED_RANGE": {
     "note": "Remaining range from all energy sources. VSS unit is meters.",
@@ -148,10 +151,12 @@
     "path": "Vehicle.Powertrain.FuelSystem.RelativeLevel"
   },
   "FUEL_PRESSURE": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.FuelPressure."
+    "note": "COVESA OBD overlay, PID 0A. Unit is kPa.",
+    "path": "Vehicle.OBD.FuelPressure"
   },
   "FUEL_RATE": {
-    "reason": "Engine fuel rate in l/h is Vehicle.OBD.FuelRate in the OBD overlay, which is not in the VSS 6.1 catalog. FuelSystem.InstantConsumption is l/100km."
+    "note": "Engine fuel rate. COVESA OBD overlay, PID 5E. Unit is l/h. FuelSystem.InstantConsumption is l/100km.",
+    "path": "Vehicle.OBD.FuelRate"
   },
   "GEAR": {
     "enum": {
@@ -180,13 +185,15 @@
     "target": true
   },
   "IAT": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.IntakeTemp."
+    "note": "COVESA OBD overlay, PID 0F. Unit is Celsius.",
+    "path": "Vehicle.OBD.IntakeTemp"
   },
   "IDEAL_RANGE": {
     "reason": "VSS has no ideal or rated range separate from remaining range."
   },
   "LAMBDA": {
-    "reason": "Wideband lambda is per sensor at Vehicle.OBD.O2WR.Sensor*.Lambda in the OBD overlay, which is not in the VSS 6.1 catalog."
+    "note": "First wideband oxygen sensor, PID 24. Sensors 2 through 8 are Vehicle.OBD.O2WR.Sensor2.Lambda through Sensor8.Lambda.",
+    "path": "Vehicle.OBD.O2WR.Sensor1.Lambda"
   },
   "LEFT_SIGNAL": {
     "path": "Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling",
@@ -208,10 +215,12 @@
     "target": true
   },
   "LTFT_B1": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim1."
+    "note": "COVESA OBD overlay, PID 07. Unit is percent.",
+    "path": "Vehicle.OBD.LongTermFuelTrim1"
   },
   "LTFT_B2": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim2."
+    "note": "COVESA OBD overlay, PID 09. Unit is percent.",
+    "path": "Vehicle.OBD.LongTermFuelTrim2"
   },
   "MAF": {
     "path": "Vehicle.Powertrain.CombustionEngine.MAF"
@@ -220,13 +229,16 @@
     "path": "Vehicle.Powertrain.CombustionEngine.MAP"
   },
   "MIL_STATUS": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.Status.IsMILOn."
+    "note": "Malfunction indicator lamp. COVESA OBD overlay, PID 01.",
+    "path": "Vehicle.OBD.Status.IsMILOn"
   },
   "MODULE_VOLTAGE": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ControlModuleVoltage."
+    "note": "COVESA OBD overlay, PID 42. Unit is V.",
+    "path": "Vehicle.OBD.ControlModuleVoltage"
   },
   "O2_DATA": {
-    "reason": "Oxygen sensors are Vehicle.OBD.O2.Sensor1 through Sensor8 in the OBD overlay, which is not in the VSS 6.1 catalog."
+    "note": "First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.",
+    "path": "Vehicle.OBD.O2.Sensor1.Voltage"
   },
   "ODOMETER": {
     "note": "Lifetime distance. VSS unit is meters.",
@@ -255,7 +267,7 @@
     "path": "Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected"
   },
   "READINESS_STATUS": {
-    "reason": "OBD readiness monitors are not a single signal. The OBD overlay is not in the VSS 6.1 catalog."
+    "reason": "OBD readiness monitors are a bitmap in PID 01 and are not a single signal. MIL state is Vehicle.OBD.Status.IsMILOn."
   },
   "REAR_LEFT_DOOR_OPEN": {
     "note": "Left/right mapping assumes left-hand-drive; review vehicle applicability.",
@@ -291,7 +303,8 @@
     "target": true
   },
   "RUNTIME": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.RunTime."
+    "note": "Engine run time. COVESA OBD overlay, PID 1F. Unit is seconds.",
+    "path": "Vehicle.OBD.RunTime"
   },
   "SCHEDULE_SOFTWARE_UPDATE": {
     "action": "SCHEDULE_SOFTWARE_UPDATE"
@@ -318,10 +331,12 @@
     "path": "Vehicle.Chassis.SteeringWheel.Angle"
   },
   "STFT_B1": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim1."
+    "note": "COVESA OBD overlay, PID 06. Unit is percent.",
+    "path": "Vehicle.OBD.ShortTermFuelTrim1"
   },
   "STFT_B2": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim2."
+    "note": "COVESA OBD overlay, PID 08. Unit is percent.",
+    "path": "Vehicle.OBD.ShortTermFuelTrim2"
   },
   "SUPPORTED_PIDS_01_20": {
     "query": "SUPPORTED_PIDS_01_20"
@@ -331,7 +346,24 @@
     "path": "Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete"
   },
   "TIMING_ADVANCE": {
-    "reason": "Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.TimingAdvance."
+    "note": "COVESA OBD overlay, PID 0E. Unit is degrees. The value is the angle, not the raw OBD byte.",
+    "path": "Vehicle.OBD.TimingAdvance"
+  },
+  "TPMS_FRONT_LEFT": {
+    "note": "Front-axle left tire pressure. VSS unit is kPa.",
+    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure"
+  },
+  "TPMS_FRONT_RIGHT": {
+    "note": "Front-axle right tire pressure. VSS unit is kPa.",
+    "path": "Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure"
+  },
+  "TPMS_REAR_LEFT": {
+    "note": "Rear-axle left tire pressure. VSS unit is kPa.",
+    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure"
+  },
+  "TPMS_REAR_RIGHT": {
+    "note": "Rear-axle right tire pressure. VSS unit is kPa.",
+    "path": "Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure"
   },
   "TPS": {
     "path": "Vehicle.Powertrain.CombustionEngine.TPS"

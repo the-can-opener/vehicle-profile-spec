@@ -47,3 +47,174 @@ if count != 1:
     raise SystemExit(f"expected one Cabin.Door branch, found {count}")
 path.write_text(text.replace(door, locked, 1))
 PY
+# Vehicle.OBD comes from the v6.1 OBD overlay. The standard catalog export omits it.
+python3 - "$task_tmp/overlays/extensions/OBD/OBD.vspec" catalog/vss-6.1.json <<'PY'
+import copy
+import json
+import re
+import sys
+from pathlib import Path
+
+def parse_scalar(text):
+    text = text.strip()
+    if text in ("true", "false"):
+        return text == "true"
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in ("'", '"'):
+        return text[1:-1]
+    if text.startswith("[") and text.endswith("]"):
+        return parse_flow(text[1:-1])
+    if re.fullmatch(r"-?\d+", text):
+        return int(text)
+    if re.fullmatch(r"-?\d+\.\d+", text):
+        return float(text)
+    return text
+
+def parse_flow(text):
+    items, buf, quote = [], "", None
+    for char in text:
+        if quote:
+            buf += char
+            if char == quote:
+                quote = None
+            continue
+        if char in ("'", '"'):
+            quote = char
+            buf += char
+        elif char == ",":
+            if buf.strip():
+                items.append(parse_scalar(buf))
+            buf = ""
+        else:
+            buf += char
+    if buf.strip():
+        items.append(parse_scalar(buf))
+    return items
+
+def parse_vspec(text):
+    lines = []
+    for raw in text.splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        lines.append((len(raw) - len(raw.lstrip(" ")), raw.strip()))
+
+    def parse_block(index, indent):
+        node = {}
+        while index < len(lines) and lines[index][0] >= indent:
+            cur, line = lines[index]
+            if cur > indent:
+                raise SystemExit(f"unexpected indent: {line}")
+            key, _, value = line.partition(":")
+            value = value.strip()
+            index += 1
+            if value:
+                node[key] = parse_scalar(value)
+                continue
+            if index < len(lines) and lines[index][0] > cur and lines[index][1].startswith("- "):
+                child_indent = lines[index][0]
+                items = []
+                while (
+                    index < len(lines)
+                    and lines[index][0] == child_indent
+                    and lines[index][1].startswith("- ")
+                ):
+                    items.append(parse_scalar(lines[index][1][2:]))
+                    index += 1
+                node[key] = items
+                continue
+            child, index = parse_block(index, cur + 2)
+            node[key] = child
+        return node, index
+
+    tree, index = parse_block(0, 0)
+    if index != len(lines):
+        raise SystemExit(f"unparsed overlay line: {lines[index][1]}")
+    return tree
+
+def build(flat):
+    obd = {"type": "branch", "description": "OBD data.", "children": {}}
+
+    def branch(parent, name):
+        node = parent["children"].get(name)
+        if node is None:
+            node = {"type": "branch", "children": {}}
+            parent["children"][name] = node
+        elif node.get("type") != "branch":
+            raise SystemExit(f"{name} is not a branch")
+        node.setdefault("children", {})
+        return node
+
+    for key, spec in flat.items():
+        node = obd
+        parts = key.split(".")
+        for part in parts[:-1]:
+            node = branch(node, part)
+        name = parts[-1]
+        if spec.get("type") == "branch":
+            existing = branch(node, name)
+            existing.update(spec)
+        elif name in node["children"]:
+            raise SystemExit(f"duplicate OBD signal {key}")
+        else:
+            node["children"][name] = dict(spec)
+    return obd
+
+def expand(node):
+    for child in list(node.get("children", {}).values()):
+        if child.get("type") == "branch":
+            expand(child)
+    specs = node.get("instances")
+    if not specs:
+        return
+    names = []
+    for spec in specs:
+        match = re.fullmatch(r"([A-Za-z]+)\[(\d+),(\d+)\]", spec)
+        if not match:
+            raise SystemExit(f"unsupported instance {spec}")
+        prefix, start, end = match.group(1), int(match.group(2)), int(match.group(3))
+        names.extend(f"{prefix}{i}" for i in range(start, end + 1))
+    signals = node.pop("children")
+    node.pop("instances")
+    node["children"] = {
+        name: {
+            "children": copy.deepcopy(signals),
+            "description": node["description"],
+            "type": "branch",
+        }
+        for name in names
+    }
+
+def order(node):
+    if node.get("type") == "branch":
+        result = {"children": {key: order(value) for key, value in node["children"].items()}}
+        if "comment" in node:
+            result["comment"] = node["comment"]
+        result["description"] = node["description"]
+        result["type"] = "branch"
+        return result
+    result = {}
+    if "allowed" in node:
+        result["allowed"] = node["allowed"]
+    result["datatype"] = node["datatype"]
+    result["description"] = node["description"]
+    if "max" in node:
+        result["max"] = node["max"]
+    if "min" in node:
+        result["min"] = node["min"]
+    result["type"] = node["type"]
+    if "unit" in node:
+        result["unit"] = node["unit"]
+    return result
+
+overlay_path, catalog_path = sys.argv[1:]
+obd = build(parse_vspec(Path(overlay_path).read_text()))
+expand(obd)
+obd["comment"] = (
+    "Included from the COVESA OBD overlay. Upstream VSS 6.1 does not contain Vehicle.OBD."
+)
+catalog = json.loads(Path(catalog_path).read_text())
+children = catalog["Vehicle"]["children"]
+if "OBD" in children:
+    raise SystemExit("Vehicle.OBD already present in the standard export")
+children["OBD"] = order(obd)
+Path(catalog_path).write_text(json.dumps(catalog))
+PY

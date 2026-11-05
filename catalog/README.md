@@ -6,4 +6,6 @@ Run `make catalog VSS_SOURCE=/path/to/vehicle_signal_specification`. The script 
 
 `Vehicle.Chassis.SteeringWheel.Angle` is `float` in this catalog. Upstream VSS 6.1 declares it as `int16`. The local type keeps fractional degree signals, such as a 0.1 deg CAN factor, exact. The same note is on the signal in the sibling `vehicle_signal_specification` tree (`spec/Chassis/Chassis.vspec`).
 
-`Vehicle.Cabin.Door.IsLocked` is a boolean actuator added in this catalog. Upstream VSS 6.1 has no node on the `Door` branch; it only has `IsLocked` on each door. True locks every cabin door and false unlocks every cabin door, as one command. It does not report or command a single door. `scripts/catalog.sh` reapplies both departures after every export.
+`Vehicle.Cabin.Door.IsLocked` is a boolean actuator added in this catalog. Upstream VSS 6.1 has no node on the `Door` branch; it only has `IsLocked` on each door. True locks every cabin door and false unlocks every cabin door, as one command. It does not report or command a single door.
+
+`Vehicle.OBD` is the COVESA OBD overlay from the same tag (`overlays/extensions/OBD.vspec`). Upstream VSS 6.1 removed that branch from the standard catalog. `scripts/catalog.sh` reapplies the steering-wheel type, the door actuator, and this overlay after every export.

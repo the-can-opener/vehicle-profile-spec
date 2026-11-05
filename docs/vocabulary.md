@@ -11,7 +11,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `ADD_PRECONDITION_SCHEDULE`: action ADD_PRECONDITION_SCHEDULE
 - `AUTO_CONDITIONING_START`: action AUTO_CONDITIONING_START
 - `AUTO_CONDITIONING_STOP`: action AUTO_CONDITIONING_STOP
-- `BARO`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.BarometricPressure.
+- `BARO`: Vehicle.OBD.BarometricPressure; COVESA OBD overlay, PID 33. Unit is kPa.
 - `BATTERY_LEVEL`: Vehicle.Powertrain.TractionBattery.StateOfCharge.Displayed; Customer-displayed state of charge. Physical state of charge is StateOfCharge.Current.
 - `BATTERY_RANGE`: Vehicle.Powertrain.TractionBattery.Range; Battery-only remaining range. VSS unit is meters.
 - `BRAKE_LIGHTS`: Vehicle.Body.Lights.Brake.IsActive
@@ -34,38 +34,38 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `CLOSE_TRUNK`: Vehicle.Body.Trunk.Rear.IsOpen (write target false)
 - `DEFROST_OFF`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target false); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
 - `DEFROST_ON`: Vehicle.Cabin.HVAC.IsFrontDefrosterActive (write target true); Front defroster. Rear defroster is Vehicle.Cabin.HVAC.IsRearDefrosterActive.
-- `DIST_SINCE_CLEAR`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.DistanceSinceDTCClear.
+- `DIST_SINCE_CLEAR`: Vehicle.OBD.DistanceSinceDTCClear; COVESA OBD overlay, PID 31. Unit is km.
 - `DRIVER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature
 - `DRIVER_TORQUE_DEMAND`: unmapped: OBD driver-demand engine torque (PID 61) is not in the VSS 6.1 catalog or the OBD overlay.
 - `ECT`: Vehicle.Powertrain.CombustionEngine.EngineCoolant.Temperature
 - `ECU_WAKE`: action ECU_WAKE
-- `ENGINE_LOAD`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.EngineLoad.
+- `ENGINE_LOAD`: Vehicle.OBD.EngineLoad; COVESA OBD overlay, PID 04. Unit is percent.
 - `ESTIMATED_RANGE`: Vehicle.Powertrain.Range; Remaining range from all energy sources. VSS unit is meters.
 - `FRONT_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `FRONT_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row1.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `FUEL_LEVEL`: Vehicle.Powertrain.FuelSystem.RelativeLevel
-- `FUEL_PRESSURE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.FuelPressure.
-- `FUEL_RATE`: unmapped: Engine fuel rate in l/h is Vehicle.OBD.FuelRate in the OBD overlay, which is not in the VSS 6.1 catalog. FuelSystem.InstantConsumption is l/100km.
+- `FUEL_PRESSURE`: Vehicle.OBD.FuelPressure; COVESA OBD overlay, PID 0A. Unit is kPa.
+- `FUEL_RATE`: Vehicle.OBD.FuelRate; Engine fuel rate. COVESA OBD overlay, PID 5E. Unit is l/h. FuelSystem.InstantConsumption is l/100km.
 - `GEAR`: Vehicle.Powertrain.Transmission.SelectedGear; Selected gear. 126 = park, -1 = reverse, 0 = neutral, 127 = drive.
 - `HAZARD_LIGHTS`: Vehicle.Body.Lights.Hazard.IsSignaling (write target true)
 - `HIGH_BEAM`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HIGH_BEAMS`: Vehicle.Body.Lights.Beam.High.IsOn (write target true)
 - `HORN`: Vehicle.Body.Horn.IsActive (write target true)
-- `IAT`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.IntakeTemp.
+- `IAT`: Vehicle.OBD.IntakeTemp; COVESA OBD overlay, PID 0F. Unit is Celsius.
 - `IDEAL_RANGE`: unmapped: VSS has no ideal or rated range separate from remaining range.
-- `LAMBDA`: unmapped: Wideband lambda is per sensor at Vehicle.OBD.O2WR.Sensor*.Lambda in the OBD overlay, which is not in the VSS 6.1 catalog.
+- `LAMBDA`: Vehicle.OBD.O2WR.Sensor1.Lambda; First wideband oxygen sensor, PID 24. Sensors 2 through 8 are Vehicle.OBD.O2WR.Sensor2.Lambda through Sensor8.Lambda.
 - `LEFT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Left.IsSignaling (write target true)
 - `LOCK`: Vehicle.Cabin.Door.IsLocked (write target true)
 - `LOCKED`: Vehicle.Cabin.Door.IsLocked
 - `LOW_BEAM`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
 - `LOW_BEAMS`: Vehicle.Body.Lights.Beam.Low.IsOn (write target true)
-- `LTFT_B1`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim1.
-- `LTFT_B2`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.LongTermFuelTrim2.
+- `LTFT_B1`: Vehicle.OBD.LongTermFuelTrim1; COVESA OBD overlay, PID 07. Unit is percent.
+- `LTFT_B2`: Vehicle.OBD.LongTermFuelTrim2; COVESA OBD overlay, PID 09. Unit is percent.
 - `MAF`: Vehicle.Powertrain.CombustionEngine.MAF
 - `MAP`: Vehicle.Powertrain.CombustionEngine.MAP
-- `MIL_STATUS`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.Status.IsMILOn.
-- `MODULE_VOLTAGE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ControlModuleVoltage.
-- `O2_DATA`: unmapped: Oxygen sensors are Vehicle.OBD.O2.Sensor1 through Sensor8 in the OBD overlay, which is not in the VSS 6.1 catalog.
+- `MIL_STATUS`: Vehicle.OBD.Status.IsMILOn; Malfunction indicator lamp. COVESA OBD overlay, PID 01.
+- `MODULE_VOLTAGE`: Vehicle.OBD.ControlModuleVoltage; COVESA OBD overlay, PID 42. Unit is V.
+- `O2_DATA`: Vehicle.OBD.O2.Sensor1.Voltage; First narrowband sensor voltage, PID 14 byte A. Short-term trim is Vehicle.OBD.O2.Sensor1.ShortTermFuelTrim. Sensors 2 through 8 follow the same shape.
 - `ODOMETER`: Vehicle.TraveledDistance; Lifetime distance. VSS unit is meters.
 - `OIL_TEMP`: Vehicle.Powertrain.CombustionEngine.EngineOil.Temperature
 - `OPEN_FRUNK`: Vehicle.Body.Trunk.Front.IsOpen (write target true); Front luggage compartment. Vehicle.Body.Hood is the engine cover.
@@ -73,7 +73,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `OUTSIDE_TEMP`: Vehicle.Exterior.AirTemperature
 - `PASSENGER_TEMP_SETTING`: Vehicle.Cabin.HVAC.Station.Row1.Passenger.Temperature
 - `PLUGGED_IN`: Vehicle.Powertrain.TractionBattery.Charging.ChargingPort.AnyPosition.IsChargingCableConnected; Single charging port. Use a position instance instead of AnyPosition when the port location is known.
-- `READINESS_STATUS`: unmapped: OBD readiness monitors are not a single signal. The OBD overlay is not in the VSS 6.1 catalog.
+- `READINESS_STATUS`: unmapped: OBD readiness monitors are a bitmap in PID 01 and are not a single signal. MIL state is Vehicle.OBD.Status.IsMILOn.
 - `REAR_LEFT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.DriverSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `REAR_RIGHT_DOOR_OPEN`: Vehicle.Cabin.Door.Row2.PassengerSide.IsOpen (write target true); Left/right mapping assumes left-hand-drive; review vehicle applicability.
 - `REMOTE_START`: action REMOTE_START
@@ -83,7 +83,7 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `RIGHT_SIGNAL`: Vehicle.Body.Lights.DirectionIndicator.Right.IsSignaling (write target true)
 - `RPM`: Vehicle.Powertrain.CombustionEngine.Speed
 - `RUNNING_LIGHTS`: Vehicle.Body.Lights.Running.IsOn (write target true)
-- `RUNTIME`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.RunTime.
+- `RUNTIME`: Vehicle.OBD.RunTime; Engine run time. COVESA OBD overlay, PID 1F. Unit is seconds.
 - `SCHEDULE_SOFTWARE_UPDATE`: action SCHEDULE_SOFTWARE_UPDATE
 - `SEATBELT_WARNING`: unmapped: VSS has per-seat IsBelted and no seatbelt warning lamp.
 - `SET_CHARGE_LIMIT`: unmapped: The limit is a caller-supplied value, not a fixed write target. The signal is Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit.
@@ -92,11 +92,15 @@ Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by h
 - `SIGNAL_OFF`: action SIGNAL_OFF
 - `SPEED`: Vehicle.Speed
 - `STEERING_ANGLE`: Vehicle.Chassis.SteeringWheel.Angle
-- `STFT_B1`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim1.
-- `STFT_B2`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.ShortTermFuelTrim2.
+- `STFT_B1`: Vehicle.OBD.ShortTermFuelTrim1; COVESA OBD overlay, PID 06. Unit is percent.
+- `STFT_B2`: Vehicle.OBD.ShortTermFuelTrim2; COVESA OBD overlay, PID 08. Unit is percent.
 - `SUPPORTED_PIDS_01_20`: query SUPPORTED_PIDS_01_20
 - `TIME_TO_FULL_CHARGE`: Vehicle.Powertrain.TractionBattery.Charging.TimeToComplete; Includes a scheduled delay before charging starts. VSS unit is seconds.
-- `TIMING_ADVANCE`: unmapped: Only in the OBD overlay, which is not part of the VSS 6.1 catalog: Vehicle.OBD.TimingAdvance.
+- `TIMING_ADVANCE`: Vehicle.OBD.TimingAdvance; COVESA OBD overlay, PID 0E. Unit is degrees. The value is the angle, not the raw OBD byte.
+- `TPMS_FRONT_LEFT`: Vehicle.Chassis.Axle.Row1.Wheel.Left.Tire.Pressure; Front-axle left tire pressure. VSS unit is kPa.
+- `TPMS_FRONT_RIGHT`: Vehicle.Chassis.Axle.Row1.Wheel.Right.Tire.Pressure; Front-axle right tire pressure. VSS unit is kPa.
+- `TPMS_REAR_LEFT`: Vehicle.Chassis.Axle.Row2.Wheel.Left.Tire.Pressure; Rear-axle left tire pressure. VSS unit is kPa.
+- `TPMS_REAR_RIGHT`: Vehicle.Chassis.Axle.Row2.Wheel.Right.Tire.Pressure; Rear-axle right tire pressure. VSS unit is kPa.
 - `TPS`: Vehicle.Powertrain.CombustionEngine.TPS
 - `UNLOCK`: Vehicle.Cabin.Door.IsLocked (write target false)
 - `VIN`: Vehicle.VehicleIdentification.VIN

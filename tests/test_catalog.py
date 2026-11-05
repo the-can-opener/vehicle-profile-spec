@@ -13,6 +13,9 @@ def test_pinned_full_catalog():
     door_lock = cat["Vehicle.Cabin.Door.IsLocked"]
     assert door_lock["type"] == "actuator" and door_lock["datatype"] == "boolean"
     assert cat["Vehicle.Cabin.Door.Row1.DriverSide.IsLocked"]["type"] == "actuator"
+    assert cat["Vehicle.OBD.EngineLoad"]["unit"] == "percent"
+    assert cat["Vehicle.OBD.O2.Sensor8.Voltage"]["unit"] == "V"
+    assert cat["Vehicle.OBD.O2WR.Sensor1.Lambda"]["datatype"] == "float"
     with pytest.raises(ProfileError, match="VSS_UNSUPPORTED_RELEASE"):
         load_catalog("6.0")
 
