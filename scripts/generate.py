@@ -16,6 +16,12 @@ files = {
     for name, schema in schemas().items()
 }
 files[root / "skills/validating-vehicle-profiles/error-codes.md"] = error_reference()
+
+
+def vocabulary_cell(value):
+    return value.replace("|", "\\|").replace("\n", " ")
+
+
 vocabulary = json.loads((root / "docs/vocabulary.yaml").read_text())
 lines = [
     "# Keyword vocabulary",
@@ -24,23 +30,31 @@ lines = [
     "",
     "Generated from [vocabulary.yaml](vocabulary.yaml); do not edit this listing by hand.",
     "",
+    "| Keyword | Mapping | Unit | Write target | Notes |",
+    "|---|---|---|---|---|",
 ]
 for name, mapping in vocabulary.items():
     if "path" in mapping:
-        description = mapping["path"]
-        if "target" in mapping:
-            description += " (write target " + json.dumps(mapping["target"]) + ")"
-        if "unit" in mapping:
-            description += "; unit " + mapping["unit"]
-        if "note" in mapping:
-            description += "; " + mapping["note"]
+        mapped = f"`{mapping['path']}`"
+        note = mapping.get("note", "")
     elif "query" in mapping:
-        description = "query " + mapping["query"]
+        mapped = f"query `{mapping['query']}`"
+        note = ""
     elif "action" in mapping:
-        description = "action " + mapping["action"]
+        mapped = f"action `{mapping['action']}`"
+        note = ""
     else:
-        description = "unmapped: " + mapping["reason"]
-    lines.append(f"- `{name}`: {description}")
+        mapped = "unmapped"
+        note = mapping["reason"]
+    target = json.dumps(mapping["target"]) if "target" in mapping else ""
+    cells = [
+        f"`{name}`",
+        mapped,
+        mapping.get("unit", ""),
+        f"`{target}`" if target else "",
+        note,
+    ]
+    lines.append("| " + " | ".join(vocabulary_cell(cell) for cell in cells) + " |")
 lines.extend(
     [
         "",
