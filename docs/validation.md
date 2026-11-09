@@ -2,7 +2,7 @@
 
 [Overview](../README.md) · [Documentation index](README.md)
 
-On this page: [Validation layers](#validation-layers) · [Tool commands and limits](#tool-commands-and-limits) · [Strict exceptions and acceptance checks](#strict-exceptions-and-acceptance-checks) · [Remaining validation work](#remaining-validation-work)
+On this page: [Validation layers](#validation-layers) · [Tool commands and limits](#tool-commands-and-limits) · [Strict exceptions and acceptance checks](#strict-exceptions-and-acceptance-checks)
 
 ## Validation layers
 
@@ -29,7 +29,7 @@ The [fixture reference](fixtures.md) defines cases, expected outcomes and behavi
 
 Readers enforce 4 MiB per file, 16 MiB per package, 1000 listed/archive entries, and 100:1 maximum ZIP compression ratio. Directory readers inspect only listed assets; ZIP readers additionally reject unlisted executable assets. JSON-compatible YAML rejects non-string or duplicate keys, tags, anchors, aliases and nonfinite values. Date-like strings stay strings.
 
-`compose --package PATH -o package.zip` creates a deterministic archive of listed files; `compose --verify package.zip` reruns validation. `diff OLD NEW` compares resolved entries. Exports support json, tree, csv and property-value jsonschema. Checked-in authoring schemas are generated separately with `make schemas`; Pydantic and semantic checks enforce rules that JSON Schema alone cannot express.
+`compose --package PATH -o package.zip` creates a deterministic archive of listed files; `compose --verify package.zip` reruns validation. `diff OLD NEW` compares resolved entries. Exports support json, tree, csv and property-value jsonschema. Checked-in authoring schemas are generated separately with `make schemas`. Pydantic and semantic checks enforce rules that JSON Schema alone cannot express. The document schema permits null deletions and describes complete entries; the merge pipeline accepts an earlier partial entry when a later document replaces it before validation. Decoder checks do not cover every VSS datatype and range.
 
 See [generated error codes](../skills/validating-vehicle-profiles/error-codes.md). A schema-only success is not complete validation.
 
@@ -40,10 +40,6 @@ See [generated error codes](../skills/validating-vehicle-profiles/error-codes.md
 Only unknown fields can be excepted. Known fields, conflicting binding forms, references, applicability and VSS errors cannot be suppressed this way. Used exceptions are reported on stderr and in `--log-file`. Exceptions are never enabled implicitly by an authoring skill.
 
 `make mandatory_targets` runs tests, lint/format, type checks, generated-file checks, every non-legacy example, and an isolated wheel build/resource check. Wheel output is temporary. `make clean` removes disposable build/test caches but retains `tools/.venv` and all checked-in artifacts. Sequence validation is bounded to 64 nested calls and 10000 visited expanded steps.
-
-## Remaining validation work
-
-The implementation does not yet prove full decoder-output compatibility with every VSS datatype and range. The document authoring schema permits null deletions but still describes complete typed entries; earlier partial entries that are replaced before validation are accepted by the merge pipeline, not by that standalone schema. These gaps are tracked in the [implementation plan](../vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up).
 
 ## Related pages
 

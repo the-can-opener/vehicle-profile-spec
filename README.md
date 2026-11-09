@@ -178,4 +178,4 @@ make clean
 
 `make mandatory_targets` runs the test suite, linter, type checker, generated-file drift checks, example package validations, and wheel resource checks. `make clean` removes build and test caches while retaining the development environment and checked-in artifacts.
 
-See [validation limits](docs/validation.md#remaining-validation-work) for current tooling scope. Runtime implementations and BLE interfaces are outside this repository's scope.
+Runtime implementations and BLE interfaces are outside this repository's scope.

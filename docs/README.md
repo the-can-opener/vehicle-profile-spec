@@ -26,7 +26,7 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 
 - [Authoring guide](authoring-guide.md) — build a package from applicability through fixtures.
 - [Fixtures](fixtures.md) — describe positive and negative inputs and expected outcomes.
-- [Validation and CLI](validation.md) — validation layers, commands, strict exceptions and implementation limits.
+- [Validation and CLI](validation.md) — validation layers, commands, and strict exceptions.
 - [Migration](migration.md) — convert format 1 with explicit framing and an unmapped report.
 - [Keyword vocabulary](vocabulary.md) — generated mappings used by migration.
 - [Historical format 1 reference](format-1.md) — legacy input syntax, retained for migration only.
@@ -41,10 +41,10 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 - [Manifest schema](../schemas/manifest.schema.json), [document schema](../schemas/document.schema.json) and [fixture schema](../schemas/fixture.schema.json).
 - [Pinned VSS catalog and provenance](../catalog/README.md).
 - [Agent skills and installation](../skills/README.md).
-- [Changelog](../CHANGELOG.md) and [remaining implementation work](../vehicle_profile_format_2_6ee96dce.plan.md#remaining-work-at-wrap-up).
+- [Changelog](../CHANGELOG.md).
 
 ## Scope and conventions
 
 MUST and MUST NOT express requirements; SHOULD expresses a recommendation; MAY permits an option. This is an independent binding standard that uses COVESA VSS identities, not an adopted COVESA specification.
 
-The standard defines binding and runtime contracts. The Python tooling performs structural and semantic checks but does not execute vehicle commands or establish physical compatibility. See [remaining validation work](validation.md#remaining-validation-work) for current implementation gaps. BLE interfaces and firmware behavior are outside this standard.
+The standard defines binding and runtime contracts. The Python tooling performs structural and semantic checks but does not execute vehicle commands or establish physical compatibility. BLE interfaces and firmware behavior are outside this standard.
