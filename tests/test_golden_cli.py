@@ -68,7 +68,7 @@ def test_cli_error_log(tmp_path):
             "json",
             "--strict",
             "--package",
-            str(ROOT / "examples/legacy/nissan-versa-1-6"),
+            str(ROOT / "examples/legacy/nissan-versa"),
             "--log-file",
             str(log),
         ],

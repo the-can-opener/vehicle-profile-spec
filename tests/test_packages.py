@@ -373,7 +373,7 @@ def test_zip_duplicate(tmp_path):
 
 def test_legacy():
     with pytest.raises(ProfileError, match="DOC_LEGACY_FORMAT"):
-        resolve([ROOT / "examples/legacy/nissan-versa-1-6"])
+        resolve([ROOT / "examples/legacy/nissan-versa"])
 
 
 def test_unknown_field(package):

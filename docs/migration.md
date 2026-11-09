@@ -8,18 +8,18 @@ Format 2 replaces the keyword-based format 1 profile with packages and canonical
 
 Migration from the [format 1 profile](format-1.md):
 
-| Format 1 | Format 2 |
-|---|---|
-| `profile.yaml` with sibling DBC files | A package manifest listing documents and DBC files |
-| `signals.X.monitor` | `read.signal` on the VSS path for X |
-| `queries.X` | `read.query` on the VSS path, or a named query when X has no VSS path |
-| `actions.X` | A `write` case when X maps to one VSS actuator, otherwise an action |
-| Byte arrays | Hex strings |
-| `"*"` | The `*` token |
-| `ref: sequences.x` | `call: x` |
-| `request_id` / `response_id(s)` | `tx` / `rx` on an endpoint; `{range: [lo, hi]}` entries stay ranges |
-| Inline `send: {request_id, request}` | A request-only endpoint |
-| `can.buses.N` and `bus: N` | Channel `canN` and `channel: canN` |
+| Format 1                              | Format 2                                                              |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| `profile.yaml` with sibling DBC files | A package manifest listing documents and DBC files                    |
+| `signals.X.monitor`                   | `read.signal` on the VSS path for X                                   |
+| `queries.X`                           | `read.query` on the VSS path, or a named query when X has no VSS path |
+| `actions.X`                           | A `write` case when X maps to one VSS actuator, otherwise an action   |
+| Byte arrays                           | Hex strings                                                           |
+| `"*"`                                 | The `*` token                                                         |
+| `ref: sequences.x`                    | `call: x`                                                             |
+| `request_id` / `response_id(s)`       | `tx` / `rx` on an endpoint; `{range: [lo, hi]}` entries stay ranges   |
+| Inline `send: {request_id, request}`  | A request-only endpoint                                               |
+| `can.buses.N` and `bus: N`            | Channel `canN` and `channel: canN`                                    |
 
 Keyword names stay usable as aliases on properties and as query and action names. Anything that cannot be mapped goes to `unmapped`.
 
@@ -27,27 +27,27 @@ Keyword names stay usable as aliases on properties and as query and action names
 
 Format 2 replaces the can-opener-js profile specification. Every transport declaration of that specification is either a format 2 field or classified here as runtime policy, so nothing is dropped silently.
 
-| Format 1 (can-opener-js) | Format 2 | Notes |
-|---|---|---|
-| `can.buses.N.bitrate: <int>` | `channels.canN.bitrate: <int>` | Nominal rate. Omitted in format 2 means 500000 |
-| `can.buses.N.bitrate: auto` | `channels.canN.bitrate: auto` | Nominal detection only; a failed detection leaves the channel unavailable |
-| `can.buses.N.data_bitrate` | `channels.canN.data_bitrate` | The channel becomes `protocol: canfd` |
-| `can.buses.N.fd: true` / `{}` | `channels.canN.fd: true` | FD requests with 8-byte ISO-TP frames |
-| `can.buses.N.fd.isotp.tx_dl` | `channels.canN.fd.tx_dl` | `8` or `64` |
-| `can.buses.N.fd: false` | omitted `fd` | Classic requests |
-| Bus used but not declared | `channels.canN: {protocol: can, configuration: runtime}` | The legacy adapter kept its default timing; the runtime still supplies it |
-| `endpoints.X.bus` | `endpoints.X.channel: canN` | Omitted legacy bus 0 becomes `can0` |
-| `endpoints.X.extended` | `endpoints.X.id_format: extended` | 29-bit CAN IDs |
-| `endpoints.X.fd` | `endpoints.X.fd` | Same `true`, `false`, or `{tx_dl}` shape |
-| `endpoints.X.addressing` | `endpoints.X.addressing` | Addresses become hex bytes, for example `0x12` → `"12"`; requires an ISO-TP framing |
-| `endpoints.X.response_ids: [{range}]` | `rx: [{range: [lo, hi]}]` plus `responder` | `--responder X=HEX` selects the responder |
-| `signals.X.monitor.bus` | `channel` of the binding | A DBC binds to the single bus its monitored messages use, else `can0`; a signal on another bus becomes an inline frame binding |
-| `send: {bus, fd, request_id, request}` | Generated request-only endpoint with `channel` and `fd` | |
-| Step `delay_ms` | A following `wait_ms` step | Only when declared; the legacy 20 ms default is runtime pacing |
-| Step or query `timeout_ms` | none | Stays unmapped; format 2 has one `timeout_ms` per endpoint |
-| `actions.X.batch` | none | Transport batching is runtime policy; noted in the migrated README |
-| `ECU_WAKE` retries, bus-sleep detection, polling scheduling | none | Runtime policy. `ECU_WAKE` itself stays an action |
-| `VehicleTransport` adapter API, BLE protocol | none | Outside this standard; see [extensions](extensions.md#configuration-model) |
+| Format 1 (can-opener-js)                                    | Format 2                                                 | Notes                                                                                                                          |
+| ----------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `can.buses.N.bitrate: <int>`                                | `channels.canN.bitrate: <int>`                           | Nominal rate. Omitted in format 2 means 500000                                                                                 |
+| `can.buses.N.bitrate: auto`                                 | `channels.canN.bitrate: auto`                            | Nominal detection only; a failed detection leaves the channel unavailable                                                      |
+| `can.buses.N.data_bitrate`                                  | `channels.canN.data_bitrate`                             | The channel becomes `protocol: canfd`                                                                                          |
+| `can.buses.N.fd: true` / `{}`                               | `channels.canN.fd: true`                                 | FD requests with 8-byte ISO-TP frames                                                                                          |
+| `can.buses.N.fd.isotp.tx_dl`                                | `channels.canN.fd.tx_dl`                                 | `8` or `64`                                                                                                                    |
+| `can.buses.N.fd: false`                                     | omitted `fd`                                             | Classic requests                                                                                                               |
+| Bus used but not declared                                   | `channels.canN: {protocol: can, configuration: runtime}` | The legacy adapter kept its default timing; the runtime still supplies it                                                      |
+| `endpoints.X.bus`                                           | `endpoints.X.channel: canN`                              | Omitted legacy bus 0 becomes `can0`                                                                                            |
+| `endpoints.X.extended`                                      | `endpoints.X.id_format: extended`                        | 29-bit CAN IDs                                                                                                                 |
+| `endpoints.X.fd`                                            | `endpoints.X.fd`                                         | Same `true`, `false`, or `{tx_dl}` shape                                                                                       |
+| `endpoints.X.addressing`                                    | `endpoints.X.addressing`                                 | Addresses become hex bytes, for example `0x12` → `"12"`; requires an ISO-TP framing                                            |
+| `endpoints.X.response_ids: [{range}]`                       | `rx: [{range: [lo, hi]}]` plus `responder`               | `--responder X=HEX` selects the responder                                                                                      |
+| `signals.X.monitor.bus`                                     | `channel` of the binding                                 | A DBC binds to the single bus its monitored messages use, else `can0`; a signal on another bus becomes an inline frame binding |
+| `send: {bus, fd, request_id, request}`                      | Generated request-only endpoint with `channel` and `fd`  |                                                                                                                                |
+| Step `delay_ms`                                             | A following `wait_ms` step                               | Only when declared; the legacy 20 ms default is runtime pacing                                                                 |
+| Step or query `timeout_ms`                                  | none                                                     | Stays unmapped; format 2 has one `timeout_ms` per endpoint                                                                     |
+| `actions.X.batch`                                           | none                                                     | Transport batching is runtime policy; noted in the migrated README                                                             |
+| `ECU_WAKE` retries, bus-sleep detection, polling scheduling | none                                                     | Runtime policy. `ECU_WAKE` itself stays an action                                                                              |
+| `VehicleTransport` adapter API, BLE protocol                | none                                                     | Outside this standard; see [extensions](extensions.md#configuration-model)                                                     |
 
 Logical channel names identify the OBD connector: `can0` is pins 6 (CAN-H) and 14 (CAN-L), and `can1` is pins 3 (CAN-H) and 11 (CAN-L). A runtime binds each name to the controller wired to those pins, SocketCAN `can0` for pins 6 and 14 by default, and may override that host binding in deployment configuration.
 
@@ -84,7 +84,7 @@ Request/response conversion requires an explicit `--framing` declaration:
 No framing is inferred from the first byte. Without the flag, request-only commands and known signals can migrate, while response bindings remain unmapped. A multi-responder endpoint requires `--responder ENDPOINT=HEX`. Physical left/right door names require `--steering-side left|right`.
 
 ```sh
-vprofile migrate examples/legacy/nissan-versa-1-6 -o /tmp/versa-format2 \
+vprofile migrate examples/legacy/nissan-versa -o /tmp/versa-format2 \
   --framing isotp-single-frame --steering-side left
 ```
 

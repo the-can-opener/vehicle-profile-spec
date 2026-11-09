@@ -18,7 +18,7 @@ args = parser.parse_args()
 with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
     package = Path(work) / "package"
     migrate(
-        root / "examples/legacy/nissan-versa-1-6",
+        root / "examples/legacy/nissan-versa",
         package,
         framing="isotp-single-frame",
         steering_side="left",
@@ -124,7 +124,7 @@ with tempfile.TemporaryDirectory(prefix="vprofile-versa-") as work:
     (package / "README.md").write_text("""# Nissan Versa migration example
 
 Reproduce with `python scripts/migrate-versa.py` from the repository root.
-The script declares `--framing isotp-single-frame --steering-side left` for the retained legacy input. It removes validated single-frame PCI and padding from request/response commands and retains the original application response patterns, including wildcards. The request-only ECU_WAKE command remains byte-exact raw CAN. WIPERS is the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode, and its request remains the original raw CAN frame. The original DBC and complete format 1 input remain under `../legacy/nissan-versa-1-6`.
+The script declares `--framing isotp-single-frame --steering-side left` for the retained legacy input. It removes validated single-frame PCI and padding from request/response commands and retains the original application response patterns, including wildcards. The request-only ECU_WAKE command remains byte-exact raw CAN. WIPERS is the MEDIUM case of Vehicle.Body.Windshield.Front.Wiping.Mode, and its request remains the original raw CAN frame. The original DBC and complete format 1 input remain under `../legacy/nissan-versa`.
 
 These declarations describe the source framing and left-hand-drive mapping; they are not physical test evidence. DBC comments identify Sentra-derived observations. Do not infer model-year compatibility from the package metadata. TPS maps to Vehicle.Powertrain.CombustionEngine.TPS, but the DBC factor 0.392 cannot be stored in that uint8 signal, so it remains in unmapped with the original data. STEERING_ANGLE maps because the pinned catalog declares Vehicle.Chassis.SteeringWheel.Angle as float; upstream VSS 6.1 uses int16, which cannot preserve the 0.1 deg factor.
 

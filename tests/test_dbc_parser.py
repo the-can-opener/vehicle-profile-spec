@@ -5,7 +5,7 @@ from vehicle_profile_tools.errors import ProfileError
 
 
 def test_native_bits_and_labels():
-    dbc = Dbc((ROOT / "examples/legacy/nissan-versa-1-6/signals.dbc").read_text())
+    dbc = Dbc((ROOT / "examples/legacy/nissan-versa/signals.dbc").read_text())
     speed = dbc.signal("SPEED_BRAKE", "SPEED_KMPH")
     assert speed.raw(bytes.fromhex("01 02 00 00 00 00 00 00")) == 258
     light = dbc.signal("LIGHTS_STATUS_60D", "LOW_BEAMS")

@@ -4,7 +4,7 @@ from vehicle_profile_tools.resolve import resolve
 
 
 def test_migrate(tmp_path):
-    old = ROOT / "examples/legacy/nissan-versa-1-6"
+    old = ROOT / "examples/legacy/nissan-versa"
     new = tmp_path / "converted"
     report = migrate(old, new)
     result = resolve([new])
@@ -23,7 +23,7 @@ def test_migrate(tmp_path):
 def test_versa_request_response_migration(tmp_path):
     from vehicle_profile_tools.codec import matches, prepare_write
 
-    old = ROOT / "examples/legacy/nissan-versa-1-6"
+    old = ROOT / "examples/legacy/nissan-versa"
     new = tmp_path / "converted"
     report = migrate(old, new, framing="isotp-single-frame", steering_side="left")
     result = resolve([new])
