@@ -50,7 +50,23 @@ leaves = (
 count = text.count(child_lock)
 if count != 1:
     raise SystemExit(f"expected one Cabin child-lock signal, found {count}")
-path.write_text(text.replace(child_lock, leaves, 1))
+text = text.replace(child_lock, leaves, 1)
+# Local clutch pedal, between Brake and ParkingBrake. See catalog/README.md.
+# Upstream VSS 6.1 has pedal position for the accelerator and the brake only.
+parking = '"ParkingBrake": {"children": {"IsAutoApplyEnabled":'
+clutch = (
+    '"Clutch": {"children": {"PedalPosition": {"comment": "Not in upstream COVESA VSS 6.1. '
+    "Clutch pedal travel binds here. Clutch engagement remains "
+    'Vehicle.Powertrain.Transmission.ClutchEngagement.", "datatype": "uint8", '
+    '"description": "Clutch pedal position as percent. 0 = Not depressed. 100 = Fully depressed.", '
+    '"max": 100, "min": 0, "type": "sensor", "unit": "percent"}}, '
+    '"description": "Clutch signals", "type": "branch"}, '
+    + parking
+)
+count = text.count(parking)
+if count != 1:
+    raise SystemExit(f"expected one Brake-to-ParkingBrake boundary, found {count}")
+path.write_text(text.replace(parking, clutch, 1))
 PY
 # Vehicle.OBD comes from the v6.1 OBD overlay. The standard catalog export omits it.
 python3 - "$task_tmp/overlays/extensions/OBD/OBD.vspec" catalog/vss-6.1.json <<'PY'

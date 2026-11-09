@@ -10,4 +10,6 @@ Run `make catalog VSS_SOURCE=/path/to/vehicle_signal_specification`. The script 
 
 `Vehicle.Cabin.IsSeatBeltWarningActive` is a boolean sensor added beside `IsWindowChildLockEngaged`. True means the vehicle seatbelt warning indicator is active. Upstream VSS 6.1 has `IsBelted` only on each seat. This sensor does not report or stand in for one seat's buckle.
 
-`Vehicle.OBD` is the COVESA OBD overlay from the same tag (`overlays/extensions/OBD.vspec`). Upstream VSS 6.1 removed that branch from the standard catalog. `scripts/catalog.sh` reapplies the steering-wheel type, the central-lock actuator, the seatbelt-warning sensor, and this overlay after every export.
+`Vehicle.Chassis.Clutch.PedalPosition` is a `uint8` sensor added between `Brake` and `ParkingBrake`. `0` is not depressed and `100` is fully depressed, matching `Accelerator.PedalPosition` and `Brake.PedalPosition`. Upstream VSS 6.1 has no clutch pedal position. This sensor does not report or stand in for `Vehicle.Powertrain.Transmission.ClutchEngagement`, where `0` is fully disengaged and `100` is fully engaged.
+
+`Vehicle.OBD` is the COVESA OBD overlay from the same tag (`overlays/extensions/OBD.vspec`). Upstream VSS 6.1 removed that branch from the standard catalog. `scripts/catalog.sh` reapplies the steering-wheel type, the central-lock actuator, the seatbelt-warning sensor, the clutch pedal position, and this overlay after every export.

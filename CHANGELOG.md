@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.2.0
+
+- Harmonize `docs/vocabulary.yaml` and `docs/vocabulary.md` with the `can-opener-js` 1.1 entity/present-tense keyword registry, and separate legacy Format 1 predicate/past-tense/verb-specific variants into a `Legacy keywords` section.
+- Add `ACCELERATOR_PEDAL`, `BRAKE_PEDAL`, and `CLUTCH_PEDAL` aliases for pedal travel. `Vehicle.Chassis.Clutch.PedalPosition` is a local catalog sensor; clutch engagement stays `Vehicle.Powertrain.Transmission.ClutchEngagement`.
 
 ## 2.1.0
 

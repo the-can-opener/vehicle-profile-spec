@@ -1,4 +1,4 @@
-# Vehicle Profile Standard 2.1
+# Vehicle Profile Standard 2.2
 
 [Overview](#overview) · [Vehicle Signal Specification](#vehicle-signal-specification) · [Quick start](#quick-start) · [Example](#example) · [Specification reference](#specification-reference) · [Guides and resources](#guides-and-resources) · [Development](#development)
 

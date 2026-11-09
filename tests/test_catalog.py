@@ -20,6 +20,12 @@ def test_pinned_full_catalog():
     belt_warning = cat["Vehicle.Cabin.IsSeatBeltWarningActive"]
     assert belt_warning["type"] == "sensor" and belt_warning["datatype"] == "boolean"
     assert cat["Vehicle.Cabin.Seat.Row1.DriverSide.IsBelted"]["type"] == "sensor"
+    clutch = cat["Vehicle.Chassis.Clutch.PedalPosition"]
+    assert clutch["type"] == "sensor" and clutch["datatype"] == "uint8"
+    assert clutch["unit"] == "percent" and clutch["min"] == 0 and clutch["max"] == 100
+    assert cat["Vehicle.Chassis.Accelerator.PedalPosition"]["type"] == "sensor"
+    assert cat["Vehicle.Chassis.Brake.PedalPosition"]["type"] == "sensor"
+    assert cat["Vehicle.Powertrain.Transmission.ClutchEngagement"]["type"] == "actuator"
     assert cat["Vehicle.OBD.EngineLoad"]["unit"] == "percent"
     assert cat["Vehicle.OBD.O2.Sensor8.Voltage"]["unit"] == "V"
     assert cat["Vehicle.OBD.O2WR.Sensor1.Lambda"]["datatype"] == "float"
