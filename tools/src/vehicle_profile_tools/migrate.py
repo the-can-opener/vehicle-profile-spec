@@ -6,12 +6,13 @@ import re
 import shutil
 import tempfile
 from copy import deepcopy
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from .catalog import check_value, load_catalog, resource
+from .catalog import check_value, load_catalog, resource, validate_properties
 from .container import MAX_FILE, safe_path, validate_model
 from .dbc import Dbc
 from .errors import ProfileError
@@ -19,6 +20,19 @@ from .model import Action, Channel, Endpoint, NamedQuery, Property, expand_rx
 from .strict import LegacyLoader, parse
 
 FRAMINGS = (None, "raw", "isotp", "isotp-single-frame")
+# Profile spec versions this migrator reads. 1 is spec 1.0. 1.1 names entities and adds
+# `values`, flat `ENTITY.command` keys and numeric `encode` on actions.
+LEGACY_VERSIONS = (1, 1.1)
+# A 1.1 command is a present-tense verb where it differs from the reported condition.
+COMMAND_STATES = {
+    "lock": "locked",
+    "unlock": "unlocked",
+    "close": "closed",
+    "fold": "folded",
+    "unfold": "unfolded",
+}
+ENCODE_PLACEMENT = ("byte", "start_bit", "length", "byte_order", "signed", "scale", "offset")
+ENCODE_BOUNDS = ("min", "max", "step")
 # These are spelling aliases for identical units, not numerical conversions.
 UNIT_NAMES = {
     "R/min": "rpm",
@@ -55,6 +69,69 @@ def response_pattern(value):
     }
 
 
+def whole(value, low, high):
+    return type(value) is int and low <= value <= high
+
+
+def number(value):
+    return type(value) in (int, float)
+
+
+def encoded_field(encode):
+    """A 1.1 `encode` as (first byte, byte count, format 2 encoded part).
+
+    Format 2 encodes whole bytes, so a field that starts or ends inside a byte is refused.
+    """
+    if not isinstance(encode, dict) or set(encode) - {*ENCODE_PLACEMENT, *ENCODE_BOUNDS}:
+        raise ValueError(
+            "encode takes byte or start_bit, length, byte_order, signed, scale, offset"
+        )
+    order = encode.get("byte_order", "little")
+    if "byte" in encode:
+        if "start_bit" in encode or "length" in encode:
+            raise ValueError("encode takes byte, or start_bit and length")
+        if not whole(encode["byte"], 0, 7):
+            raise ValueError("encode byte must be an integer from 0 to 7")
+        start_bit, length = encode["byte"] * 8, 8
+    elif "start_bit" in encode:
+        start_bit, length = encode["start_bit"], encode.get("length", 8)
+    else:
+        raise ValueError("encode must declare byte or start_bit")
+    scale, offset = encode.get("scale", 1), encode.get("offset", 0)
+    if (
+        not whole(start_bit, 0, 63)
+        or not whole(length, 1, 52)
+        or order not in ("little", "big")
+        or type(encode.get("signed", False)) is not bool
+        or not number(scale)
+        or not scale
+        or not number(offset)
+    ):
+        raise ValueError("invalid encode field")
+    # A big-endian start bit is the most significant bit of the first byte.
+    if start_bit % 8 != (0 if order == "little" else 7) or length % 8:
+        raise ValueError("encode is not a whole-byte field; format 2 encodes whole bytes")
+    part: dict[str, Any] = {
+        "input": "value",
+        "type": "int" if encode.get("signed", False) else "uint",
+        "bytes": length // 8,
+    }
+    if length > 8:
+        part["endian"] = order
+    if scale != 1:
+        part["scale"] = scale
+    if offset:
+        part["offset"] = offset
+    return start_bit // 8, length // 8, part
+
+
+def input_bounds(encode):
+    bounds = {key: encode[key] for key in ENCODE_BOUNDS if key in encode}
+    if any(not number(value) for value in bounds.values()) or bounds.get("step", 1) <= 0:
+        raise ValueError("encode min, max and step must be numbers, with a positive step")
+    return bounds
+
+
 def dbc_decoder(signal, skip_bytes=0):
     """Translate native DBC sawtooth/little-endian bits to prefix-relative core bits."""
     start = signal.start if signal.little else signal.start // 8 * 8 + 7 - signal.start % 8
@@ -89,10 +166,10 @@ class Migrator:
         )
         if (
             not isinstance(self.legacy, dict)
-            or type(self.legacy.get("version")) is not int
-            or self.legacy["version"] != 1
+            or type(self.legacy.get("version")) not in (int, float)
+            or self.legacy["version"] not in LEGACY_VERSIONS
         ):
-            raise ValueError("expected format 1 profile.yaml")
+            raise ValueError("expected format 1 profile.yaml declaring version 1 or 1.1")
         self.vocabulary = json.loads(resource("vocabulary.yaml").read_text())
         self.catalog = load_catalog()
         self.doc: dict[str, Any] = {
@@ -118,6 +195,8 @@ class Migrator:
         self.assets: dict[str, bytes] = {}
         self.dbcs: dict[str, Dbc] = {}
         self.notes: list[str] = []
+        # Input bounds of the action being converted; None until a request encodes a value.
+        self.bounds: dict[str, Any] | None = None
 
     def read(self, name):
         safe_path(name)
@@ -240,19 +319,34 @@ class Migrator:
         self.doc["endpoints"][name] = ep
         return ep
 
-    def request(self, values, endpoint):
+    def request(self, values, endpoint, encode=None):
         hex_string(values)  # Reject wildcards, booleans and out-of-range bytes first.
+        if encode is not None:
+            start, count, part = encoded_field(encode)
+            # Like the 1.1 runtime, a field past the declared bytes extends the request.
+            values = values + [0] * (start + count - len(values))
         if endpoint["protocol"] == "isotp" and self.framing == "isotp-single-frame":
             if len(values) > 8 or not 1 <= values[0] <= 7 or values[0] > len(values) - 1:
                 raise ValueError("declared ISO-TP single frame has an invalid PCI length")
             values = values[1 : 1 + values[0]]
-        return hex_string(values)
+            if encode is not None:
+                start -= 1
+        if encode is None:
+            return hex_string(values)
+        if start < 0 or start + count > len(values):
+            raise ValueError("encoded field lies outside the request payload")
+        fixed = [values[:start], values[start + count :]]
+        head, tail = (hex_string(part_bytes) if part_bytes else None for part_bytes in fixed)
+        return {"parts": [x for x in (head, part, tail) if x is not None]}
 
-    def steps(self, items, ep_name, stack=()):
+    def steps(self, items, ep_name, stack=(), encode=None):
+        """`encode` is the action-level field, which applies to the action's direct sends."""
         ep = self.endpoint(ep_name)
         converted = []
         for item in items:
             if "ref" in item:
+                if "encode" in item:
+                    raise ValueError("encode cannot be declared on a ref step")
                 name = item["ref"].removeprefix("sequences.")
                 if name in stack:
                     raise ValueError("sequence cycle: " + " -> ".join((*stack, name)))
@@ -280,7 +374,12 @@ class Migrator:
                     raise ValueError(
                         "per-step timeout_ms has no format 2 form; the endpoint timeout applies"
                     )
-                step = {"request": self.request(item["send"], ep)}
+                field = item.get("encode", encode)
+                step = {"request": self.request(item["send"], ep, field)}
+                if field is not None:
+                    self.bounds = self.bounds or {}
+                    if not stack and "encode" in item:
+                        self.bounds.update(input_bounds(item["encode"]))
                 if "expect" in item:
                     if self.framing is None:
                         raise ValueError(
@@ -466,14 +565,92 @@ class Migrator:
                 raise ValueError("name is already an action")
             self.doc["queries"][mapping.get("query", name)] = query
 
+    def commands(self):
+        """Legacy actions, with a 1.1 `values` entity split into one `ENTITY.command` each."""
+        for name, old in self.legacy.get("actions", {}).items():
+            values = old.get("values") if isinstance(old, dict) else None
+            if (
+                not isinstance(values, dict)
+                or not values
+                or "." in name
+                or {"send", "steps", "expect", "encode"} & old.keys()
+                or any(
+                    not command
+                    or "." in command
+                    or not isinstance(branch, dict)
+                    or {"values", "encode"} & branch.keys()
+                    for command, branch in values.items()
+                )
+            ):
+                yield name, old  # A trigger, a flat name, or a malformed entity for action().
+                continue
+            defaults = {key: old[key] for key in ("endpoint", "batch") if key in old}
+            for command, branch in values.items():
+                yield f"{name}.{command}", {**defaults, **branch}
+
+    def command_target(self, command, mapping):
+        """VSS target of a 1.1 command: its condition in the vocabulary enum, or a boolean."""
+        path = mapping["path"]
+        entry = self.catalog[path]
+        if entry["type"] != "actuator":
+            raise ValueError(f"{path} is a {entry['type']}, not an actuator")
+        state = COMMAND_STATES.get(command, command)
+        enum = mapping.get("enum", {})
+        if state in enum:
+            target = enum[state]
+        elif entry["datatype"] == "boolean" and state in ("on", "off", "open", "closed"):
+            target = state in ("on", "open")
+        elif state.upper() in entry.get("allowed", []):
+            target = state.upper()
+        else:
+            raise ValueError(f"no VSS target is established for command {command!r}")
+        check_value(target, entry, path)
+        return target
+
+    def write_case(self, path, alias, target, body):
+        prop = self.property(path, alias)
+        key = json.dumps(target) if not isinstance(target, str) else target
+        cases = prop.setdefault("write", {"cases": {}}).get("cases")
+        if cases is None or (key in cases and cases[key] != body):
+            raise ValueError("conflicting commands for the same actuator target")
+        cases[key] = body
+        validate_model(Property, prop, path)
+
+    def numeric_write(self, path, alias, body, bounds):
+        """A 1.1 numeric entity becomes a write whose request encodes the target."""
+        entry = self.catalog[path]
+        if entry["type"] != "actuator" or not re.fullmatch(
+            r"u?int\d+|float|double", entry["datatype"]
+        ):
+            raise ValueError(f"{path} is not a numeric actuator")
+        prop = self.property(path, alias)
+        if "write" in prop:
+            raise ValueError("conflicting commands for the same actuator target")
+        prop["write"] = {**body, **({"constraints": bounds} if bounds else {})}
+        validate_model(Property, prop, path)
+        # Bounds may narrow the catalog domain and never widen it.
+        validate_properties({"properties": {path: prop}}, self.catalog)
+
     def action(self, name, old):
+        if not isinstance(old, dict):
+            raise ValueError("an action is an object with send or steps")
+        if "values" in old:
+            raise ValueError(
+                "an entity with values takes one send or steps per command "
+                "and no send, steps, expect or encode of its own"
+            )
+        entity, _, command = name.partition(".")
+        if "." in name and (not entity or not command or "." in command):
+            raise ValueError("an action name takes one ENTITY.command separator at most")
+        self.bounds = None
         if "batch" in old:
             self.notes.append(
                 f"{name}: legacy batch is runtime transport policy and has no format 2 field."
             )
+        field = old.get("encode")
         if isinstance(old.get("send"), dict):
             send = old["send"]
-            endpoint = "generated-" + name.lower()
+            endpoint = "generated-" + name.lower().replace(".", "-")
             generated = {
                 "channel": self.channel(send.get("bus", 0)),
                 "protocol": "can",
@@ -484,39 +661,90 @@ class Migrator:
                 generated["fd"] = send["fd"]
             validate_model(Endpoint, generated, f"endpoints.{endpoint}")
             self.doc["endpoints"][endpoint] = generated
-            body = {"endpoint": endpoint, "request": hex_string(send["request"])}
+            body = {
+                "endpoint": endpoint,
+                "request": self.request(send["request"], generated, field),
+            }
+            if field is not None:
+                self.bounds = input_bounds(field)
         else:
             endpoint = old["endpoint"]
-            items = self.steps(old.get("steps", [old]), endpoint)
-            body = {"endpoint": endpoint, **({"steps": items} if "steps" in old else items[0])}
+            if "steps" in old:
+                # Bounds alone on the action leave the field to the steps that declare one.
+                inherited = field if field and set(field) & set(ENCODE_PLACEMENT) else None
+                body = {
+                    "endpoint": endpoint,
+                    "steps": self.steps(old["steps"], endpoint, encode=inherited),
+                }
+            else:
+                body = {"endpoint": endpoint, **self.steps([old], endpoint)[0]}
+            if field is not None:
+                if self.bounds is None:
+                    raise ValueError("encode needs a send that carries the value")
+                self.bounds.update(input_bounds(field))
         if "deadline_ms" in old:
             body["deadline_ms"] = old["deadline_ms"]
-        mapping = self.mapping(name)
-        if "path" in mapping and "target" in mapping:
-            path = mapping["path"]
-            prop = self.property(path, name)
-            key = (
-                json.dumps(mapping["target"])
-                if not isinstance(mapping["target"], str)
-                else mapping["target"]
+        mapping = self.mapping(entity)
+        path, bounds = mapping.get("path"), self.bounds
+        if bounds is not None:
+            if command:
+                raise ValueError("a command cannot declare encode")
+            self.notes.append(
+                f"{name}: the request encodes the target. Format 2 refuses a target that does "
+                "not encode to a whole number; the legacy runtime rounded it."
             )
-            cases = prop.setdefault("write", {"cases": {}})["cases"]
-            if key in cases and cases[key] != body:
-                raise ValueError("conflicting commands for the same actuator target")
-            cases[key] = body
-            validate_model(Property, prop, path)
-        else:
-            if mapping.get("reason") or "path" in mapping:
-                raise ValueError(mapping.get("reason", "actuator target is not established"))
-            new_name = mapping.get("action", name)
-            if new_name in self.doc["queries"]:
-                raise ValueError("name is already a query")
-            action = {"description": old.get("description", name), **body}
-            for field in ("retry", "input_schema"):
-                if field in old:
-                    action[field] = old[field]
-            validate_model(Action, action, new_name)
-            self.doc["actions"][new_name] = action
+            if path and not mapping.get("reason"):
+                self.numeric_write(path, name, body, bounds)
+                return
+        elif command and path and not mapping.get("reason"):
+            self.write_case(path, entity, self.command_target(command, mapping), body)
+            return
+        elif path and "target" in mapping:
+            self.write_case(path, name, mapping["target"], body)
+            return
+        if mapping.get("reason") or path:
+            raise ValueError(mapping.get("reason", "actuator target is not established"))
+        new_name = mapping.get("action", entity)
+        if command:
+            # No VSS actuator: each command is a vehicle-specific action of its own.
+            new_name += "_" + re.sub(r"[^A-Z0-9]+", "_", command.upper()).strip("_")
+            if new_name in self.vocabulary:
+                raise ValueError(f"{new_name} is a standard keyword; map the command by hand")
+            self.notes.append(f"{name}: no VSS actuator, so the command is action {new_name}.")
+        if new_name in self.doc["queries"]:
+            raise ValueError("name is already a query")
+        if new_name in self.doc["actions"]:
+            raise ValueError("name is already an action")
+        action = {"description": old.get("description", name), **body}
+        for field_name in ("retry", "input_schema"):
+            if field_name in old:
+                action[field_name] = old[field_name]
+        if bounds is not None:
+            action["input_schema"] = self.input_schema(name, bounds)
+        validate_model(Action, action, new_name)
+        self.doc["actions"][new_name] = action
+
+    def input_schema(self, name, bounds):
+        value: dict[str, Any] = {"type": "number"}
+        if "min" in bounds:
+            value["minimum"] = bounds["min"]
+        if "max" in bounds:
+            value["maximum"] = bounds["max"]
+        if "step" in bounds:
+            step = Fraction(str(bounds["step"]))
+            if (Fraction(str(bounds.get("min", 0))) / step).denominator == 1:
+                value["multipleOf"] = bounds["step"]
+            else:
+                self.notes.append(
+                    f"{name}: step {bounds['step']} counts from the minimum, which JSON Schema "
+                    "multipleOf cannot state; the caller keeps the grid."
+                )
+        return {
+            "type": "object",
+            "properties": {"value": value},
+            "required": ["value"],
+            "additionalProperties": False,
+        }
 
     def convert(self):
         for bus, original in self.legacy.get("can", {}).get("buses", {}).items():
@@ -555,7 +783,8 @@ class Migrator:
             ("queries", self.query),
             ("actions", self.action),
         ]:
-            for name, original in self.legacy.get(section, {}).items():
+            entries = self.legacy.get(section, {}).items()
+            for name, original in self.commands() if section == "actions" else entries:
                 before, notes = deepcopy(self.doc), list(self.notes)
                 try:
                     method(name, original)

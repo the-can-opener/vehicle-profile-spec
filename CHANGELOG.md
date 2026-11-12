@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `vprofile migrate` reads `version: 1.1` profiles as well as `version: 1`. Each command of an entity's `values`, or a flat `ENTITY.command` key, becomes a write case on the entity's VSS actuator; commands of a vehicle-specific entity become `ENTITY_COMMAND` actions. A whole-byte `encode` becomes an encoded request part with write `constraints`, or an action `input_schema`. Commands without an established target and bit-level `encode` fields stay unmapped.
+
 ## 2.2.0
 
 - Harmonize `docs/vocabulary.yaml` and `docs/vocabulary.md` with the `can-opener-js` 1.1 entity/present-tense keyword registry, and separate legacy Format 1 predicate/past-tense/verb-specific variants into a `Legacy keywords` section.

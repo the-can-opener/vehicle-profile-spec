@@ -371,6 +371,272 @@ def test_invalid_bus_and_step_timeout_are_reported(tmp_path):
     assert doc["channels"]["can0"] == {"protocol": "canfd", "bitrate": 500000, "fd": True}
 
 
+BODY = {"body": {"request_id": 0x745, "response_id": 0x765, "timeout_ms": 300}}
+SESSION = {"body_session": {"steps": [{"send": [2, 0x10, 0x81, 0, 0, 0, 0, 0], "expect": [0x50]}]}}
+
+
+def test_version_1_1_values_become_write_cases(tmp_path):
+    from vehicle_profile_tools.codec import prepare_write
+
+    dbc = """BO_ 1549 BODY: 8 ECU
+ SG_ LOCKED : 0|1@1+ (1,0) [0|1] "" ECU
+ SG_ LEFT_DOOR : 1|1@1+ (1,0) [0|1] "" ECU
+VAL_ 1549 LOCKED 0 "open_latch" 1 "latched";
+VAL_ 1549 LEFT_DOOR 0 "closed" 1 "open";
+"""
+    data = {
+        "version": 1.1,
+        "dbc": {"files": [{"path": "signals.dbc"}]},
+        "endpoints": BODY,
+        "sequences": SESSION,
+        "signals": {
+            "DOORS": {
+                "monitor": {"message": "BODY", "signal": "LOCKED"},
+                "normalize": {"enum": {"latched": "locked", "open_latch": "unlocked"}},
+            },
+            "FRONT_LEFT_DOOR": {"monitor": {"message": "BODY", "signal": "LEFT_DOOR"}},
+        },
+        "actions": {
+            "DOORS": {
+                "endpoint": "body",
+                "values": {
+                    "lock": {
+                        "steps": [
+                            {"ref": "sequences.body_session"},
+                            {"send": [4, 0x30, 0x38, 0, 1, 0, 0, 0], "expect": [0x70, 0x38, "*"]},
+                        ]
+                    },
+                    "unlock": {"send": [4, 0x30, 0x38, 0, 2, 0, 0, 0], "expect": [0x70, 0x38]},
+                },
+            },
+            # The flat key is the same action as TRUNK: {values: {open: ...}}.
+            "TRUNK.open": {"endpoint": "body", "send": [4, 0x30, 0x40, 0, 1, 0, 0, 0]},
+            "TRUNK.close": {"endpoint": "body", "send": [4, 0x30, 0x40, 0, 2, 0, 0, 0]},
+            "SUNROOF": {
+                "endpoint": "body",
+                "values": {"open": {"send": [2, 0x31, 1]}, "close": {"send": [2, 0x31, 2]}},
+            },
+            "LOW_BEAMS": {
+                "endpoint": "body",
+                "values": {"on": {"send": [2, 0x3B, 1]}, "off": {"send": [2, 0x3B, 0]}},
+            },
+            "HORN": {"endpoint": "body", "send": [4, 0x30, 0x30, 0, 1, 0, 0, 0]},
+        },
+    }
+    report = migrate(
+        _legacy(tmp_path, data, dbc),
+        tmp_path / "new",
+        framing="isotp-single-frame",
+        steering_side="left",
+    )
+    assert report == []
+    doc = resolve([tmp_path / "new"])
+    assert not doc.get("actions")
+    lock = doc["properties"]["Vehicle.Cabin.IsCentralLockEngaged"]
+    assert lock["aliases"] == ["DOORS"]
+    assert lock["read"]["signal"]["enum"] == {"0": False, "1": True}
+    assert set(lock["write"]["cases"]) == {"true", "false"}
+    steps = prepare_write(doc, "Vehicle.Cabin.IsCentralLockEngaged", True)["steps"]
+    assert [step["request"] for step in steps] == ["10 81", "30 38 00 01"]
+    assert lock["write"]["cases"]["false"]["request"] == "30 38 00 02"
+    trunk = doc["properties"]["Vehicle.Body.Trunk.Rear.IsOpen"]
+    assert trunk["aliases"] == ["TRUNK"]
+    assert trunk["write"]["cases"]["true"]["request"] == "30 40 00 01"
+    assert trunk["write"]["cases"]["false"]["request"] == "30 40 00 02"
+    sunroof = doc["properties"]["Vehicle.Cabin.Sunroof.Switch"]["write"]["cases"]
+    assert {key: case["request"] for key, case in sunroof.items()} == {
+        "OPEN": "31 01",
+        "CLOSE": "31 02",
+    }
+    beams = doc["properties"]["Vehicle.Body.Lights.Beam.Low.IsOn"]["write"]["cases"]
+    assert beams["true"]["request"] == "3B 01" and beams["false"]["request"] == "3B 00"
+    assert doc["properties"]["Vehicle.Body.Horn.IsActive"]["write"]["cases"]["true"]
+    assert "Vehicle.Cabin.Door.Row1.DriverSide.IsOpen" in doc["properties"]
+
+
+def test_version_1_1_commands_without_a_target_are_reported(tmp_path):
+    def command(byte):
+        return {"send": [2, 0x30, byte]}
+
+    data = {
+        "version": 1.1,
+        "endpoints": BODY,
+        "actions": {
+            "CLIMATE": {"endpoint": "body", "values": {"on": command(1)}},
+            "WIPERS": {"endpoint": "body", "values": {"off": command(2), "low": command(3)}},
+            "ENGINE": {"endpoint": "body", "values": {"on": command(4)}},
+            "SPORT_MODE": {
+                "endpoint": "body",
+                "batch": False,
+                "values": {"on": command(5), "off": command(6)},
+            },
+            "WINDOW_CHILD": {"endpoint": "body", "values": {"lock": command(7)}},
+            "MIXED": {"endpoint": "body", "send": [1, 0], "values": {"on": command(8)}},
+            "DOORS.lock.now": {"endpoint": "body", "send": [1, 0]},
+        },
+    }
+    report = migrate(_legacy(tmp_path, data), tmp_path / "new", framing="isotp-single-frame")
+    reasons = {record["capability"]: record["reason"] for record in report}
+    assert set(reasons) == {
+        "CLIMATE.on",
+        "WIPERS.low",
+        "ENGINE.on",
+        "WINDOW_CHILD.lock",
+        "MIXED",
+        "DOORS.lock.now",
+    }
+    assert "No single climate power actuator" in reasons["CLIMATE.on"]
+    assert "'low'" in reasons["WIPERS.low"]
+    assert "not an actuator" in reasons["ENGINE.on"]
+    assert "WINDOW_CHILD_LOCK is a standard keyword" in reasons["WINDOW_CHILD.lock"]
+    assert "values" in reasons["MIXED"]
+    climate = next(record for record in report if record["capability"] == "CLIMATE.on")
+    assert climate["original"] == {"endpoint": "body", "send": [2, 0x30, 1]}
+    doc = resolve([tmp_path / "new"])
+    wipers = doc["properties"]["Vehicle.Body.Windshield.Front.Wiping.Mode"]["write"]["cases"]
+    assert set(wipers) == {"OFF"}
+    assert doc["actions"]["SPORT_MODE_ON"]["request"] == "30 05"
+    assert doc["actions"]["SPORT_MODE_OFF"]["request"] == "30 06"
+    readme = (tmp_path / "new" / "README.md").read_text()
+    assert "SPORT_MODE.on: no VSS actuator" in readme and "SPORT_MODE.on: legacy batch" in readme
+
+
+def test_version_1_1_encode_becomes_an_encoded_request(tmp_path):
+    import pytest
+    from vehicle_profile_tools.codec import encode, prepare_write
+
+    data = {
+        "version": 1.1,
+        "endpoints": BODY,
+        "sequences": SESSION,
+        "actions": {
+            "CHARGE_LIMIT": {
+                "endpoint": "body",
+                "encode": {"byte": 4, "min": 50, "max": 100, "step": 5},
+                "send": [4, 0x2E, 0x12, 0x34, 0, 0, 0, 0],
+                "expect": [0x6E, 0x12, 0x34],
+            },
+            "DRIVER_TEMP_SETTING": {
+                "endpoint": "body",
+                "encode": {"min": 16, "max": 32, "step": 0.5},
+                "steps": [
+                    {"ref": "sequences.body_session"},
+                    {
+                        "send": [5, 0x2E, 0x56, 0x78, 0, 0, 0xFF, 0],
+                        "encode": {
+                            "start_bit": 39,
+                            "length": 16,
+                            "byte_order": "big",
+                            "scale": 0.5,
+                            "offset": -40,
+                        },
+                    },
+                ],
+            },
+            "FAN_SPEED": {
+                "endpoint": "body",
+                "encode": {"start_bit": 16, "min": 1, "max": 7},
+                "send": [2, 0x31, 0],
+            },
+            "CABIN_TEMP_SETPOINT": {
+                "endpoint": "body",
+                "encode": {"byte": 2},
+                "send": [2, 0x32, 0],
+            },
+            "NIBBLE": {
+                "endpoint": "body",
+                "encode": {"start_bit": 20, "length": 4},
+                "send": [2, 0x33, 0],
+            },
+            "PASSENGER_TEMP_SETTING": {
+                "endpoint": "body",
+                "encode": {"byte": 0},
+                "send": [2, 0x34, 0],
+            },
+            "FRONT_LEFT_WINDOW_POSITION": {
+                "endpoint": "body",
+                "encode": {"byte": 2, "max": 300},
+                "send": [2, 0x35, 0],
+            },
+            "LOW_BEAMS": {"endpoint": "body", "encode": {"byte": 2}, "send": [2, 0x36, 0]},
+        },
+    }
+    report = migrate(
+        _legacy(tmp_path, data),
+        tmp_path / "new",
+        framing="isotp-single-frame",
+        steering_side="left",
+    )
+    reasons = {record["capability"]: record["reason"] for record in report}
+    assert set(reasons) == {
+        "CABIN_TEMP_SETPOINT",
+        "NIBBLE",
+        "PASSENGER_TEMP_SETTING",
+        "FRONT_LEFT_WINDOW_POSITION",
+        "LOW_BEAMS",
+    }
+    assert "station is not fixed" in reasons["CABIN_TEMP_SETPOINT"]
+    assert "whole-byte" in reasons["NIBBLE"]
+    assert "outside the request payload" in reasons["PASSENGER_TEMP_SETTING"]
+    assert "VSS_CONSTRAINT_WIDENED" in reasons["FRONT_LEFT_WINDOW_POSITION"]
+    assert "not a numeric actuator" in reasons["LOW_BEAMS"]
+    doc = resolve([tmp_path / "new"])
+    path = "Vehicle.Powertrain.TractionBattery.Charging.ChargeLimit"
+    limit = doc["properties"][path]
+    assert limit["aliases"] == ["CHARGE_LIMIT"]
+    assert limit["write"]["request"] == {
+        "parts": ["2E 12 34", {"input": "value", "type": "uint", "bytes": 1}]
+    }
+    assert limit["write"]["expect"]["prefix"] == "6E 12 34"
+    assert limit["write"]["constraints"] == {"min": 50, "max": 100, "step": 5}
+    assert prepare_write(doc, path, 80)["steps"][0]["request"] == "2E 12 34 50"
+    with pytest.raises(ValueError, match="grid"):
+        prepare_write(doc, path, 82)
+    path = "Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature"
+    steps = prepare_write(doc, path, 22)["steps"]
+    assert [step["request"] for step in steps] == ["10 81", "2E 56 78 00 7C"]
+    assert doc["properties"][path]["write"]["constraints"] == {"min": 16, "max": 32, "step": 0.5}
+    fan = doc["actions"]["FAN_SPEED"]
+    assert encode(fan["request"], {"value": 3}).hex(" ").upper() == "31 03"
+    assert fan["input_schema"]["properties"]["value"] == {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 7,
+    }
+    assert "rounded" in (tmp_path / "new" / "README.md").read_text()
+
+
+def test_version_1_1_encode_on_an_inline_send(tmp_path):
+    from vehicle_profile_tools.codec import encode
+
+    data = {
+        "version": 1.1,
+        "actions": {
+            "DASH_BRIGHTNESS": {
+                "encode": {"byte": 1, "max": 100},
+                "send": {"request_id": 0x35D, "request": [0xA0, 0, 0, 0, 0, 0, 0, 0]},
+            }
+        },
+    }
+    assert migrate(_legacy(tmp_path, data), tmp_path / "new") == []
+    doc = resolve([tmp_path / "new"])
+    action = doc["actions"]["DASH_BRIGHTNESS"]
+    assert action["endpoint"] == "generated-dash_brightness"
+    assert encode(action["request"], {"value": 64}).hex(" ").upper() == "A0 40 00 00 00 00 00 00"
+    assert action["input_schema"]["properties"]["value"] == {"type": "number", "maximum": 100}
+
+
+def test_only_version_1_and_1_1_are_read(tmp_path):
+    import pytest
+
+    for index, version in enumerate([1.2, 2, True, "1.1", None]):
+        folder = tmp_path / str(index)
+        folder.mkdir()
+        with pytest.raises(ValueError, match="version 1 or 1.1"):
+            migrate(_legacy(folder, {"version": version}), folder / "new")
+    assert migrate(_legacy(tmp_path, {"version": 1.1}), tmp_path / "new") == []
+
+
 def test_checked_in_versa_is_reproducible():
     import subprocess
     import sys
