@@ -13,7 +13,7 @@
 - Shared endpoint-free sequences can be converted after their dependencies.
 - Declare --framing raw, isotp or isotp-single-frame for request/response migration. No framing is guessed. The last mode validates/removes request PCI and adjusts DBC response offsets for the raw one-byte header.
 - Use --responder ENDPOINT=HEX when response IDs are a range, and --steering-side left|right for physical door names.
-- Queries translate fixed-length VIN/hex and ordinary DBC decoders, merging with a passive binding on the same property. Known equivalent unit spellings and supported enum labels are normalized.
+- Queries translate fixed-length VIN/hex and ordinary DBC decoders, merging with a passive binding on the same property. Known equivalent unit spellings, including `kph` for `km/h`, and supported enum labels are normalized. A kilometer reading on a meter property is scaled by 1000.
 - Unknown identities, ambiguous messages, unsupported codecs/multiplexing and incompatible integer/fractional domains stay in unmapped.
 
 The vocabulary is `docs/vocabulary.yaml` in the source repository and is bundled into the wheel. The CLI uses it directly. Original uncertain bindings are preserved in unmapped, never silently discarded. The migrated file alone is not proof of wire equivalence.

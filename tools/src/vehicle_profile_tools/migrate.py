@@ -33,7 +33,7 @@ COMMAND_STATES = {
 }
 ENCODE_PLACEMENT = ("byte", "start_bit", "length", "byte_order", "signed", "scale", "offset")
 ENCODE_BOUNDS = ("min", "max", "step")
-# These are spelling aliases for identical units, not numerical conversions.
+# Spelling aliases for the same unit. A different unit uses UNIT_FACTORS.
 UNIT_NAMES = {
     "R/min": "rpm",
     "r/min": "rpm",
@@ -43,6 +43,11 @@ UNIT_NAMES = {
     "°C": "Celsius",
     "%": "percent",
     "L/h": "l/h",
+    "kph": "km/h",
+}
+# Multiply the DBC physical value, raw * scale + offset, into the VSS unit.
+UNIT_FACTORS = {
+    ("km", "m"): 1000,
 }
 
 
@@ -436,6 +441,26 @@ class Migrator:
             prop["aliases"].append(alias)
         return prop
 
+    def align_unit(self, name, decoder, entry):
+        """Scale a known DBC unit into the VSS unit. Spelling aliases are already applied."""
+        source = decoder.get("unit")
+        target = entry.get("unit") if entry else None
+        factor = UNIT_FACTORS.get((source, target))
+        if factor is None or "enum" in decoder:
+            return
+        scale = float(Fraction(str(decoder.get("scale", 1))) * factor)
+        offset = float(Fraction(str(decoder.get("offset", 0))) * factor)
+        decoder["unit"] = target
+        if scale != 1:
+            decoder["scale"] = scale
+        else:
+            decoder.pop("scale", None)
+        if offset:
+            decoder["offset"] = offset
+        else:
+            decoder.pop("offset", None)
+        self.notes.append(f"{name}: DBC unit {source} scaled by {factor:g} to VSS {target}.")
+
     def validate_decoder(self, decoder, entry, name):
         if entry and decoder.get("unit") and decoder["unit"] != entry.get("unit"):
             raise ValueError(f"unit {decoder['unit']!r} differs from VSS {entry.get('unit')!r}")
@@ -463,6 +488,7 @@ class Migrator:
             decoder.pop("scale", None)
             decoder.pop("offset", None)
             decoder.update(norm)
+        self.align_unit(name, decoder, entry)
         self.validate_decoder(decoder, entry, name)
         monitor = {k: v for k, v in old["monitor"].items() if k != "bus"}
         if (
@@ -513,6 +539,7 @@ class Migrator:
                 decoder.pop("scale", None)
                 decoder.pop("offset", None)
                 decoder.update(norm)
+            self.align_unit(name, decoder, entry)
             self.validate_decoder(decoder, entry, name)
             datatype = entry["datatype"] if entry else "double"
             if norm and not entry:

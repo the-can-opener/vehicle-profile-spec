@@ -626,6 +626,94 @@ def test_version_1_1_encode_on_an_inline_send(tmp_path):
     assert action["input_schema"]["properties"]["value"] == {"type": "number", "maximum": 100}
 
 
+def test_kph_and_kilometers_match_vss_units(tmp_path):
+    from vehicle_profile_tools.codec import decode
+
+    dbc = """BO_ 256 ENGINE_DATA: 8 ECU
+ SG_ SPEED : 0|16@1+ (0.01,0) [0|655.35] "kph" ECU
+BO_ 1034 ODO_STATUS: 8 ECU
+ SG_ ODOMETER : 0|32@1+ (1,2) [0|4294967295] "km" ECU
+BO_ 800 CLEAR: 8 ECU
+ SG_ DIST : 0|16@1+ (1,0) [0|65535] "km" ECU
+"""
+    data = {
+        "version": 1,
+        "dbc": {"files": ["signals.dbc"]},
+        "signals": {
+            "SPEED": {"monitor": {"message": "ENGINE_DATA", "signal": "SPEED"}},
+            "ODOMETER": {"monitor": {"message": "ODO_STATUS", "signal": "ODOMETER"}},
+            "DIST_SINCE_CLEAR": {"monitor": {"message": "CLEAR", "signal": "DIST"}},
+        },
+    }
+    new = tmp_path / "new"
+    assert migrate(_legacy(tmp_path, data, dbc), new) == []
+    doc = resolve([new])
+    speed = doc["properties"]["Vehicle.Speed"]["read"]["signal"]["decode"]
+    assert speed["unit"] == "km/h"
+    assert speed["scale"] == 0.01
+    assert decode("10 27", speed) == 100
+    odometer = doc["properties"]["Vehicle.TraveledDistance"]["read"]["signal"]["decode"]
+    assert odometer["unit"] == "m"
+    assert odometer["scale"] == 1000
+    assert odometer["offset"] == 2000
+    assert decode("7B 00 00 00", odometer) == 125000
+    distance = doc["properties"]["Vehicle.OBD.DistanceSinceDTCClear"]["read"]["signal"]
+    assert distance["message"] == "CLEAR"
+    assert distance["signal"] == "DIST"
+    assert "decode" not in distance
+    notes = (new / "README.md").read_text()
+    assert "ODOMETER: DBC unit km scaled by 1000 to VSS m." in notes
+    assert "kph" not in notes
+    assert notes.count("scaled by") == 1
+
+
+def test_kilometer_query_scales_to_meters(tmp_path):
+    from vehicle_profile_tools.codec import decode
+
+    dbc = """BO_ 2024 Response: 8 ECU
+ SG_ ODOMETER : 24|32@1+ (0.1,0) [0|429496729.5] "km" ECU
+"""
+    data = {
+        "version": 1,
+        "dbc": {"files": ["signals.dbc"]},
+        "endpoints": {"ecu": {"request_id": 0x7E0, "response_id": 0x7E8}},
+        "queries": {
+            "ODOMETER": {
+                "endpoint": "ecu",
+                "send": [2, 1, 166, 0, 0, 0, 0, 0],
+                "expect": [0x41, 166],
+                "dbc_mapping": {"message": "Response", "signal": "ODOMETER"},
+            }
+        },
+    }
+    new = tmp_path / "new"
+    assert migrate(_legacy(tmp_path, data, dbc), new, framing="isotp-single-frame") == []
+    decoder = resolve([new])["properties"]["Vehicle.TraveledDistance"]["read"]["query"]["decode"]
+    assert decoder["unit"] == "m"
+    assert decoder["scale"] == 100
+    assert "offset" not in decoder
+    assert decode("0A 00 00 00", decoder) == 1000
+
+
+def test_miles_per_hour_stays_unmapped(tmp_path):
+    dbc = """BO_ 256 ENGINE_DATA: 8 ECU
+ SG_ SPEED : 0|8@1+ (1,0) [0|255] "mph" ECU
+"""
+    data = {
+        "version": 1,
+        "dbc": {"files": ["signals.dbc"]},
+        "signals": {"SPEED": {"monitor": {"message": "ENGINE_DATA", "signal": "SPEED"}}},
+    }
+    report = migrate(_legacy(tmp_path, data, dbc), tmp_path / "new")
+    assert report == [
+        {
+            "capability": "SPEED",
+            "reason": "unit 'mph' differs from VSS 'km/h'",
+            "original": data["signals"]["SPEED"],
+        }
+    ]
+
+
 def test_only_version_1_and_1_1_are_read(tmp_path):
     import pytest
 
