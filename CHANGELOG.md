@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 2.3.0
+
+- A numeric `read` may declare `constraints` with min, max, and step in canonical units. The declaration must narrow the catalog domain. Engine speed, which VSS leaves unbounded, may be 0 to 8000 rpm. An observation outside that domain is invalid and is not clamped. `export jsonschema` publishes the narrowed bounds.
 - `vprofile migrate` reads `version: 1.1` profiles as well as `version: 1`. Each command of an entity's `values`, or a flat `ENTITY.command` key, becomes a write case on the entity's VSS actuator; commands of a vehicle-specific entity become `ENTITY_COMMAND` actions. A whole-byte `encode` becomes an encoded request part with write `constraints`, or an action `input_schema`. Commands without an established target and bit-level `encode` fields stay unmapped.
 
 ## 2.2.0

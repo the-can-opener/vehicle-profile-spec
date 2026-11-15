@@ -157,8 +157,8 @@ ERROR_DETAILS = {
     ),
     "VSS_CONSTRAINT_WIDENED": (
         "Semantics",
-        "Write constraints expand the catalog domain",
-        "Narrow numeric scalar constraints to the catalog/type bounds.",
+        "Read or write constraints expand the catalog domain",
+        "Narrow numeric scalar constraints to the catalog or datatype bounds.",
     ),
     "VSS_UNIT_MISMATCH": (
         "Semantics",

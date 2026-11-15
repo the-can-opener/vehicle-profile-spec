@@ -26,7 +26,7 @@ Generated from errors.py. Each entry gives the layer, meaning and usual fix.
 - `VSS_UNSUPPORTED_RELEASE` — Semantics: Catalog release is not supported. Pin vss to the bundled 6.1 release.
 - `VSS_UNKNOWN_PATH` — Semantics: Path is absent from the catalog. Find the canonical path with vprofile vss search/show.
 - `VSS_ROLE_MISMATCH` — Semantics: Binding is incompatible with the VSS role. Write only actuators, use value only on attributes, and keep canonical properties out of named actions/queries.
-- `VSS_CONSTRAINT_WIDENED` — Semantics: Write constraints expand the catalog domain. Narrow numeric scalar constraints to the catalog/type bounds.
+- `VSS_CONSTRAINT_WIDENED` — Semantics: Read or write constraints expand the catalog domain. Narrow numeric scalar constraints to the catalog or datatype bounds.
 - `VSS_UNIT_MISMATCH` — Semantics: Decoded unit differs from VSS. Use the canonical unit and an explicit correct conversion.
 - `VSS_ENUM_VALUE` — Semantics: Value, case or datatype violates VSS. Check datatype, allowed values, canonical case keys and ranges.
 - `ALIAS_COLLISION` — Semantics: Alias shadows another public capability. Use a unique alias across properties, queries and actions.

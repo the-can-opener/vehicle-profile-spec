@@ -49,7 +49,7 @@ properties:
           steps: [{call: pause}, {request: "01"}]
 ```
 
-For a numeric setting use `request: {parts: ["AA BB", {input: value, type: uint, bytes: 1, scale: 0.5, offset: 16}]}` and `constraints: {min: 16, max: 30, step: 0.5}`. A target of 22 becomes `0C`; 22.25 is rejected. Shared query sources declare outputs once, then properties reference source/output. An overlay replaces whole entries, so repeat every field that remains needed. Fixture descriptions use label; action/query identifiers use name.
+For a numeric setting use `request: {parts: ["AA BB", {input: value, type: uint, bytes: 1, scale: 0.5, offset: 16}]}` and `constraints: {min: 16, max: 30, step: 0.5}`. A target of 22 becomes `0C`; 22.25 is rejected. A read uses the same constraints object for observations. Ambient temperature below is `{min: -40, max: 80}` because that catalog node has no bounds. Shared query sources declare outputs once, then properties reference source/output. An overlay replaces whole entries, so repeat every field that remains needed. Fixture descriptions use label; action/query identifiers use name.
 
 A shared query source supplies two properties. No interval is declared, so this does not request polling.
 
@@ -69,7 +69,9 @@ sources:
       selected: {byte: 1, bytes: 1, type: uint, scale: 0.5, offset: 16, unit: Celsius}
 properties:
   Vehicle.Cabin.HVAC.AmbientAirTemperature:
-    read: {query: {source: temperatures, output: ambient}}
+    read:
+      query: {source: temperatures, output: ambient}
+      constraints: {min: -40, max: 80}
   Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature:
     read: {query: {source: temperatures, output: selected}}
     write:
@@ -105,6 +107,24 @@ This narrower document replaces a shared sequence when listed after its base doc
 applies_to: {years: [2011]}
 sequences:
   pause: {steps: [{wait_ms: 10}]}
+```
+
+Engine speed is a float in rpm with no catalog bounds, so this read records the vehicle range. A decoded value outside 0 to 8000 is an invalid observation.
+
+```yaml vprofile-fragment
+channels:
+  vehicle: {protocol: can, configuration: runtime}
+properties:
+  Vehicle.Powertrain.CombustionEngine.Speed:
+    aliases: [RPM]
+    read:
+      signal:
+        channel: vehicle
+        id: "1F9"
+        id_format: standard
+        length: 2
+        decode: {byte: 0, bytes: 2, type: uint, scale: 0.25, unit: rpm}
+      constraints: {min: 0, max: 8000}
 ```
 
 A passive-only property requires no endpoint. With no `channels` and no `channel`, the binding is on the default `can0` channel, classic CAN at 500000 bit/s:

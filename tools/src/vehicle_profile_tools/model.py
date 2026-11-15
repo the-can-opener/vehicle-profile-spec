@@ -326,6 +326,7 @@ class Read(Model):
     signal: DbcSignal | InlineSignal | SourceRef | None = None
     query: Query | SourceRef | None = None
     policy: Policy | None = None
+    constraints: Constraints | None = None
 
     @model_validator(mode="before")
     @classmethod

@@ -11,7 +11,7 @@ Validation layers:
 1. Container: one manifest, safe paths, listed files present, hashes, size limits.
 2. Syntax: JSON-compatible parsing, manifest and format versions, allowed fields, mutually exclusive forms (`value` with `read`, two write shapes, a query and an action with one name).
 3. References: assets, source kind, outputs, endpoints, channels (including manifest DBC channels), sequence calls and cycles, DBC messages and signals, `depends`.
-4. Semantics: exact VSS catalog paths, roles (no write on a sensor), datatypes, units, ranges, allowed values, target constraints, alias and name collisions, transport consistency (CAN FD only on `canfd` channels, raw frame lengths against the resolved frame format, non-overlapping receive IDs with a selected responder, ISO-TP addressing only on ISO-TP endpoints).
+4. Semantics: exact VSS catalog paths, roles (no write on a sensor), datatypes, units, ranges, allowed values, read and write constraints, alias and name collisions, transport consistency (CAN FD only on `canfd` channels, raw frame lengths against the resolved frame format, non-overlapping receive IDs with a selected responder, ISO-TP addressing only on ISO-TP endpoints).
 5. Composition: merge conflicts and widened applicability.
 6. Extensions: every extension payload in `requires`, and whether the package can be fully activated.
 7. Behavior: decode/encode, shared acquisition, freshness, source selection, response correlation, acknowledgement, failures.
@@ -29,7 +29,7 @@ The [fixture reference](fixtures.md) defines cases, expected outcomes and behavi
 
 Readers enforce 4 MiB per file, 16 MiB per package, 1000 listed/archive entries, and 100:1 maximum ZIP compression ratio. Directory readers inspect only listed assets; ZIP readers additionally reject unlisted executable assets. JSON-compatible YAML rejects non-string or duplicate keys, tags, anchors, aliases and nonfinite values. Date-like strings stay strings.
 
-`compose --package PATH -o package.zip` creates a deterministic archive of listed files; `compose --verify package.zip` reruns validation. `diff OLD NEW` compares resolved entries. Exports support json, tree, csv and property-value jsonschema. Checked-in authoring schemas are generated separately with `make schemas`. Pydantic and semantic checks enforce rules that JSON Schema alone cannot express. The document schema permits null deletions and describes complete entries; the merge pipeline accepts an earlier partial entry when a later document replaces it before validation. Decoder checks do not cover every VSS datatype and range.
+`compose --package PATH -o package.zip` creates a deterministic archive of listed files; `compose --verify package.zip` reruns validation. `diff OLD NEW` compares resolved entries. Exports support json, tree, csv and property-value jsonschema. Checked-in authoring schemas are generated separately with `make schemas`. Pydantic and semantic checks enforce rules that JSON Schema alone cannot express. The document schema permits null deletions and describes complete entries; the merge pipeline accepts an earlier partial entry when a later document replaces it before validation. Declared read and write constraints are checked against the catalog domain. Fixture frames are not decoded, and decoder checks do not cover every VSS datatype and range.
 
 See [generated error codes](../skills/validating-vehicle-profiles/error-codes.md). A schema-only success is not complete validation.
 

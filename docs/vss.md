@@ -4,7 +4,7 @@
 
 ## Property semantics and catalog resolution
 
-The pinned VSS release supplies datatype, unit, meaning, range, and allowed values. A binding MUST NOT redefine a standard property's semantics. The pinned catalog differs from upstream VSS 6.1 in the ways recorded on the node and in [catalog provenance](../catalog/README.md):
+The pinned VSS release supplies datatype, unit, meaning, range, and allowed values. A binding MUST NOT redefine a standard property's semantics. A read may narrow a numeric range with `constraints`. It cannot widen a catalog minimum or maximum, and it cannot add a range the datatype cannot represent. The pinned catalog differs from upstream VSS 6.1 in the ways recorded on the node and in [catalog provenance](../catalog/README.md):
 
 - `Vehicle.Chassis.SteeringWheel.Angle` is `float` here and `int16` upstream, so a fractional degree signal can be published without rounding.
 - `Vehicle.Cabin.IsCentralLockEngaged` is a boolean actuator added beside `IsWindowChildLockEngaged`. True locks every cabin door and false unlocks every cabin door. Upstream has `IsLocked` only on each door. A package that has one command for every door MUST bind that command here, and MUST NOT copy it onto one door's `IsLocked` path.

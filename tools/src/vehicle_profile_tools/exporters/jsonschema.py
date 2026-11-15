@@ -77,6 +77,11 @@ def export(document):
         for src, dst in [("min", "minimum"), ("max", "maximum"), ("allowed", "enum")]:
             if src in entry:
                 schema[dst] = entry[src]
+        # Read constraints narrow the observed value. Write constraints bound commands.
+        read_constraints = (document["properties"][path].get("read") or {}).get("constraints") or {}
+        for src, dst in [("min", "minimum"), ("max", "maximum")]:
+            if src in read_constraints:
+                schema[dst] = read_constraints[src]
         if entry["datatype"].endswith("[]"):
             schema = {"type": "array", "items": schema}
         props[path] = schema

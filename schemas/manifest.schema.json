@@ -2094,6 +2094,14 @@
         }
       ],
       "properties": {
+        "constraints": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Constraints"
+            }
+          ],
+          "default": null
+        },
         "policy": {
           "anyOf": [
             {

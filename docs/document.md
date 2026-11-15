@@ -59,6 +59,24 @@ Policy fields:
 
 With both bindings, default preference is signal. With one binding, that binding is preferred. Missing `max_age_ms` means the profile supplies no freshness guarantee; a caller requesting fresh data must supply its own age bound. No age bound means cached validity only, not a claim of real-time freshness.
 
+Optional `constraints` on `read` declares this vehicle's numeric domain in canonical units. It has `min`, `max`, and `step`. It MUST narrow, never expand, the catalog domain. A float with no catalog bounds, such as `Vehicle.Powertrain.CombustionEngine.Speed` in rpm, may be bounded here. An integer is already bounded by its datatype, and by catalog `min` and `max` when the node defines them. `Vehicle.Chassis.Accelerator.PedalPosition` is 0 to 100; a read constraint cannot raise that maximum. The step grid is min + n × step, using zero when min is absent. Decimal grids use decimal/rational semantics.
+
+Signal and query observations of the same property share these constraints. A value outside the catalog range, outside `constraints`, or off the step grid is an invalid observation. Do not clamp, round, or publish it. Write `constraints` are a separate declaration and apply only to commanded targets.
+
+```yaml
+properties:
+  Vehicle.Powertrain.CombustionEngine.Speed:
+    aliases: [RPM]
+    read:
+      signal:
+        dbc: main
+        message: ENGINE_STATUS
+        signal: ENGINE_RPM
+      constraints: {min: 0, max: 8000}
+```
+
+The catalog node is engine speed in rpm and has no minimum or maximum, so `{min: 0, max: 8000}` records this vehicle's range. The message and signal names above are illustrative.
+
 `get` never transmits. A default subscription uses passive signals where available. Polling must be explicitly requested. A read explicitly requesting `query` may transmit subject to runtime permissions and scheduling. Automatic fallback may transmit only when BOTH profile policy and caller/runtime policy permit it. Profile policy cannot grant permissions.
 
 A response updates the same canonical property as a broadcast observation. Record acquisition kind, source, receipt time, optional measured time, and monotonic sequence. Late responses cannot overwrite a newer accepted observation. Use runtime acquisition ordering where ECU clocks cannot be compared. A transport timestamp must not be fabricated as measurement time.
@@ -109,7 +127,7 @@ One monitor supplies both properties. Unsubscribing one must not stop the other.
 
 In the shorthand and steps shapes, an encoded `parts` field with `input: value` carries the requested target. A `cases` key is the canonical string form of a target in the property datatype: `"true"` or `"false"`, an allowed value, or a decimal number. A target with no case is UNSUPPORTED, and nothing is transmitted.
 
-Optional `constraints` has min, max, and step in canonical units. It MUST narrow, never expand, the catalog domain. The step grid is min + n × step, using zero if min is absent. Validate datatype, catalog constraints, binding constraints, grid, and exact encoding before transmission. Decimal grids use decimal/rational semantics.
+Optional `constraints` has min, max, and step in canonical units. It MUST narrow, never expand, the catalog domain, the same rule as [read constraints](#passive-signals-and-active-queries). The step grid is min + n × step, using zero if min is absent. Validate datatype, catalog constraints, binding constraints, grid, and exact encoding before transmission. Decimal grids use decimal/rational semantics. A write constraint does not change the range of a later observation.
 
 A write succeeds when every `expect` in its steps matches. That match is the vehicle's acknowledgement, and the result is `acknowledged`. A write with no `expect` reports `sent` once the transport has submitted its last request. There is no separate verification or completion field. A response that fails its pattern fails the write. A timeout after transmission is OUTCOME_UNKNOWN, not proof that nothing happened.
 
