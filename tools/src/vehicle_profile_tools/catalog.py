@@ -65,6 +65,35 @@ def check_value(value, entry, path):
             fail("VSS_ENUM_VALUE", path, str(exc))
 
 
+def numeric_limits(entry):
+    """Catalog min/max, with integer datatype width where the node omits a bound."""
+    dtype = entry.get("datatype", "")
+    limits = {k: entry[k] for k in ("min", "max") if k in entry}
+    if dtype.startswith(("int", "uint")) and not dtype.endswith("[]"):
+        bits = int(dtype.removeprefix("u").removeprefix("int"))
+        limits.setdefault("min", 0 if dtype.startswith("u") else -(2 ** (bits - 1)))
+        limits.setdefault("max", 2**bits - 1 if dtype.startswith("u") else 2 ** (bits - 1) - 1)
+    return limits
+
+
+def check_binding_constraints(constraints, entry, path):
+    if not constraints:
+        return
+    dtype = entry.get("datatype", "")
+    if dtype.endswith("[]") or dtype in ("boolean", "string"):
+        fail("VSS_CONSTRAINT_WIDENED", path, "numeric constraints require a numeric scalar")
+    limits = numeric_limits(entry)
+    for bound in ("min", "max"):
+        if bound in constraints and bound in limits:
+            widened = (
+                constraints[bound] < limits[bound]
+                if bound == "min"
+                else constraints[bound] > limits[bound]
+            )
+            if widened:
+                fail("VSS_CONSTRAINT_WIDENED", path, bound)
+
+
 def canonical_target(value):
     if isinstance(value, str):
         return value
@@ -122,23 +151,8 @@ def validate_properties(document, catalog):
             names.add(alias)
         write = prop.get("write", {})
         constraints = write.get("constraints", {})
-        dtype = entry["datatype"]
-        if constraints and (dtype.endswith("[]") or dtype in ("boolean", "string")):
-            fail("VSS_CONSTRAINT_WIDENED", path, "numeric constraints require a numeric scalar")
-        limits = {k: entry[k] for k in ("min", "max") if k in entry}
-        if dtype.startswith(("int", "uint")) and not dtype.endswith("[]"):
-            bits = int(dtype.removeprefix("u").removeprefix("int"))
-            limits.setdefault("min", 0 if dtype.startswith("u") else -(2 ** (bits - 1)))
-            limits.setdefault("max", 2**bits - 1 if dtype.startswith("u") else 2 ** (bits - 1) - 1)
-        for bound in ("min", "max"):
-            if bound in constraints and bound in limits:
-                widened = (
-                    constraints[bound] < limits[bound]
-                    if bound == "min"
-                    else constraints[bound] > limits[bound]
-                )
-                if widened:
-                    fail("VSS_CONSTRAINT_WIDENED", path, bound)
+        check_binding_constraints(prop.get("read", {}).get("constraints", {}), entry, path)
+        check_binding_constraints(constraints, entry, path)
         for key in write.get("cases", {}):
             value = case_value(key, entry, path)
             if constraints and type(value) in (int, float):

@@ -14,7 +14,7 @@ Order: extraction; invalid_raw handling; enum OR numeric scaling; canonical vali
 
 DBC physical decoding applies factor/offset without automatically substituting `VAL_` labels. `decode_as: boolean` maps raw 0/1 to false/true; other encodings are invalid. Explicit enum mapping is an alternative to physical decoding.
 
-Units and ranges must match VSS. Inline decoder `unit`, if specified, describes the physical result. If absent, the result is in the target property unit. Core 0.4 does not silently convert incompatible units. Shared outputs require compatible semantics and units for all consumers.
+Units and ranges must match VSS. Optional [`read.constraints`](document.md#passive-signals-and-active-queries) narrow that range for this vehicle. An observation outside the catalog range, outside those constraints, or off the step grid is invalid. Do not clamp, round, or publish it. Inline decoder `unit`, if specified, describes the physical result. If absent, the result is in the target property unit. Core 0.4 does not silently convert incompatible units. Shared outputs require compatible semantics and units for all consumers.
 
 A `request` is either a hex string or `parts`, a list that mixes literal hex strings with encoded fields. An encoded field declares `input`, `type`, `bytes`, `endian`, `scale`, and `offset`. Encode raw = (input − offset) / scale, requiring an integral result within the wire width. Do not round, clamp, or overflow silently. More complex codecs require a declared versioned extension.
 

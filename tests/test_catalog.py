@@ -1,7 +1,10 @@
+import json
+
 import pytest
 from conftest import base, signal
 from vehicle_profile_tools.catalog import check_value, load_catalog
 from vehicle_profile_tools.errors import ProfileError
+from vehicle_profile_tools.exporters.jsonschema import export
 from vehicle_profile_tools.resolve import resolve
 
 
@@ -57,4 +60,87 @@ def test_widened_constraint(package):
         }
     }
     with pytest.raises(ProfileError, match="VSS_CONSTRAINT_WIDENED"):
+        resolve([package(data)])
+
+
+def inline_signal(decode, length=1):
+    return {
+        "channel": "bus",
+        "id": "1F9",
+        "id_format": "standard",
+        "length": length,
+        "decode": decode,
+    }
+
+
+def test_read_constraints_narrow_unbounded_float(package):
+    data = base()
+    data["properties"] = {
+        "Vehicle.Powertrain.CombustionEngine.Speed": {
+            "aliases": ["RPM"],
+            "read": {
+                "signal": inline_signal(
+                    {"byte": 0, "bytes": 2, "type": "uint", "scale": 0.25, "unit": "rpm"},
+                    length=2,
+                ),
+                "constraints": {"min": 0, "max": 8000},
+            },
+        },
+        "Vehicle.Chassis.Accelerator.PedalPosition": {
+            "read": {
+                "signal": inline_signal({"byte": 0, "bytes": 1, "type": "uint", "unit": "percent"}),
+                "constraints": {"max": 80},
+            }
+        },
+    }
+    resolved = resolve([package(data)])
+    speed = resolved["properties"]["Vehicle.Powertrain.CombustionEngine.Speed"]
+    assert speed["read"]["constraints"] == {"min": 0.0, "max": 8000.0}
+    schema = json.loads(export(resolved))
+    assert schema["properties"]["Vehicle.Powertrain.CombustionEngine.Speed"]["minimum"] == 0
+    assert schema["properties"]["Vehicle.Powertrain.CombustionEngine.Speed"]["maximum"] == 8000
+    pedal = schema["properties"]["Vehicle.Chassis.Accelerator.PedalPosition"]
+    assert pedal["minimum"] == 0
+    assert pedal["maximum"] == 80
+
+
+def test_widened_read_constraint(package):
+    data = base()
+    data["properties"] = {
+        "Vehicle.Chassis.Accelerator.PedalPosition": {
+            "read": {
+                "signal": inline_signal({"byte": 0, "bytes": 1, "type": "uint", "unit": "percent"}),
+                "constraints": {"max": 120},
+            }
+        }
+    }
+    with pytest.raises(ProfileError, match="VSS_CONSTRAINT_WIDENED"):
+        resolve([package(data)])
+
+
+def test_read_constraint_respects_integer_width(package):
+    data = base()
+    data["properties"] = {
+        "Vehicle.Diagnostics.DTCCount": {
+            "read": {
+                "signal": inline_signal({"byte": 0, "bytes": 1, "type": "uint"}),
+                "constraints": {"max": 300},
+            }
+        }
+    }
+    with pytest.raises(ProfileError, match="VSS_CONSTRAINT_WIDENED"):
+        resolve([package(data)])
+
+
+def test_read_constraints_require_numeric_scalar(package):
+    data = base()
+    data["properties"] = {
+        "Vehicle.Body.Horn.IsActive": {
+            "read": {
+                "signal": inline_signal({"byte": 0, "bytes": 1, "type": "uint"}),
+                "constraints": {"max": 1},
+            }
+        }
+    }
+    with pytest.raises(ProfileError, match="numeric constraints require a numeric scalar"):
         resolve([package(data)])

@@ -60,6 +60,9 @@ properties:
         preferred: signal
         max_age_ms: 500
         active_fallback: false
+      constraints:
+        min: -40
+        max: 80
   Vehicle.Cabin.HVAC.Station.Row1.Driver.Temperature:
     read:
       query:
