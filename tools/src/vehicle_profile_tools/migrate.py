@@ -445,8 +445,10 @@ class Migrator:
         """Scale a known DBC unit into the VSS unit. Spelling aliases are already applied."""
         source = decoder.get("unit")
         target = entry.get("unit") if entry else None
+        if not isinstance(source, str) or not isinstance(target, str) or "enum" in decoder:
+            return
         factor = UNIT_FACTORS.get((source, target))
-        if factor is None or "enum" in decoder:
+        if factor is None:
             return
         scale = float(Fraction(str(decoder.get("scale", 1))) * factor)
         offset = float(Fraction(str(decoder.get("offset", 0))) * factor)
