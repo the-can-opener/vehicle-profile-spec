@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.4.0
+
+- A sequence may name `endpoint`. Requests in that sequence use its CAN tx/rx pair; nested calls inherit it until a callee names another. A steps write or action may omit `endpoint` when every request resolves this way, so one action can address two controllers. The runtime leases every endpoint the command uses, in name order, for the whole command.
+
 ## 2.3.0
 
 - A numeric `read` may declare `constraints` with min, max, and step in canonical units. The declaration must narrow the catalog domain. Engine speed, which VSS leaves unbounded, may be 0 to 8000 rpm. An observation outside that domain is invalid and is not clamped. `export jsonschema` publishes the narrowed bounds.

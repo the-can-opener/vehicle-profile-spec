@@ -68,6 +68,27 @@
           }
         },
         {
+          "if": {
+            "anyOf": [
+              {
+                "required": [
+                  "request"
+                ]
+              },
+              {
+                "required": [
+                  "repeat"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "endpoint"
+            ]
+          }
+        },
+        {
           "not": {
             "required": [
               "duration",
@@ -114,8 +135,13 @@
           "title": "Duration"
         },
         "endpoint": {
-          "title": "Endpoint",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
         },
         "expect": {
           "anyOf": [
@@ -198,7 +224,6 @@
         }
       },
       "required": [
-        "endpoint",
         "description"
       ],
       "title": "Action",
@@ -418,6 +443,27 @@
           }
         },
         {
+          "if": {
+            "anyOf": [
+              {
+                "required": [
+                  "request"
+                ]
+              },
+              {
+                "required": [
+                  "repeat"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "endpoint"
+            ]
+          }
+        },
+        {
           "not": {
             "required": [
               "duration",
@@ -460,8 +506,13 @@
           "title": "Duration"
         },
         "endpoint": {
-          "title": "Endpoint",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
         },
         "expect": {
           "anyOf": [
@@ -524,9 +575,6 @@
           "title": "Steps"
         }
       },
-      "required": [
-        "endpoint"
-      ],
       "title": "Body",
       "type": "object"
     },
@@ -1190,6 +1238,27 @@
           }
         },
         {
+          "if": {
+            "anyOf": [
+              {
+                "required": [
+                  "request"
+                ]
+              },
+              {
+                "required": [
+                  "repeat"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "endpoint"
+            ]
+          }
+        },
+        {
           "not": {
             "required": [
               "duration",
@@ -1240,8 +1309,13 @@
           "title": "Duration"
         },
         "endpoint": {
-          "title": "Endpoint",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
         },
         "expect": {
           "anyOf": [
@@ -1304,9 +1378,6 @@
           "title": "Steps"
         }
       },
-      "required": [
-        "endpoint"
-      ],
       "title": "DirectWrite",
       "type": "object"
     },
@@ -2236,6 +2307,18 @@
     "Sequence": {
       "additionalProperties": false,
       "properties": {
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
         "steps": {
           "items": {
             "anyOf": [

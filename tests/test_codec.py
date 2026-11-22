@@ -55,6 +55,25 @@ def test_merge_repeat_frame():
         merge_repeat_frame("00 00", "FF", "01")
 
 
+def test_prepare_write_keeps_sequence_endpoint():
+    from vehicle_profile_tools.codec import prepare_write
+
+    doc = {
+        "endpoints": {
+            "a": {"protocol": "can", "tx": "100", "id_format": "standard"},
+            "b": {"protocol": "isotp", "tx": "700", "rx": ["708"], "id_format": "standard"},
+        },
+        "sequences": {"other": {"endpoint": "b", "steps": [{"request": "02"}]}},
+        "properties": {
+            "X": {"write": {"endpoint": "a", "steps": [{"request": "01"}, {"call": "other"}]}}
+        },
+    }
+    catalog = {"X": {"datatype": "boolean", "type": "actuator"}}
+    prepared = prepare_write(doc, "X", True, catalog)
+    assert prepared["endpoint"] == "a"
+    assert prepared["steps"] == [{"request": "01"}, {"request": "02", "endpoint": "b"}]
+
+
 def test_prepare_numeric_write():
     from conftest import ROOT
     from vehicle_profile_tools.codec import prepare_write

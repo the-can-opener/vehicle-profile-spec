@@ -59,7 +59,7 @@ Format 2 structure:
 - One root manifest became a package manifest with an ordered document list, composition rules, and `depends`.
 - `operations` were replaced by named `queries` and `actions`.
 - Write steps live inside the write. `write.sequence`, `completion`, and `verify` were removed; a matched `expect` is the acknowledgement.
-- Sequences hold only shared steps and run on the caller's endpoint.
+- A sequence runs on the caller's endpoint unless it names its own.
 - Endpoints are the ECU target, and VSS `ControlUnit` instance names are not addresses.
 - Diagnostics providers are outside the core binding format.
 
@@ -101,7 +101,7 @@ vprofile migrate examples/legacy/nissan-versa -o /tmp/versa-format2 \
 
 DBC query fields become prefix-relative byte/bit decoders, preserving native Motorola/little-endian layout and scaling. Known spelling aliases such as `R/min` to `rpm` and `kph` to `km/h` are normalized without numerical conversion. A DBC value in `km` on a VSS property in `m` is multiplied by 1000, scale and offset together, and that conversion is recorded in the migration notes. Passive bindings with a renamed or converted unit use an inline decoder. Explicit raw enum mappings preserve supported label normalization. Fixed-length VIN and byte/hex queries are supported; byte-array results become uppercase hex strings, recorded in the migration notes.
 
-Unsupported or uncertain inputs stay unmapped: multiplexed DBC declarations, unknown canonical identities, fractional values targeting integer VSS properties, variable-length codecs, generic ASCII trailing-NUL trimming, sequence cycles, steps that switch endpoints, per-step or per-query timeouts, ISO-TP addressing under `--framing raw`, commands without an established VSS target, bit-level `encode` fields, and invalid bus or endpoint declarations. An unmapped report is work to review, not an active capability.
+Unsupported or uncertain inputs stay unmapped: multiplexed DBC declarations, unknown canonical identities, fractional values targeting integer VSS properties, variable-length codecs, generic ASCII trailing-NUL trimming, sequence cycles, inline sends that switch endpoint, per-step or per-query timeouts, ISO-TP addressing under `--framing raw`, commands without an established VSS target, bit-level `encode` fields, and invalid bus or endpoint declarations. An unmapped report is work to review, not an active capability. A sequence that names an endpoint keeps that endpoint.
 
 The [Versa example](../examples/nissan-versa/README.md) is reproduced by `scripts/migrate-versa.py`; `--check` verifies it without editing files. Request/response commands use the declared single-frame conversion, while request-only commands remain raw CAN. No physical vehicle compatibility is claimed.
 

@@ -146,7 +146,7 @@ BO_ 1800 Response: 8 ECU
     assert result["endpoints"]["ecu"]["responder"] == "708"
 
 
-def test_endpoint_switch_and_cycle_are_reported(tmp_path):
+def test_sequence_endpoint_migrates_and_cycle_is_reported(tmp_path):
     import yaml
 
     old = tmp_path / "old"
@@ -167,8 +167,12 @@ def test_endpoint_switch_and_cycle_are_reported(tmp_path):
     report = migrate(old, tmp_path / "new", framing="raw")
     reasons = {r["capability"]: r["reason"] for r in report}
     assert "cycle" in reasons["CYCLE"]
-    assert "changes endpoint" in reasons["SWITCH"]
-    assert not resolve([tmp_path / "new"]).get("actions")
+    result = resolve([tmp_path / "new"])
+    assert "CYCLE" not in result.get("actions", {})
+    assert result["actions"]["SWITCH"]["endpoint"] == "ecu"
+    assert result["actions"]["SWITCH"]["steps"] == [{"call": "switch"}]
+    assert result["sequences"]["switch"] == {"endpoint": "other", "steps": [{"request": "01"}]}
+    assert result["endpoints"]["other"]["tx"] == "701"
 
 
 def _legacy(tmp_path, data, dbc=None):

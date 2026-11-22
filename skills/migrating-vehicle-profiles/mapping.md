@@ -5,7 +5,7 @@
 - The migrator reads version 1 and version 1.1. In 1.1, each command of an entity's `values`, or a flat `ENTITY.command` key, becomes one write case on the entity's VSS actuator. DOORS lock and unlock become the true and false cases of Vehicle.Cabin.IsCentralLockEngaged. on, off, open and close select true or false on a boolean actuator. Any other command must be an allowed value of the actuator, else it stays unmapped. Commands of an entity outside the vocabulary become named actions ENTITY_COMMAND.
 - A 1.1 `encode` becomes an encoded request part `{input: value, type, bytes, endian, scale, offset}`, and min, max and step become write constraints. A vehicle-specific numeric entity becomes an action with an input_schema. Only whole-byte fields convert. Format 2 refuses a target that does not encode to a whole number; the 1.1 runtime rounded it.
 - Byte arrays become uppercase spaced hex. A wildcard remains `*`.
-- ref: sequences.x becomes call: x, with the endpoint owned by the caller.
+- ref: sequences.x becomes call: x. A sequence keeps a declared endpoint; otherwise the caller owns the endpoint.
 - request_id/response_id become tx/rx on a raw CAN endpoint; request-only endpoints omit rx/timeout. response_ids ranges stay `{range: [lo, hi]}`. `extended`, `fd` and `addressing` carry over; addresses become hex bytes.
 - can.buses.N becomes channel canN with its bitrate (integer or auto), data_bitrate and fd; a bus that is used but not declared becomes `{protocol: can, configuration: runtime}`. Every declared bus and endpoint is converted, used or not.
 - Inline send objects receive a generated request-only endpoint on channel canN with any declared fd.

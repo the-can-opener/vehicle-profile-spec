@@ -101,6 +101,7 @@ Step = RequestStep | CallStep | WaitStep
 
 
 class Sequence(Model):
+    endpoint: str | None = None
     steps: list[Step] = Field(min_length=1)
 
 
@@ -140,7 +141,7 @@ class Repeat(Model):
 
 
 class Body(Model):
-    endpoint: str
+    endpoint: str | None = None
     request: Hex | Parts | None = None
     expect: Pattern | None = None
     steps: list[Step] | None = Field(default=None, min_length=1)
@@ -161,6 +162,8 @@ class Body(Model):
             raise ValueError("expect requires request")
         if has_repeat and (self.duration is not None or self.release is not None):
             raise ValueError("DOC_EXCLUSIVE_FORMS: repeat excludes duration and release")
+        if self.endpoint is None and (has_request or has_repeat):
+            raise ValueError("request and repeat require an endpoint")
         return self
 
 

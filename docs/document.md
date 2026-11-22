@@ -121,7 +121,7 @@ One monitor supplies both properties. Unsubscribing one must not stop the other.
 | Shape | Fields | Use |
 |---|---|---|
 | Shorthand | `endpoint`, `request`, optional `expect` | One request |
-| Steps | `endpoint`, `deadline_ms`, `steps` | Session setup or several requests |
+| Steps | `deadline_ms`, `steps`, optional `endpoint` | Session setup or several requests |
 | Repeat | `endpoint`, `repeat`, optional `steps` | One raw CAN frame retransmitted to keep the state |
 | Cases | `cases`, mapping each target value to one of the bodies above | Discrete targets that use different commands |
 
@@ -131,7 +131,7 @@ Optional `constraints` has min, max, and step in canonical units. It MUST narrow
 
 A write succeeds when every `expect` in its steps matches. That match is the vehicle's acknowledgement, and the result is `acknowledged`. A write with no `expect` reports `sent` once the transport has submitted its last request. There is no separate verification or completion field. A response that fails its pattern fails the write. A timeout after transmission is OUTCOME_UNKNOWN, not proof that nothing happened.
 
-`deadline_ms` bounds that transmission. It is the time allowed for the steps, including nested calls and waits. It is not how long the vehicle keeps the commanded state. Each response still waits at most the endpoint `timeout_ms`.
+`deadline_ms` bounds that transmission. It is the time allowed for the steps, including nested calls and waits. It is not how long the vehicle keeps the commanded state. Each response waits at most the `timeout_ms` of the endpoint that sent the request.
 
 How long the state lasts is a separate declaration on the shorthand, the steps body, or one case:
 
@@ -397,16 +397,16 @@ Distinguish extended CAN IDs (`id_format`) from ISO-TP extended addressing (`add
 
 | Step | Behavior |
 |---|---|
-| `request` with `expect` | Send, wait for a response on the endpoint's `rx`, and match it |
+| `request` with `expect` | Send on the resolved endpoint, wait for a response on its `rx`, and match it |
 | `request` without `expect` | Send only; no response wait |
-| `call: <sequence>` | Run a shared sequence's steps in place |
+| `call: <sequence>` | Run that sequence's steps. Its `endpoint`, when set, selects the tx/rx pair |
 | `wait_ms` | Pause |
 
 Transport adapters are outside this standard. Bindings specify acquisition and request/response semantics without prescribing a firmware interface.
 
 ### Sequences
 
-`sequences` hold steps shared by more than one write, query, or action, such as session setup. Steps used in one place stay inline. A sequence has only `steps` and runs on the caller's endpoint. Calls resolve after composition, so an overlay can replace a sequence for a narrower set of vehicles. Cycles and unbounded loops are forbidden. The caller's `deadline_ms` bounds nested calls and waits.
+`sequences` hold steps shared by more than one write, query, or action, such as session setup. Steps used in one place stay inline. A sequence may name `endpoint`. Its requests, and requests in sequences it calls that do not name an endpoint, use that endpoint's `tx` and `rx`. A sequence with no `endpoint` uses the caller's resolved endpoint. A steps write or action may omit `endpoint` when every request resolves through a sequence that names one, so one command can address two CAN tx/rx pairs. Shorthand and `repeat` still name a single endpoint. Calls resolve after composition, so an overlay can replace a sequence for a narrower set of vehicles. Cycles and unbounded loops are forbidden. The caller's `deadline_ms` bounds nested calls and waits on every endpoint those steps use.
 
 ```yaml
 sequences:
@@ -416,9 +416,33 @@ sequences:
         expect: {prefix: "50 81"}
       - request: "10 C0"
         expect: {prefix: "50 C0"}
+
+  abs-session:
+    endpoint: abs
+    steps:
+      - request: "10 03"
+        expect: {prefix: "50 03"}
+
+  bcm-session:
+    endpoint: bcm
+    steps:
+      - request: "10 81"
+        expect: {prefix: "50 81"}
 ```
 
-Preconditions use fresh valid property values. Session-affecting work acquires an endpoint lease; conflicting work waits or reports conflict. Disconnect invalidates session state. Cancellation stops future steps but cannot reverse transmitted vehicle effects. Long-lived keepalive and security access are not core steps and require an explicit adapter contract.
+`body-session` inherits the caller's endpoint. `abs-session` and `bcm-session` each pin one controller. `abs` might be `tx: "7E0"` / `rx: ["7E8"]` and `bcm` `tx: "745"` / `rx: ["765"]`. One action can call both:
+
+```yaml
+actions:
+  PREPARE_NETWORK:
+    description: Open diagnostic sessions on the ABS and body controllers.
+    deadline_ms: 1000
+    steps:
+      - call: abs-session
+      - call: bcm-session
+```
+
+Preconditions use fresh valid property values. Before the first step, the runtime acquires a lease on every endpoint the expanded command uses, in endpoint-name order, and holds those leases until the command finishes or is cancelled. Conflicting work waits or reports conflict. Disconnect invalidates session state. Cancellation stops future steps but cannot reverse transmitted vehicle effects. Long-lived keepalive and security access are not core steps and require an explicit adapter contract.
 
 ## Queries and actions
 
@@ -445,7 +469,7 @@ queries:
 
 ### Actions
 
-An action has `description`, optional `input_schema`, optional `retry` (`never` or `idempotent`, default `never`), and the body of a shorthand or steps write: `endpoint` and `request` with optional `expect`, or `endpoint`, `deadline_ms`, and `steps`. Actions have no `cases`; inputs come through `input_schema`. The result follows write rules: `acknowledged` when every `expect` matches, `sent` when no step expects a response.
+An action has `description`, optional `input_schema`, optional `retry` (`never` or `idempotent`, default `never`), and the body of a shorthand or steps write: `endpoint` and `request` with optional `expect`, or `deadline_ms` and `steps`. The steps form names `endpoint` for requests that do not resolve through a sequence endpoint. Actions have no `cases`; inputs come through `input_schema`. The result follows write rules: `acknowledged` when every `expect` matches, on whichever endpoint received it, and `sent` when no step expects a response.
 
 ```yaml
 actions:

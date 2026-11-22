@@ -151,7 +151,9 @@ def prepare_write(document, path, target, catalog=None):
     """Validate a target and return expanded, encoded steps without transmitting.
 
     This pure helper checks the static command contract, not runtime availability,
-    authorization, response matching or deadlines. duration is information:
+    authorization, response matching or deadlines. A called sequence with its own
+    endpoint addresses that tx/rx pair; those expanded steps include `endpoint`.
+    duration is information:
     a positive number of milliseconds, or latched when the effect stays.
     Absent duration and repeat mean the hold time is unknown.
     """
@@ -177,7 +179,7 @@ def prepare_write(document, path, target, catalog=None):
         body = write
     result: list[dict[str, Any]] = []
 
-    def expand(steps, stack=()):
+    def expand(steps, endpoint_name, stack=()):
         if len(stack) > 64:
             raise ValueError("sequence nesting exceeds 64 calls")
         for step in steps:
@@ -189,23 +191,31 @@ def prepare_write(document, path, target, catalog=None):
                     fail("REF_CYCLE", path, name)
                 if name not in document.get("sequences", {}):
                     fail("REF_UNKNOWN_SEQUENCE", path, name)
-                expand(document["sequences"][name]["steps"], (*stack, name))
+                sequence = document["sequences"][name]
+                expand(sequence["steps"], sequence.get("endpoint", endpoint_name), (*stack, name))
             elif "request" in step:
+                if endpoint_name is None:
+                    raise ValueError("request has no endpoint")
                 payload = encode(step["request"], {"value": target})
-                endpoint = document["endpoints"][body["endpoint"]]
+                endpoint = document["endpoints"][endpoint_name]
                 channel = document.get("channels", {}).get(endpoint.get("channel"), {})
                 limit = frame_limit(channel, endpoint)
                 if limit is not None and len(payload) > limit:
                     raise ValueError(f"raw CAN request exceeds {limit} bytes")
-                result.append({**step, "request": payload.hex(" ").upper()})
+                expanded = {**step, "request": payload.hex(" ").upper()}
+                if endpoint_name != body.get("endpoint"):
+                    expanded["endpoint"] = endpoint_name
+                result.append(expanded)
             else:
                 result.append(dict(step))
 
     if "steps" in body:
-        expand(body["steps"])
+        expand(body["steps"], body.get("endpoint"))
     elif "request" in body:
-        expand([{k: body[k] for k in ("request", "expect") if k in body}])
-    prepared: dict[str, Any] = {"endpoint": body["endpoint"], "steps": result}
+        expand([{k: body[k] for k in ("request", "expect") if k in body}], body.get("endpoint"))
+    prepared: dict[str, Any] = {"steps": result}
+    if "endpoint" in body:
+        prepared["endpoint"] = body["endpoint"]
     for key in ("duration", "release", "repeat"):
         if key in body:
             prepared[key] = body[key]

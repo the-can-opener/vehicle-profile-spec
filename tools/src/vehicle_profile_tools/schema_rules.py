@@ -35,6 +35,10 @@ def augment(name, schema):
                 ]
             },
             {"if": {"required": ["expect"]}, "then": {"required": ["request"]}},
+            {
+                "if": {"anyOf": [{"required": ["request"]}, {"required": ["repeat"]}]},
+                "then": {"required": ["endpoint"]},
+            },
             {"not": {"required": ["duration", "repeat"]}},
             {"not": {"required": ["release", "repeat"]}},
         ]
