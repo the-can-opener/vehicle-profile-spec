@@ -79,7 +79,7 @@ def validate_references(doc, dbcs, catalog):
 
     traversed = 0
 
-    def steps(items, ep, loc, stack=()):
+    def steps(items, ep, loc, stack=(), require=False):
         nonlocal traversed
         if len(stack) > 64:
             fail("DOC_INVALID", loc, "sequence nesting exceeds 64 calls")
@@ -93,8 +93,20 @@ def validate_references(doc, dbcs, catalog):
                     fail("REF_UNKNOWN_SEQUENCE", loc, name)
                 if name in stack:
                     fail("REF_CYCLE", loc, " -> ".join((*stack, name)))
-                steps(sequences[name]["steps"], ep, loc, (*stack, name))
-            elif "request" in step and ep is not None:
+                declared = sequences[name].get("endpoint")
+                if declared is not None:
+                    endpoint(declared, f"sequences.{name}")
+                child = declared if declared is not None else ep
+                steps(
+                    sequences[name]["steps"],
+                    child,
+                    loc,
+                    (*stack, name),
+                    require or child is not None,
+                )
+            elif "request" in step and (ep is not None or require):
+                if ep is None:
+                    fail("DOC_INVALID", loc, "request has no endpoint")
                 endpoint(ep, loc, "expect" in step)
                 request = step["request"]
                 limit = frame_limit(channels[endpoints[ep]["channel"]], endpoints[ep])
@@ -102,7 +114,16 @@ def validate_references(doc, dbcs, catalog):
                     fail("DOC_INVALID", loc, f"raw CAN request exceeds {limit} bytes")
 
     for name, sequence in sequences.items():
-        steps(sequence["steps"], None, f"sequences.{name}", (name,))
+        declared = sequence.get("endpoint")
+        if declared is not None:
+            endpoint(declared, f"sequences.{name}")
+        steps(
+            sequence["steps"],
+            declared,
+            f"sequences.{name}",
+            (name,),
+            declared is not None,
+        )
 
     def check_inputs(request, loc, allowed):
         if isinstance(request, dict):
@@ -138,7 +159,9 @@ def validate_references(doc, dbcs, catalog):
             for key, case in value["cases"].items():
                 body(case, f"{loc}.cases.{key}", allowed)
         else:
-            endpoint(value["endpoint"], loc)
+            caller = value.get("endpoint")
+            if caller is not None:
+                endpoint(caller, loc)
 
             def inputs(items, visited=()):
                 for item in items:
@@ -151,13 +174,14 @@ def validate_references(doc, dbcs, catalog):
 
             if "steps" in value:
                 inputs(value["steps"])
-                steps(value["steps"], value["endpoint"], loc)
+                steps(value["steps"], caller, loc, require=True)
             elif "request" in value:
                 inputs([value])
                 steps(
                     [{k: value[k] for k in ("request", "expect") if k in value}],
-                    value["endpoint"],
+                    caller,
                     loc,
+                    require=True,
                 )
             if "release" in value:
                 action_ref(value["release"]["action"], f"{loc}.release")

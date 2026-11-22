@@ -358,15 +358,16 @@ class Migrator:
                 old = self.legacy.get("sequences", {}).get(name)
                 if old is None:
                     raise ValueError(f"unknown sequence {name}")
-                if old.get("endpoint", ep_name) != ep_name:
-                    raise ValueError(
-                        f"sequence {name} changes endpoint; split into separately invoked actions"
-                    )
-                steps = self.steps(old["steps"], ep_name, (*stack, name))
+                declared = old.get("endpoint")
+                seq_ep_name = declared if declared is not None else ep_name
+                steps = self.steps(old["steps"], seq_ep_name, (*stack, name))
+                entry = {"steps": steps}
+                if declared is not None:
+                    entry["endpoint"] = declared
                 new_name = name
-                if name in self.doc["sequences"] and self.doc["sequences"][name]["steps"] != steps:
+                if name in self.doc["sequences"] and self.doc["sequences"][name] != entry:
                     new_name = name + "--" + ep["protocol"]
-                self.doc["sequences"][new_name] = {"steps": steps}
+                self.doc["sequences"][new_name] = entry
                 converted.append({"call": new_name})
             elif "wait_ms" in item:
                 converted.append({"wait_ms": item["wait_ms"]})

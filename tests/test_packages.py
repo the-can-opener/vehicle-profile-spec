@@ -239,6 +239,80 @@ def test_duration_excludes_repeat(package):
         resolve([package(data)])
 
 
+def test_action_sequences_on_two_endpoints(package):
+    data = base()
+    data["endpoints"]["lamps"] = {
+        "channel": "bus",
+        "protocol": "can",
+        "tx": "358",
+        "id_format": "standard",
+    }
+    data["sequences"] = {
+        "abs-session": {
+            "endpoint": "ecu",
+            "steps": [
+                {
+                    "request": "01 02 03 04 05 06 07 08 09 0A 0B 0C",
+                    "expect": {"prefix": "50"},
+                }
+            ],
+        },
+        "lamp-wake": {"endpoint": "lamps", "steps": [{"call": "lamp-bytes"}]},
+        "lamp-bytes": {"steps": [{"request": "00"}]},
+    }
+    data["actions"] = {
+        "PREPARE_NETWORK": {
+            "description": "Open the diagnostic session and wake the lamp controller.",
+            "deadline_ms": 1000,
+            "steps": [{"call": "abs-session"}, {"call": "lamp-wake"}],
+        }
+    }
+    result = resolve([package(data)])
+    assert "endpoint" not in result["actions"]["PREPARE_NETWORK"]
+    assert result["sequences"]["abs-session"]["endpoint"] == "ecu"
+    assert result["endpoints"]["ecu"]["tx"] == "700"
+    assert result["endpoints"]["ecu"]["rx"] == ["708"]
+    assert result["sequences"]["lamp-wake"]["endpoint"] == "lamps"
+    assert result["endpoints"]["lamps"]["tx"] == "358"
+    assert "rx" not in result["endpoints"]["lamps"]
+    assert "endpoint" not in result["sequences"]["lamp-bytes"]
+
+
+def test_sequence_endpoint_is_the_frame_limit(package):
+    data = base()
+    data["endpoints"]["lamps"] = {
+        "channel": "bus",
+        "protocol": "can",
+        "tx": "358",
+        "id_format": "standard",
+    }
+    data["sequences"] = {
+        "too-long": {
+            "endpoint": "lamps",
+            "steps": [{"request": "01 02 03 04 05 06 07 08 09"}],
+        }
+    }
+    data["actions"] = {
+        "PAIR": {
+            "description": "Nine raw bytes on the lamp controller.",
+            "endpoint": "ecu",
+            "steps": [{"call": "too-long"}],
+        }
+    }
+    with pytest.raises(ProfileError, match="exceeds 8 bytes"):
+        resolve([package(data)])
+
+
+def test_unresolved_request_endpoint(package):
+    data = base()
+    data["actions"] = {"BARE": {"description": "No tx/rx pair.", "steps": [{"request": "01"}]}}
+    with pytest.raises(ProfileError, match="request has no endpoint"):
+        resolve([package(data)])
+    data["actions"] = {"BARE": {"description": "Shorthand needs an endpoint.", "request": "01"}}
+    with pytest.raises(ProfileError, match="request and repeat require an endpoint"):
+        resolve([package(data, folder="shorthand")])
+
+
 def test_latched_duration(package):
     data = base()
     data["properties"] = {
