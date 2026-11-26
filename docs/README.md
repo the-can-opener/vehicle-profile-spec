@@ -21,6 +21,8 @@ Format 2 describes vehicle capabilities in YAML or JSON packages. COVESA VSS sup
 - [DBC assets](dbc.md) — native signal layout and the boundary between DBC data and binding behavior.
 - [Composition and overlays](composition.md) — ordered whole-entry replacement, deletion, applicability and conflicts.
 - [Extensions and configuration](extensions.md) — versioned requirements, provider support and non-VSS configuration.
+- [Compressed telemetry protobuf](telemetry.md) — optional protobuf wire encoding for vehicle and host GNSS/IMU observations, framed `.vts` streams, and `.zip` archives.
+- [VBO export](vbo-export.md) — valid-signals-only conversion from compressed telemetry to Racelogic `.vbo`.
 
 ## Authoring and validation
 

@@ -499,7 +499,7 @@ Writes and actions default to no retries. A timeout after transmission can mean 
 
 ## Runtime results and discovery
 
-Recommended SDK verbs: describe, get, read, subscribe, unsubscribe, set, invoke, cancel. `read` takes a property path or a query name, `set` takes an actuator path and target, and `invoke` takes an action name and input. This standard defines behavior, not a required language-specific method name or wire protocol.
+Recommended SDK verbs: describe, get, read, subscribe, unsubscribe, set, invoke, cancel. `read` takes a property path or a query name, `set` takes an actuator path and target, and `invoke` takes an action name and input. This standard defines behavior, not a required language-specific method name or wire protocol. For an optional compact protobuf wire encoding of these observations, see [compressed telemetry protobuf](telemetry.md).
 
 An observation includes path or query name, value when valid, unit when applicable, source, acquisition kind, receivedAt, optional observedAt, clockDomain, sequence, and quality: valid/stale/invalid/unavailable. UTC timestamps use RFC3339; deadlines and ordering use monotonic clocks. Properties have isolated state per connected vehicle.
 

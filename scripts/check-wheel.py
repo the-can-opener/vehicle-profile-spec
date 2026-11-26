@@ -19,6 +19,7 @@ with zipfile.ZipFile(sys.argv[1]) as wheel:
         ("catalog/vss-6.1.json", "vss-6.1.json"),
         ("docs/vocabulary.yaml", "vocabulary.yaml"),
         ("catalog/LICENSE", "VSS-LICENSE"),
+        ("proto/vehicle_telemetry.proto", "vehicle_telemetry.proto"),
     ]:
         assert wheel.read(f"vehicle_profile_tools/data/{packaged}") == (root / source).read_bytes()
     with tempfile.TemporaryDirectory() as temp:
@@ -30,10 +31,15 @@ sys.path.insert(0, sys.argv[1])
 import vehicle_profile_tools
 from vehicle_profile_tools.catalog import load_catalog
 from vehicle_profile_tools.skills import list_skills, install
+from vehicle_profile_tools.telemetry import Dictionary, host_sensor_signals
+from vehicle_profile_tools.vbo import convert_to_vbo
 assert Path(vehicle_profile_tools.__file__).is_relative_to(sys.argv[1])
 assert len(load_catalog()) > 1300
 assert len(list_skills()) == 3
 assert len(install(directory=Path(sys.argv[1]) / 'installed')) == 3
+assert len(host_sensor_signals()) > 10
+assert callable(convert_to_vbo)
+assert Dictionary is not None
 """
         subprocess.run([sys.executable, "-c", code, temp], cwd=temp, check=True)
 print("Wheel resources and isolated imports verified")

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add an optional compressed protobuf telemetry schema (`proto/vehicle_telemetry.proto`, `vehicle.telemetry.v1`) with dictionary fingerprinting, delta-of-delta timestamps, quantized integer deltas, RLE runs, optional emit-on-change heartbeat, crash-safe `.vts` framing (raw or per-frame `zlib`), and whole-session `.zip` archives.
+- Add `vprofile telemetry` (`pack`, `unpack`, `inspect`, `to-vbo`) and a valid-signals-only GPS-anchored ZOH converter to Racelogic `.vbo` (`docs/telemetry.md`, `docs/vbo-export.md`).
+
 ## 2.4.0
 
 - A sequence may name `endpoint`. Requests in that sequence use its CAN tx/rx pair; nested calls inherit it until a callee names another. A steps write or action may omit `endpoint` when every request resolves this way, so one action can address two controllers. The runtime leases every endpoint the command uses, in name order, for the whole command.

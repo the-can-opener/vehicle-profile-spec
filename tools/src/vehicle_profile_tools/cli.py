@@ -10,6 +10,16 @@ from .errors import ProfileError
 from .exporters import EXPORTERS
 from .resolve import resolve as resolve_packages
 from .strict import StrictOption
+from .telemetry import (
+    build_dictionary,
+    infer_dictionary,
+    inspect_telemetry,
+    read_observations_jsonl,
+    read_telemetry,
+    write_observations_jsonl,
+    write_telemetry,
+)
+from .vbo import export_telemetry_to_vbo
 
 
 @click.group()
@@ -201,6 +211,116 @@ def skills_install(agent, project, directory):
     from .skills import install
 
     click.echo("\n".join(install(agent, project, directory)))
+
+
+@cli.group()
+def telemetry():
+    """Pack, unpack, inspect, and export compressed protobuf telemetry."""
+
+
+@telemetry.command("pack")
+@click.argument("input_jsonl", type=click.Path(exists=True, dir_okay=False))
+@click.option("-o", "--output", required=True, type=click.Path(dir_okay=False))
+@click.option("--vehicle-id", default="vehicle", show_default=True)
+@click.option("--package", "package_path", type=click.Path(exists=True))
+@click.option(
+    "--host-sensors", is_flag=True, help="Include standard host GNSS/IMU VSS 6.1 signals."
+)
+@click.option(
+    "--compression",
+    type=click.Choice(["raw", "zlib", "zip"]),
+    default="zlib",
+    show_default=True,
+)
+@click.option("--batch-size", type=int, default=1000, show_default=True)
+@click.option(
+    "--emit-on-change",
+    is_flag=True,
+    help="Suppress consecutive unchanged samples while respecting max_age_ms heartbeats.",
+)
+@click.option(
+    "--downgrade-invalid",
+    is_flag=True,
+    help="Encode out-of-range or off-grid samples as INVALID with no value instead of failing.",
+)
+def telemetry_pack(
+    input_jsonl,
+    output,
+    vehicle_id,
+    package_path,
+    host_sensors,
+    compression,
+    batch_size,
+    emit_on_change,
+    downgrade_invalid,
+):
+    observations = read_observations_jsonl(input_jsonl)
+    if package_path:
+        document = resolve_packages([package_path])
+        dictionary = build_dictionary(
+            vehicle_id,
+            document=document,
+            include_host_sensors=host_sensors,
+        )
+    else:
+        dictionary = infer_dictionary(vehicle_id, observations)
+    written = write_telemetry(
+        output,
+        dictionary,
+        observations,
+        compression=compression,
+        batch_size=batch_size,
+        downgrade_invalid=downgrade_invalid,
+        emit_on_change=emit_on_change,
+    )
+    emit(
+        json.dumps(
+            {
+                "output": str(output),
+                "compression": compression,
+                "bytes": written,
+                "signals": len(dictionary.signals),
+                "observations": len(observations),
+                "dictionary_fingerprint": dictionary.fingerprint.hex(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
+@telemetry.command("unpack")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False))
+@click.option("-o", "--output", type=click.Path(dir_okay=False))
+def telemetry_unpack(input_path, output):
+    _, observations = read_telemetry(input_path)
+    if output:
+        write_observations_jsonl(output, observations)
+        click.echo(f"Wrote {len(observations)} observations to {output}")
+    else:
+        emit("".join(json.dumps(obs.to_dict(), sort_keys=True) + "\n" for obs in observations))
+
+
+@telemetry.command("inspect")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False))
+def telemetry_inspect(input_path):
+    emit(json.dumps(inspect_telemetry(input_path), indent=2, sort_keys=True) + "\n")
+
+
+@telemetry.command("to-vbo")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False))
+@click.option("-o", "--output", required=True, type=click.Path(dir_okay=False))
+@click.option("--gps-tolerance-ms", type=int, default=5, show_default=True)
+@click.option("--max-age-ms", type=int, default=None)
+def telemetry_to_vbo(input_path, output, gps_tolerance_ms, max_age_ms):
+    report = export_telemetry_to_vbo(
+        input_path,
+        output,
+        gps_pair_tolerance_ms=gps_tolerance_ms,
+        max_age_ms=max_age_ms,
+    )
+    emit(json.dumps({"output": str(output), **report.to_dict()}, indent=2, sort_keys=True) + "\n")
 
 
 def main():

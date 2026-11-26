@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package vehicle.telemetry.v1;
+
+// A telemetry stream is a sequence of Frame messages.
+// The first frame is a Dictionary; subsequent frames are Batch messages
+// referencing that Dictionary by its SHA-256 fingerprint.
+message Frame {
+  oneof body {
+    Dictionary dictionary = 1;
+    Batch batch = 2;
+  }
+
+  // Reserved for future bidirectional control messages (SetActuator,
+  // InvokeAction, Cancel, Execution) defined in a companion control schema.
+  reserved 10 to 19;
+}
+
+enum NameKind {
+  NAME_KIND_UNSPECIFIED = 0;
+  NAME_KIND_PROPERTY = 1;
+  NAME_KIND_QUERY = 2;
+}
+
+enum ValueKind {
+  VALUE_KIND_UNSPECIFIED = 0;
+  VALUE_KIND_BOOL = 1;
+  VALUE_KIND_INT = 2;
+  VALUE_KIND_UINT = 3;
+  VALUE_KIND_FLOAT = 4;
+  VALUE_KIND_STRING = 5;
+}
+
+enum Acquisition {
+  ACQUISITION_UNSPECIFIED = 0;
+  ACQUISITION_SIGNAL = 1;
+  ACQUISITION_QUERY = 2;
+  ACQUISITION_STATIC = 3;
+  ACQUISITION_HOST = 4;
+}
+
+enum Quality {
+  QUALITY_UNSPECIFIED = 0;
+  QUALITY_VALID = 1;
+  QUALITY_STALE = 2;
+  QUALITY_INVALID = 3;
+  QUALITY_UNAVAILABLE = 4;
+}
+
+// Fixed-point affine grid: canonical_value = origin + step_index * scale.
+message Quantization {
+  double origin = 1;
+  double scale = 2;
+}
+
+// Numeric domain bounds in canonical units (narrowing catalog limits).
+message Constraints {
+  optional double min = 1;
+  optional double max = 2;
+  optional double step = 3;
+}
+
+message SignalSpec {
+  uint32 id = 1;
+  string name = 2;          // Canonical VSS path or named query.
+  NameKind name_kind = 3;
+  string unit = 4;          // Canonical catalog or query unit; empty if unitless.
+  ValueKind value_kind = 5;
+  string source = 6;        // e.g. "can0:60D", "query:engine", "host.gnss", "host.imu".
+  Acquisition acquisition = 7;
+  string clock_domain = 8;  // e.g. "host-utc", "gnss-utc", "ecu-monotonic".
+  Quantization quantization = 9;
+  Constraints constraints = 10;
+  uint32 max_age_ms = 11;   // Freshness bound in ms; 0 means unspecified.
+}
+
+message Dictionary {
+  bytes fingerprint = 1;    // SHA-256 over canonical dictionary fields.
+  string vehicle_id = 2;
+  repeated SignalSpec signals = 3;
+  string profile_id = 4;
+  string profile_version = 5;
+  string vss_release = 6;
+}
+
+message Batch {
+  bytes dictionary_fingerprint = 1;
+  int64 base_received_ms = 2; // Unix epoch milliseconds for batch timestamp origin.
+  repeated Series series = 3;
+}
+
+message QualityRuns {
+  repeated Quality values = 1;
+  repeated uint32 run_lengths = 2;
+}
+
+// Delta-encoded integer steps on SignalSpec.quantization (or unit grid for INT/UINT).
+// If run_lengths is empty, each delta corresponds to one sample (len == M - 1).
+// If run_lengths is non-empty, values are run-length encoded (sum(run_lengths) == M).
+message QuantizedDeltas {
+  sint64 first_step = 1;
+  repeated sint64 step_deltas = 2;
+  repeated uint32 run_lengths = 3;
+}
+
+// Unquantized IEEE-754 double values with optional run-length encoding.
+message RawDoubles {
+  repeated double values = 1;
+  repeated uint32 run_lengths = 2;
+}
+
+// Alternating boolean runs starting at initial_value (sum(run_lengths) == M).
+message BoolRuns {
+  bool initial_value = 1;
+  repeated uint32 run_lengths = 2;
+}
+
+// String values with optional run-length encoding.
+message StringRuns {
+  repeated string values = 1;
+  repeated uint32 run_lengths = 2;
+}
+
+// Columnar sample block for one signal within a Batch.
+message Series {
+  uint32 signal_id = 1;
+  uint64 start_sequence = 2;
+  uint32 sample_count = 3;
+
+  // Delta-of-delta receipt timestamps in ms relative to Batch.base_received_ms:
+  //   t[0] = base_received_ms + first_received_delta_ms
+  //   t[1] = t[0] + first_interval_ms
+  //   t[i] = t[i-1] + (t[i-1] - t[i-2]) + received_dod_ms[i-2]
+  int64 first_received_delta_ms = 4;
+  sint64 first_interval_ms = 5;
+  repeated sint64 received_dod_ms = 6;
+
+  // Optional measurement timestamps encoded as (observed_ms - received_ms).
+  // When has_observed_at is false, measurement time is absent and MUST NOT be
+  // fabricated from receipt time.
+  // When has_observed_at is true and observed_present_bits is empty, every
+  // sample carries an observed_offset_ms entry. Otherwise bit i (LSB-first)
+  // marks whether sample i carries an observed_offset_ms entry.
+  bool has_observed_at = 7;
+  repeated sint64 observed_offset_ms = 8;
+  bytes observed_present_bits = 9;
+
+  // Optional per-step sequence increments when samples are non-contiguous
+  // (for example after emit-on-change filtering). When empty, sequence[i] =
+  // start_sequence + i.
+  repeated uint32 sequence_deltas = 10;
+
+  oneof quality_encoding {
+    Quality uniform_quality = 11;
+    QualityRuns quality_runs = 12;
+  }
+
+  // Optional bitset (LSB-first) indicating which samples carry a value.
+  // When empty, VALID and STALE samples carry values, and INVALID/UNAVAILABLE
+  // samples carry no value.
+  bytes value_present_bits = 18;
+
+  oneof value_encoding {
+    QuantizedDeltas quantized = 13;
+    RawDoubles raw_doubles = 14;
+    BoolRuns bool_runs = 15;
+    StringRuns string_runs = 16;
+  }
+}
